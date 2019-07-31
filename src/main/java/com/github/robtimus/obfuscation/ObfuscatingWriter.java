@@ -36,13 +36,12 @@ public abstract class ObfuscatingWriter extends Writer {
      */
     protected final void checkClosed() throws IOException {
         if (closed) {
-            throw new IOException(Messages.ObfuscatingWriter.alreadyClosed.get());
+            throw new IOException(Messages.stream.closed.get());
         }
     }
 
     /**
-     * Flushes the stream. This implementation only {@link #checkClosed() checks whether or not this stream is already closed}. Sub classes can add
-     * additional behaviour if needed.
+     * Flushes the stream. This implementation only calls {@link #checkClosed()}. Sub classes can add additional behaviour if needed.
      *
      * @throws IOException If an I/O error occurs.
      */

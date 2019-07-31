@@ -17,7 +17,7 @@
 
 package com.github.robtimus.obfuscation;
 
-import static com.github.robtimus.obfuscation.ObfuscatorUtils.checkBounds;
+import static com.github.robtimus.obfuscation.ObfuscatorUtils.checkStartAndEnd;
 import static com.github.robtimus.obfuscation.ObfuscatorUtils.indexOf;
 import static com.github.robtimus.obfuscation.ObfuscatorUtils.skipLeadingWhitespace;
 import static com.github.robtimus.obfuscation.ObfuscatorUtils.skipTrailingWhitespace;
@@ -34,7 +34,7 @@ final class CommaSeparatedObfuscator extends PropertyObfuscator {
 
     @Override
     public CharSequence obfuscateText(CharSequence s, int start, int end) {
-        checkBounds(s, start, end);
+        checkStartAndEnd(s, start, end);
         StringBuilder sb = new StringBuilder(end - start);
         try {
             obfuscateText(s, start, end, sb);
@@ -47,7 +47,7 @@ final class CommaSeparatedObfuscator extends PropertyObfuscator {
 
     @Override
     public void obfuscateText(CharSequence s, int start, int end, Appendable destination) throws IOException {
-        checkBounds(s, start, end);
+        checkStartAndEnd(s, start, end);
 
         int index;
         while ((index = indexOf(s, ',', start, end)) != -1) {

@@ -113,7 +113,7 @@ public class RequestParameterObfuscatorTest {
                 w.close();
                 w.write('x');
             });
-            assertEquals(Messages.ObfuscatingWriter.alreadyClosed.get(), exception.getMessage());
+            assertEquals(Messages.stream.closed.get(), exception.getMessage());
 
             StringBuilder sb = new StringBuilder();
             try (Writer w = obfuscator.streamTo(sb)) {
@@ -129,7 +129,7 @@ public class RequestParameterObfuscatorTest {
                 w.close();
                 w.write('x');
             });
-            assertEquals(Messages.ObfuscatingWriter.alreadyClosed.get(), exception.getMessage());
+            assertEquals(Messages.stream.closed.get(), exception.getMessage());
         }
 
         @Test
@@ -152,7 +152,7 @@ public class RequestParameterObfuscatorTest {
                 w.close();
                 w.write(input.toCharArray());
             });
-            assertEquals(Messages.ObfuscatingWriter.alreadyClosed.get(), exception.getMessage());
+            assertEquals(Messages.stream.closed.get(), exception.getMessage());
 
             StringBuilder sb = new StringBuilder();
             try (Writer w = obfuscator.streamTo(sb)) {
@@ -166,7 +166,7 @@ public class RequestParameterObfuscatorTest {
                 w.close();
                 w.write(input.toCharArray());
             });
-            assertEquals(Messages.ObfuscatingWriter.alreadyClosed.get(), exception.getMessage());
+            assertEquals(Messages.stream.closed.get(), exception.getMessage());
         }
 
         @Test
@@ -200,7 +200,7 @@ public class RequestParameterObfuscatorTest {
                 w.close();
                 w.write(input.toCharArray(), 0, 1);
             });
-            assertEquals(Messages.ObfuscatingWriter.alreadyClosed.get(), exception.getMessage());
+            assertEquals(Messages.stream.closed.get(), exception.getMessage());
 
             StringBuilder sb = new StringBuilder();
             try (Writer w = obfuscator.streamTo(sb)) {
@@ -225,7 +225,7 @@ public class RequestParameterObfuscatorTest {
                 w.close();
                 w.write(input.toCharArray(), 0, 1);
             });
-            assertEquals(Messages.ObfuscatingWriter.alreadyClosed.get(), exception.getMessage());
+            assertEquals(Messages.stream.closed.get(), exception.getMessage());
         }
 
         @Test
@@ -248,7 +248,7 @@ public class RequestParameterObfuscatorTest {
                 w.close();
                 w.write(input);
             });
-            assertEquals(Messages.ObfuscatingWriter.alreadyClosed.get(), exception.getMessage());
+            assertEquals(Messages.stream.closed.get(), exception.getMessage());
 
             StringBuilder sb = new StringBuilder();
             try (Writer w = obfuscator.streamTo(sb)) {
@@ -262,7 +262,7 @@ public class RequestParameterObfuscatorTest {
                 w.close();
                 w.write(input);
             });
-            assertEquals(Messages.ObfuscatingWriter.alreadyClosed.get(), exception.getMessage());
+            assertEquals(Messages.stream.closed.get(), exception.getMessage());
         }
 
         @Test
@@ -290,7 +290,7 @@ public class RequestParameterObfuscatorTest {
                 w.close();
                 w.write(input, 0, 1);
             });
-            assertEquals(Messages.ObfuscatingWriter.alreadyClosed.get(), exception.getMessage());
+            assertEquals(Messages.stream.closed.get(), exception.getMessage());
 
             StringBuilder sb = new StringBuilder();
             try (Writer w = obfuscator.streamTo(sb)) {
@@ -309,7 +309,7 @@ public class RequestParameterObfuscatorTest {
                 w.close();
                 w.write(input, 0, 1);
             });
-            assertEquals(Messages.ObfuscatingWriter.alreadyClosed.get(), exception.getMessage());
+            assertEquals(Messages.stream.closed.get(), exception.getMessage());
         }
 
         @Test
@@ -332,7 +332,7 @@ public class RequestParameterObfuscatorTest {
                 w.close();
                 w.append(input);
             });
-            assertEquals(Messages.ObfuscatingWriter.alreadyClosed.get(), exception.getMessage());
+            assertEquals(Messages.stream.closed.get(), exception.getMessage());
 
             StringBuilder sb = new StringBuilder();
             try (Writer w = obfuscator.streamTo(sb)) {
@@ -346,7 +346,7 @@ public class RequestParameterObfuscatorTest {
                 w.close();
                 w.append(input);
             });
-            assertEquals(Messages.ObfuscatingWriter.alreadyClosed.get(), exception.getMessage());
+            assertEquals(Messages.stream.closed.get(), exception.getMessage());
         }
 
         @Test
@@ -379,7 +379,7 @@ public class RequestParameterObfuscatorTest {
                 w.close();
                 w.append(input, 0, 1);
             });
-            assertEquals(Messages.ObfuscatingWriter.alreadyClosed.get(), exception.getMessage());
+            assertEquals(Messages.stream.closed.get(), exception.getMessage());
 
             StringBuilder sb = new StringBuilder();
             try (Writer w = obfuscator.streamTo(sb)) {
@@ -403,7 +403,7 @@ public class RequestParameterObfuscatorTest {
                 w.close();
                 w.append(input, 0, 1);
             });
-            assertEquals(Messages.ObfuscatingWriter.alreadyClosed.get(), exception.getMessage());
+            assertEquals(Messages.stream.closed.get(), exception.getMessage());
         }
 
         @Test
@@ -428,7 +428,7 @@ public class RequestParameterObfuscatorTest {
                 w.close();
                 w.append('x');
             });
-            assertEquals(Messages.ObfuscatingWriter.alreadyClosed.get(), exception.getMessage());
+            assertEquals(Messages.stream.closed.get(), exception.getMessage());
 
             StringBuilder sb = new StringBuilder();
             try (Writer w = obfuscator.streamTo(sb)) {
@@ -444,7 +444,7 @@ public class RequestParameterObfuscatorTest {
                 w.close();
                 w.append('x');
             });
-            assertEquals(Messages.ObfuscatingWriter.alreadyClosed.get(), exception.getMessage());
+            assertEquals(Messages.stream.closed.get(), exception.getMessage());
         }
 
         @Test
@@ -462,7 +462,7 @@ public class RequestParameterObfuscatorTest {
                 w.close();
                 w.flush();
             });
-            assertEquals(Messages.ObfuscatingWriter.alreadyClosed.get(), exception.getMessage());
+            assertEquals(Messages.stream.closed.get(), exception.getMessage());
 
             StringBuilder sb = new StringBuilder();
             try (Writer w = obfuscator.streamTo(sb)) {
@@ -475,7 +475,7 @@ public class RequestParameterObfuscatorTest {
                 w.close();
                 w.flush();
             });
-            assertEquals(Messages.ObfuscatingWriter.alreadyClosed.get(), exception.getMessage());
+            assertEquals(Messages.stream.closed.get(), exception.getMessage());
         }
     }
 

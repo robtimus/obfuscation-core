@@ -17,8 +17,8 @@
 
 package com.github.robtimus.obfuscation;
 
-import static com.github.robtimus.obfuscation.ObfuscatorUtils.checkBounds;
 import static com.github.robtimus.obfuscation.ObfuscatorUtils.checkIndex;
+import static com.github.robtimus.obfuscation.ObfuscatorUtils.checkStartAndEnd;
 import java.util.Arrays;
 
 final class RepeatingCharSequence implements CharSequence {
@@ -56,7 +56,7 @@ final class RepeatingCharSequence implements CharSequence {
 
     @Override
     public CharSequence subSequence(int start, int end) {
-        checkBounds(this, start, end);
+        checkStartAndEnd(this, start, end);
         int newCount = end - start;
         return newCount == count ? this : new RepeatingCharSequence(c, newCount);
     }

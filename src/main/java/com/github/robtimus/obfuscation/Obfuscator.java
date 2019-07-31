@@ -17,7 +17,8 @@
 
 package com.github.robtimus.obfuscation;
 
-import static com.github.robtimus.obfuscation.ObfuscatorUtils.checkBounds;
+import static com.github.robtimus.obfuscation.ObfuscatorUtils.checkOffsetAndLength;
+import static com.github.robtimus.obfuscation.ObfuscatorUtils.checkStartAndEnd;
 import static com.github.robtimus.obfuscation.ObfuscatorUtils.readAll;
 import static com.github.robtimus.obfuscation.ObfuscatorUtils.repeatChar;
 import java.io.Closeable;
@@ -180,13 +181,13 @@ public abstract class Obfuscator {
 
         @Override
         public CharSequence obfuscateText(CharSequence s, int start, int end) {
-            checkBounds(s, start, end);
+            checkStartAndEnd(s, start, end);
             return repeatChar(maskChar, end - start);
         }
 
         @Override
         public void obfuscateText(CharSequence s, int start, int end, Appendable destination) throws IOException {
-            checkBounds(s, start, end);
+            checkStartAndEnd(s, start, end);
             ObfuscatorUtils.append(maskChar, end - start, destination);
         }
 
@@ -204,7 +205,7 @@ public abstract class Obfuscator {
 
             int len;
             while ((len = input.read(buffer)) != -1) {
-                csq.reset(0, len);
+                csq.resetWithStartAndEnd(0, len);
                 destination.append(csq);
             }
         }
@@ -233,14 +234,14 @@ public abstract class Obfuscator {
                 @Override
                 public void write(char[] cbuf, int off, int len) throws IOException {
                     checkClosed();
-                    checkBounds(cbuf, off, off + len);
+                    checkOffsetAndLength(cbuf, off, len);
                     ObfuscatorUtils.append(maskChar, len, destination);
                 }
 
                 @Override
                 public void write(String str, int off, int len) throws IOException {
                     checkClosed();
-                    checkBounds(str, off, off + len);
+                    checkOffsetAndLength(str, off, len);
                     ObfuscatorUtils.append(maskChar, len, destination);
                 }
 
@@ -256,7 +257,7 @@ public abstract class Obfuscator {
                 public Writer append(CharSequence csq, int start, int end) throws IOException {
                     checkClosed();
                     CharSequence cs = csq == null ? "null" : csq; //$NON-NLS-1$
-                    checkBounds(cs, start, end);
+                    checkStartAndEnd(cs, start, end);
                     ObfuscatorUtils.append(maskChar, end - start, destination);
                     return this;
                 }
@@ -318,13 +319,13 @@ public abstract class Obfuscator {
 
         @Override
         public CharSequence obfuscateText(CharSequence s, int start, int end) {
-            checkBounds(s, start, end);
+            checkStartAndEnd(s, start, end);
             return start == 0 && end == s.length() ? s : s.subSequence(start, end);
         }
 
         @Override
         public void obfuscateText(CharSequence s, int start, int end, Appendable destination) throws IOException {
-            checkBounds(s, start, end);
+            checkStartAndEnd(s, start, end);
             if (s instanceof String && destination instanceof Writer) {
                 ((Writer) destination).write((String) s, start, end - start);
             } else {
@@ -344,7 +345,7 @@ public abstract class Obfuscator {
 
             int len;
             while ((len = input.read(buffer)) != -1) {
-                csq.reset(0, len);
+                csq.resetWithStartAndEnd(0, len);
                 destination.append(csq);
             }
         }
@@ -487,13 +488,13 @@ public abstract class Obfuscator {
 
         @Override
         public CharSequence obfuscateText(CharSequence s, int start, int end) {
-            checkBounds(s, start, end);
+            checkStartAndEnd(s, start, end);
             return fixedMask;
         }
 
         @Override
         public void obfuscateText(CharSequence s, int start, int end, Appendable destination) throws IOException {
-            checkBounds(s, start, end);
+            checkStartAndEnd(s, start, end);
             destination.append(fixedMask);
         }
 
@@ -525,7 +526,7 @@ public abstract class Obfuscator {
                 @Override
                 public void write(char[] cbuf, int off, int len) throws IOException {
                     checkClosed();
-                    checkBounds(cbuf, off, off + len);
+                    checkOffsetAndLength(cbuf, off, len);
                     // discard
                 }
 
@@ -538,7 +539,7 @@ public abstract class Obfuscator {
                 @Override
                 public void write(String str, int off, int len) throws IOException {
                     checkClosed();
-                    checkBounds(str, off, off + len);
+                    checkOffsetAndLength(str, off, len);
                     // discard
                 }
 
@@ -553,7 +554,7 @@ public abstract class Obfuscator {
                 public Writer append(CharSequence csq, int start, int end) throws IOException {
                     checkClosed();
                     CharSequence cs = csq == null ? "null" : csq; //$NON-NLS-1$
-                    checkBounds(cs, start, end);
+                    checkStartAndEnd(cs, start, end);
                     // discard
                     return this;
                 }
@@ -617,13 +618,13 @@ public abstract class Obfuscator {
 
         @Override
         public CharSequence obfuscateText(CharSequence s, int start, int end) {
-            checkBounds(s, start, end);
+            checkStartAndEnd(s, start, end);
             return fixedValue;
         }
 
         @Override
         public void obfuscateText(CharSequence s, int start, int end, Appendable destination) throws IOException {
-            checkBounds(s, start, end);
+            checkStartAndEnd(s, start, end);
             destination.append(fixedValue);
         }
 
@@ -655,7 +656,7 @@ public abstract class Obfuscator {
                 @Override
                 public void write(char[] cbuf, int off, int len) throws IOException {
                     checkClosed();
-                    checkBounds(cbuf, off, off + len);
+                    checkOffsetAndLength(cbuf, off, len);
                     // discard
                 }
 
@@ -668,7 +669,7 @@ public abstract class Obfuscator {
                 @Override
                 public void write(String str, int off, int len) throws IOException {
                     checkClosed();
-                    checkBounds(str, off, off + len);
+                    checkOffsetAndLength(str, off, len);
                     // discard
                 }
 
@@ -683,7 +684,7 @@ public abstract class Obfuscator {
                 public Writer append(CharSequence csq, int start, int end) throws IOException {
                     checkClosed();
                     CharSequence cs = csq == null ? "null" : csq; //$NON-NLS-1$
-                    checkBounds(cs, start, end);
+                    checkStartAndEnd(cs, start, end);
                     // discard
                     return this;
                 }
@@ -902,7 +903,7 @@ public abstract class Obfuscator {
 
         @Override
         public CharSequence obfuscateText(CharSequence s, int start, int end) {
-            checkBounds(s, start, end);
+            checkStartAndEnd(s, start, end);
 
             int length = end - start;
             char[] array = new char[length];
@@ -927,7 +928,7 @@ public abstract class Obfuscator {
 
         @Override
         public void obfuscateText(CharSequence s, int start, int end, Appendable destination) throws IOException {
-            checkBounds(s, start, end);
+            checkStartAndEnd(s, start, end);
 
             int length = end - start;
 

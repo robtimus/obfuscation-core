@@ -17,6 +17,8 @@
 
 package com.github.robtimus.obfuscation;
 
+import java.io.Closeable;
+import java.io.Flushable;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
@@ -101,53 +103,40 @@ public final class ObfuscatorUtils {
         return fromIndex;
     }
 
-    // bounds checking
+    // index checking
 
     /**
-     * Checks whether or not an index is valid for a {@code CharSequence}.
+     * Checks whether or not an index is valid for a character array.
      *
-     * @param s The {@code CharSequence} to check for.
+     * @param array The array to check for.
      * @param index The index to check.
-     * @throws IndexOutOfBoundsException If the given index is invalid for the given {@code CharSequence}.
+     * @throws NullPointerException If the given array is {@code null}.
+     * @throws IndexOutOfBoundsException If the given index is negative or exceeds the given array's length.
      */
-    public static void checkIndex(CharSequence s, int index) {
-        if (index < 0) {
-            throw new IndexOutOfBoundsException(index + " < 0"); //$NON-NLS-1$
-        }
-        if (index >= s.length()) {
-            throw new IndexOutOfBoundsException(index + " > " + s.length()); //$NON-NLS-1$
+    public static void checkIndex(char[] array, int index) {
+        if (index < 0 || index >= array.length) {
+            throw new IndexOutOfBoundsException(Messages.charSequence.invalidIndex.get(array.length, index));
         }
     }
 
     /**
-     * Checks whether or not a start and end index are valid for a {@code CharSequence}.
-     * <p>
-     * For validating an offset and length instead of a start and end index, use {@code checkBounds(s, offset, offset + length)}.
+     * Checks whether or not an offset and length are valid for a character array.
      *
-     * @param s The {@code CharSequence} to check for.
-     * @param start The start index to check, inclusive.
-     * @param end The end index to check, exclusive.
-     * @throws NullPointerException If the given {@code CharSequence} is {@code null}.
-     * @throws IndexOutOfBoundsException If the given start index is negative,
-     *                                       the given end index is larger than the given {@code CharSequennce}'s length,
-     *                                       or the given start index is larger than the given end index.
+     * @param array The array to check for.
+     * @param offset The offset to check, inclusive.
+     * @param length The length to check.
+     * @throws NullPointerException If the given array is {@code null}.
+     * @throws IndexOutOfBoundsException If the given offset is negative, the given length is negative,
+     *                                       or the given offset and length exceed the given array's length.
      */
-    public static void checkBounds(CharSequence s, int start, int end) {
-        if (start < 0) {
-            throw new IndexOutOfBoundsException(start + " < 0"); //$NON-NLS-1$
-        }
-        if (end > s.length()) {
-            throw new IndexOutOfBoundsException(end + " > " + s.length()); //$NON-NLS-1$
-        }
-        if (start > end) {
-            throw new IndexOutOfBoundsException(start + " > " + end); //$NON-NLS-1$
+    public static void checkOffsetAndLength(char[] array, int offset, int length) {
+        if (offset < 0 || length < 0 || offset + length > array.length) {
+            throw new ArrayIndexOutOfBoundsException(Messages.array.invalidOffsetOrLength.get(array.length, offset, length));
         }
     }
 
     /**
      * Checks whether or not a start and end index are valid for a character array.
-     * <p>
-     * For validating an offset and length instead of a start and end index, use {@code checkBounds(array, offset, offset + length)}.
      *
      * @param array The array to check for.
      * @param start The start index to check, inclusive.
@@ -157,15 +146,56 @@ public final class ObfuscatorUtils {
      *                                       the given end index is larger than the given array's length,
      *                                       or the given start index is larger than the given end index.
      */
-    public static void checkBounds(char[] array, int start, int end) {
-        if (start < 0) {
-            throw new IndexOutOfBoundsException(start + " < 0"); //$NON-NLS-1$
+    public static void checkStartAndEnd(char[] array, int start, int end) {
+        if (start < 0 || end > array.length || start > end) {
+            throw new ArrayIndexOutOfBoundsException(Messages.array.invalidStartOrEnd.get(array.length, start, end));
         }
-        if (end > array.length) {
-            throw new IndexOutOfBoundsException(end + " > " + array.length); //$NON-NLS-1$
+    }
+
+    /**
+     * Checks whether or not an index is valid for a {@code CharSequence}.
+     *
+     * @param s The {@code CharSequence} to check for.
+     * @param index The index to check.
+     * @throws NullPointerException If the given {@code CharSequence} is {@code null}.
+     * @throws IndexOutOfBoundsException If the given index is negative or exceeds the given {@code CharSequence}'s length.
+     */
+    public static void checkIndex(CharSequence s, int index) {
+        if (index < 0 || index >= s.length()) {
+            throw new IndexOutOfBoundsException(Messages.charSequence.invalidIndex.get(s.length(), index));
         }
-        if (start > end) {
-            throw new IndexOutOfBoundsException(start + " > " + end); //$NON-NLS-1$
+    }
+
+    /**
+     * Checks whether or not an offset and length are valid for a {@code CharSequence}.
+     *
+     * @param sequence The {@code CharSequence} to check for.
+     * @param offset The offset to check, inclusive.
+     * @param length The length to check.
+     * @throws NullPointerException If the given {@code CharSequence} is {@code null}.
+     * @throws IndexOutOfBoundsException If the given offset is negative, the given length is negative,
+     *                                       or the given offset and length exceed the given {@code CharSequence}'s length.
+     */
+    public static void checkOffsetAndLength(CharSequence sequence, int offset, int length) {
+        if (offset < 0 || length < 0 || offset + length > sequence.length()) {
+            throw new ArrayIndexOutOfBoundsException(Messages.array.invalidOffsetOrLength.get(sequence.length(), offset, length));
+        }
+    }
+
+    /**
+     * Checks whether or not a start and end index are valid for a {@code CharSequence}.
+     *
+     * @param sequence The {@code CharSequence} to check for.
+     * @param start The start index to check, inclusive.
+     * @param end The end index to check, exclusive.
+     * @throws NullPointerException If the given {@code CharSequence} is {@code null}.
+     * @throws IndexOutOfBoundsException If the given start index is negative,
+     *                                       the given end index is larger than the given {@code CharSequence}'s length,
+     *                                       or the given start index is larger than the given end index.
+     */
+    public static void checkStartAndEnd(CharSequence sequence, int start, int end) {
+        if (start < 0 || end > sequence.length() || start > end) {
+            throw new ArrayIndexOutOfBoundsException(Messages.array.invalidStartOrEnd.get(sequence.length(), start, end));
         }
     }
 
@@ -196,6 +226,68 @@ public final class ObfuscatorUtils {
             throw new IllegalArgumentException(count + " < 0"); //$NON-NLS-1$
         }
         return RepeatingCharSequence.valueOf(c, count);
+    }
+
+    // Reader / Writer
+
+    /**
+     * Returns a {@code Reader} for a {@code CharSequence}.
+     *
+     * @param s The {@code CharSequence} to return a {@code Reader} for.
+     * @return A {@code Reader} for the given {@code CharSequence}.
+     */
+    public static Reader reader(CharSequence s) {
+        return new CharSequenceReader(s, 0, s.length());
+    }
+
+    /**
+     * Returns a {@code Reader} for a portion of a {@code CharSequence}.
+     *
+     * @param s The {@code CharSequence} to return a {@code Reader} for.
+     * @param start The start index of the portion, inclusive.
+     * @param end The end index of the portion, inclusive.
+     * @return A {@code Reader} for the given portion of the given {@code CharSequence}.
+     * @throws IndexOutOfBoundsException If the given start index is negative,
+     *                                       the given end index is larger than the given {@code CharSequence}'s length,
+     *                                       or the given start index is larger than the given end index.
+     */
+    public static Reader reader(CharSequence s, int start, int end) {
+        checkStartAndEnd(s, start, end);
+        return new CharSequenceReader(s, start, end);
+    }
+
+    /**
+     * Returns an {@code Appendable} as a {@code Writer}. If the given {@code Appendable} is a {@code Writer}, it is returned unmodified.
+     * Otherwise, a wrapper is returned that will delegate all calls to the wrapped {@code Appendable}. This includes {@link Writer#flush() flush()}
+     * if the wrapped {@code Appendable} implements {@link Flushable}, and {@link Writer#close() close()} if the wrapped {@code Appendable} implements
+     * {@link Closeable} or {@link AutoCloseable}.
+     * <p>
+     * Note that the behaviour of closing a {@code Writer} wrapper depends on the wrapped {@code Appendable}. If it does not support closing,
+     * or if it still allows text to be appended after closing, then the closed {@code AppendableWriter} allows text to be appended after closing.
+     * If it does not allow text to be appended after closing, then neither will the closed {@code Writer} wrapper.
+     *
+     * @param appendable The {@code Appendable} to return a {@code Writer} for.
+     * @return The given {@code Appendable} itself if it's already a {@code Writer}, otherwise a wrapper around the given {@code Appendable}.
+     * @throws NullPointerException If the given {@code Appendable} is {@code null}.
+     */
+    public static Writer writer(Appendable appendable) {
+        Objects.requireNonNull(appendable);
+        return appendable instanceof Writer ? (Writer) appendable : new AppendableWriter(appendable);
+    }
+
+    /**
+     * Returns a {@code Reader} that transparently appends all text read from another {@code Reader} to an {@code Appendable}.
+     * If the returned {@code Reader} is closed, the given {@code Reader} will be closed as well. The {@code Appendable} will not be closed though.
+     *
+     * @param input The {@code Reader} to read from.
+     * @param appendable The {@code Appendable} to write to.
+     * @return A {@code Reader} that transparently appends all text read from the given {@code Reader} to the given {@code Appendable}.
+     * @throws NullPointerException If the given {@code Reader} or {@code Appendable} is {@code null}.
+     */
+    public static Reader copyTo(Reader input, Appendable appendable) {
+        Objects.requireNonNull(input);
+        Objects.requireNonNull(appendable);
+        return new CopyingReader(input, appendable);
     }
 
     // I/O
@@ -274,6 +366,10 @@ public final class ObfuscatorUtils {
     public static void append(char[] array, Appendable destination) throws IOException {
         if (destination instanceof Writer) {
             ((Writer) destination).write(array);
+        } else if (destination instanceof StringBuilder) {
+            ((StringBuilder) destination).append(array);
+        } else if (destination instanceof StringBuffer) {
+            ((StringBuffer) destination).append(array);
         } else {
             destination.append(wrapArray(array));
         }
@@ -293,10 +389,14 @@ public final class ObfuscatorUtils {
      * @throws IOException If an I/O error occurs.
      */
     public static void append(char[] array, int start, int end, Appendable destination) throws IOException {
-        checkBounds(array, start, end);
+        checkStartAndEnd(array, start, end);
         if (start < end) {
             if (destination instanceof Writer) {
                 ((Writer) destination).write(array, start, end - start);
+            } else if (destination instanceof StringBuilder) {
+                ((StringBuilder) destination).append(array, start, end - start);
+            } else if (destination instanceof StringBuffer) {
+                ((StringBuffer) destination).append(array, start, end - start);
             } else {
                 destination.append(wrapArray(array), start, end);
             }
@@ -313,11 +413,7 @@ public final class ObfuscatorUtils {
      */
     public static void append(String str, Appendable destination) throws IOException {
         Objects.requireNonNull(str);
-        if (destination instanceof Writer) {
-            ((Writer) destination).write(str);
-        } else {
-            destination.append(str);
-        }
+        destination.append(str);
     }
 
     /**
@@ -334,7 +430,7 @@ public final class ObfuscatorUtils {
      * @throws IOException If an I/O error occurs.
      */
     public static void append(String str, int start, int end, Appendable destination) throws IOException {
-        checkBounds(str, start, end);
+        checkStartAndEnd(str, start, end);
         if (start < end) {
             if (destination instanceof Writer) {
                 ((Writer) destination).write(str, start, end - start);

@@ -17,22 +17,26 @@
 
 package com.github.robtimus.obfuscation;
 
-import static com.github.robtimus.obfuscation.ObfuscatorUtils.checkBounds;
 import static com.github.robtimus.obfuscation.ObfuscatorUtils.checkIndex;
+import static com.github.robtimus.obfuscation.ObfuscatorUtils.checkOffsetAndLength;
+import static com.github.robtimus.obfuscation.ObfuscatorUtils.checkStartAndEnd;
 
 final class CharArraySequence implements CharSequence {
 
-    private final char[] array;
+    private char[] array;
 
     private int start;
+
     private int end;
 
     private String string;
 
+    CharArraySequence() {
+        this(null, 0, 0);
+    }
+
     CharArraySequence(char[] array) {
-        this.array = array;
-        start = 0;
-        end = array.length;
+        this(array, 0, array.length);
     }
 
     private CharArraySequence(char[] array, int start, int end) {
@@ -41,9 +45,18 @@ final class CharArraySequence implements CharSequence {
         this.end = end;
     }
 
-    void reset(int s, int e) {
-        start = s;
-        end = e;
+    void resetWithStartAndEnd(int newStart, int newEnd) {
+        checkStartAndEnd(array, newStart, newEnd);
+        start = newStart;
+        end = newEnd;
+        string = null;
+    }
+
+    void resetWithOffsetAndLength(char[] newArray, int offset, int length) {
+        checkOffsetAndLength(newArray, offset, length);
+        array = newArray;
+        start = offset;
+        end = offset + length;
         string = null;
     }
 
@@ -59,9 +72,9 @@ final class CharArraySequence implements CharSequence {
     }
 
     @Override
-    public CharArraySequence subSequence(int s, int e) {
-        checkBounds(this, s, e);
-        return s == 0 && e == length() ? this : new CharArraySequence(array, start + s, start + e);
+    public CharArraySequence subSequence(int subStart, int subEnd) {
+        checkStartAndEnd(this, subStart, subEnd);
+        return subStart == 0 && subEnd == length() ? this : new CharArraySequence(array, start + subStart, start + subEnd);
     }
 
     @Override
