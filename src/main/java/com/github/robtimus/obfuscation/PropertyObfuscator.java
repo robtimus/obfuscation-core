@@ -244,6 +244,19 @@ public abstract class PropertyObfuscator extends Obfuscator {
         }
 
         /**
+         * This method allows the application of a function to this builder.
+         * <p>
+         * Any exception thrown by the function will be propagated to the caller.
+         *
+         * @param <R> The type of the result of the function.
+         * @param f The function to apply.
+         * @return The result of applying the function to this builder.
+         */
+        public <R> R transform(Function<? super Builder, ? extends R> f) {
+            return f.apply(this);
+        }
+
+        /**
          * Creates a new {@code PropertyObfuscator} with the properties and obfuscators added to this builder.
          *
          * @return The created {@code PropertyObfuscator}.

@@ -28,6 +28,7 @@ import java.io.Reader;
 import java.io.Writer;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -849,6 +850,19 @@ public abstract class Obfuscator {
             atLeastFromEnd(0);
             withMaskChar(DEFAULT_MASK_CHAR);
             return this;
+        }
+
+        /**
+         * This method allows the application of a function to this builder.
+         * <p>
+         * Any exception thrown by the function will be propagated to the caller.
+         *
+         * @param <R> The type of the result of the function.
+         * @param f The function to apply.
+         * @return The result of applying the function to this builder.
+         */
+        public <R> R transform(Function<? super PortionBuilder, ? extends R> f) {
+            return f.apply(this);
         }
 
         /**
