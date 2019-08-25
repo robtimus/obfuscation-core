@@ -26,6 +26,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -40,6 +44,7 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import com.github.robtimus.obfuscation.Obfuscator.PortionBuilder;
 
 @SuppressWarnings({ "javadoc", "nls" })
 public class ObfuscatorTest {
@@ -497,6 +502,19 @@ public class ObfuscatorTest {
         @DisplayName("negative AtLeastFromEnd")
         public void testNegativeAtLeastFromEnd() {
             assertThrows(IllegalArgumentException.class, () -> portion().atLeastFromEnd(-1));
+        }
+
+        @Test
+        @DisplayName("transform")
+        public void testTransform() {
+            PortionBuilder builder = portion();
+            @SuppressWarnings("unchecked")
+            Function<PortionBuilder, String> f = mock(Function.class);
+            when(f.apply(builder)).thenReturn("result");
+
+            assertEquals("result", builder.transform(f));
+            verify(f).apply(builder);
+            verifyNoMoreInteractions(f);
         }
     }
 

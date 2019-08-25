@@ -29,7 +29,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 import java.util.Collections;
+import java.util.function.Function;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Nested;
@@ -102,6 +107,19 @@ public class PropertyObfuscatorTest {
         public void testConstructor() {
             PropertyObfuscator obfuscator = new Builder(new TestPropertyFactory()).build();
             assertThat(obfuscator, instanceOf(TestObfuscator.class));
+        }
+
+        @Test
+        @DisplayName("transform")
+        public void testTransform() {
+            Builder builder = new Builder(new TestPropertyFactory());
+            @SuppressWarnings("unchecked")
+            Function<Builder, String> f = mock(Function.class);
+            when(f.apply(builder)).thenReturn("result");
+
+            assertEquals("result", builder.transform(f));
+            verify(f).apply(builder);
+            verifyNoMoreInteractions(f);
         }
     }
 }
