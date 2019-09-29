@@ -22,13 +22,10 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
-import java.util.ServiceLoader;
-import java.util.Set;
+import java.util.TreeMap;
 import java.util.function.Function;
-import java.util.function.Predicate;
 
 /**
  * An obfuscator that obfuscates certain properties in {@link CharSequence CharSequences} or the contents of {@link Reader Readers}.
@@ -37,8 +34,6 @@ import java.util.function.Predicate;
  */
 public abstract class PropertyObfuscator extends Obfuscator {
 
-    private static final ServiceLoader<PropertyObfuscatorFactory> FACTORY_LOADER = ServiceLoader.load(PropertyObfuscatorFactory.class);
-
     private final Map<String, Obfuscator> obfuscators;
 
     /**
@@ -46,8 +41,12 @@ public abstract class PropertyObfuscator extends Obfuscator {
      *
      * @param builder The builder that is used to create this obfuscator.
      */
-    protected PropertyObfuscator(Builder builder) {
-        this.obfuscators = Collections.unmodifiableMap(new HashMap<>(builder.obfuscators));
+    protected PropertyObfuscator(AbstractBuilder<?> builder) {
+        Map<String, Obfuscator> obfuscatorMap = builder.caseInsensitivePropertyNames
+                ? new TreeMap<>(String.CASE_INSENSITIVE_ORDER)
+                : new HashMap<>(builder.obfuscators.size());
+        obfuscatorMap.putAll(builder.obfuscators);
+        obfuscators = Collections.unmodifiableMap(obfuscatorMap);
     }
 
     /**
@@ -134,99 +133,45 @@ public abstract class PropertyObfuscator extends Obfuscator {
      *         {@code key=value}.
      */
     public static Builder commaSeparated() {
-        return new Builder(b -> new CommaSeparatedObfuscator(b));
+        return new Builder(CommaSeparatedObfuscator::new);
     }
 
     /**
-     * Returns a builder that will create obfuscators using a specific factory.
+     * Returns a builder that will create obfuscators using a specific factory function.
+     * This method can be used to create obfuscators where the default builder is sufficient.
      *
-     * @param factory The factory to use for creating obfuscators.
-     * @return A builder that will use the given factory to create obfuscators.
-     * @throws NullPointerException If the given factory is {@code null}.
+     * @param factory The factory function to use for converting the returned builder into an obfuscator.
+     * @return A builder that will use the given factory function to create obfuscators.
+     * @throws NullPointerException If the given factory function is {@code null}.
      */
-    public static Builder withFactory(PropertyObfuscatorFactory factory) {
+    public static Builder withFactory(Function<? super Builder, ? extends PropertyObfuscator> factory) {
         Objects.requireNonNull(factory);
-        return new Builder(factory::createPropertyObfuscator);
+        return new Builder(factory);
     }
 
     /**
-     * Returns a builder that will create obfuscators of a specific type. The available types are returned by {@link #availableTypes()}, and are
-     * determined by the available {@link PropertyObfuscatorFactory} instances that are configured using the {@link ServiceLoader} mechanism.
-     *
-     * @param type The type of obfuscator to create.
-     * @return A builder that will create obfuscators of the given type.
-     * @throws IllegalArgumentException If no obfuscator can be found for the given type.
-     * @see PropertyObfuscatorFactory#type()
-     */
-    public static Builder ofType(String type) {
-        PropertyObfuscatorFactory factory = findFactory(f -> f.type().equals(type));
-        if (factory == null) {
-            throw new IllegalArgumentException(Messages.PropertyObfuscator.invalidType.get(type));
-        }
-        return new Builder(factory::createPropertyObfuscator);
-    }
-
-    private static PropertyObfuscatorFactory findFactory(Predicate<PropertyObfuscatorFactory> predicate) {
-        synchronized (FACTORY_LOADER) {
-            for (PropertyObfuscatorFactory factory : FACTORY_LOADER) {
-                if (predicate.test(factory)) {
-                    return factory;
-                }
-            }
-            return null;
-        }
-    }
-
-    /**
-     * Returns the available types that can be used with {@link #ofType(String)}.
-     *
-     * @return The available types; never {@code null} but possibly empty.
-     */
-    public static Set<String> availableTypes() {
-        Set<String> types = new HashSet<>();
-        synchronized (FACTORY_LOADER) {
-            for (PropertyObfuscatorFactory factory : FACTORY_LOADER) {
-                types.add(factory.type());
-            }
-        }
-        return types;
-    }
-
-    /**
-     * Reloads the available types that can be used with {@link #ofType(String)}.
-     * <p>
-     * This method is intended for use in situations in which new providers can be installed into a running Java virtual machine.
-     */
-    public static void reloadTypes() {
-        synchronized (FACTORY_LOADER) {
-            FACTORY_LOADER.reload();
-        }
-    }
-
-    /**
-     * A builder for {@link PropertyObfuscator PropertyObfuscators}.
+     * The base class for builders for {@link PropertyObfuscator PropertyObfuscators}.
      *
      * @author Rob Spoor
+     * @param <B> The builder type. Sub classes should use themselves as builder type.
      */
-    public static class Builder {
+    public abstract static class AbstractBuilder<B extends AbstractBuilder<B>> {
 
-        private final Function<Builder, PropertyObfuscator> constructor;
         private final Map<String, Obfuscator> obfuscators;
 
-        private Builder(Function<Builder, PropertyObfuscator> constructor) {
-            this.constructor = Objects.requireNonNull(constructor);
-            obfuscators = new HashMap<>();
-        }
+        private boolean caseInsensitivePropertyNames;
 
         /**
-         * Creates a new builder that will use a specific {@code PropertyObfuscatorFactory} to create {@link PropertyObfuscator PropertyObfuscators}.
-         * This constructor allows sub classes to be created that can add additional properties.
-         *
-         * @param factory The factory to use.
+         * Creates a new builder.
          */
-        protected Builder(PropertyObfuscatorFactory factory) {
-            this.constructor = factory::createPropertyObfuscator;
+        protected AbstractBuilder() {
             obfuscators = new HashMap<>();
+            caseInsensitivePropertyNames = false;
+        }
+
+        @SuppressWarnings("unchecked")
+        private B thisObject() {
+            return (B) this;
         }
 
         /**
@@ -236,11 +181,27 @@ public abstract class PropertyObfuscator extends Obfuscator {
          * @param obfuscator The obfuscator to use for obfuscating the property.
          * @return This object.
          */
-        public Builder withProperty(String property, Obfuscator obfuscator) {
+        public B withProperty(String property, Obfuscator obfuscator) {
             Objects.requireNonNull(property);
             Objects.requireNonNull(obfuscator);
             obfuscators.put(property, obfuscator);
-            return this;
+            return thisObject();
+        }
+
+        /**
+         * Sets whether or not the case in property names should be ignored when looking up obfuscators. The default is {@code false}.
+         * <p>
+         * Note: it's undefined which obfuscator will be used if the case should be ignored and two obfuscators are added for two properties that are
+         * equal ignoring the case.
+         *
+         * @param caseInsensitivePropertyNames {@code true} to ignore case, or {@code false} otherwise.
+         * @return This object.
+         * @see PropertyObfuscator#getObfuscator(String)
+         * @see PropertyObfuscator#getNonNullObfuscator(String)
+         */
+        public B withCaseInsensitivePropertyNames(boolean caseInsensitivePropertyNames) {
+            this.caseInsensitivePropertyNames = caseInsensitivePropertyNames;
+            return thisObject();
         }
 
         /**
@@ -252,8 +213,8 @@ public abstract class PropertyObfuscator extends Obfuscator {
          * @param f The function to apply.
          * @return The result of applying the function to this builder.
          */
-        public <R> R transform(Function<? super Builder, ? extends R> f) {
-            return f.apply(this);
+        public <R> R transform(Function<? super B, ? extends R> f) {
+            return f.apply(thisObject());
         }
 
         /**
@@ -261,9 +222,25 @@ public abstract class PropertyObfuscator extends Obfuscator {
          *
          * @return The created {@code PropertyObfuscator}.
          */
+        public abstract PropertyObfuscator build();
+    }
+
+    /**
+     * A builder for {@link PropertyObfuscator PropertyObfuscators}.
+     *
+     * @author Rob Spoor
+     */
+    public static final class Builder extends AbstractBuilder<Builder> {
+
+        private final Function<? super Builder, ? extends PropertyObfuscator> factory;
+
+        private Builder(Function<? super Builder, ? extends PropertyObfuscator> factory) {
+            this.factory = Objects.requireNonNull(factory);
+        }
+
+        @Override
         public PropertyObfuscator build() {
-            PropertyObfuscator obfuscator = constructor.apply(this);
-            return Objects.requireNonNull(obfuscator);
+            return Objects.requireNonNull(factory.apply(this));
         }
     }
 }

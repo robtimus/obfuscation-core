@@ -19,83 +19,85 @@ package com.github.robtimus.obfuscation;
 
 import static com.github.robtimus.obfuscation.Obfuscator.all;
 import static com.github.robtimus.obfuscation.Obfuscator.none;
-import static com.github.robtimus.obfuscation.PropertyObfuscator.availableTypes;
-import static com.github.robtimus.obfuscation.PropertyObfuscator.ofType;
-import static com.github.robtimus.obfuscation.PropertyObfuscator.reloadTypes;
 import static com.github.robtimus.obfuscation.PropertyObfuscator.withFactory;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-import java.util.Collections;
 import java.util.function.Function;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestFactory;
 import com.github.robtimus.obfuscation.PropertyObfuscator.Builder;
-import com.github.robtimus.obfuscation.TestPropertyFactory.TestObfuscator;
 
 @SuppressWarnings({ "javadoc", "nls" })
 public class PropertyObfuscatorTest {
 
-    private static final String INVALID_TYPE = "invalid";
-
-    @Test
+    @Nested
     @DisplayName("getObfuscator()")
-    public void testGetObfuscator() {
-        PropertyObfuscator obfuscator = withFactory(new TestPropertyFactory())
-                .withProperty("test", all())
-                .build();
-        assertEquals(all(), obfuscator.getObfuscator("test"));
-        assertNull(obfuscator.getObfuscator("other"));
+    public class GetObfuscator {
+
+        @Test
+        @DisplayName("case sensitive")
+        public void testCaseSensitive() {
+            PropertyObfuscator obfuscator = withFactory(TestObfuscator::new)
+                    .withProperty("test", all())
+                    .build();
+            assertEquals(all(), obfuscator.getObfuscator("test"));
+            assertNull(obfuscator.getObfuscator("TEST"));
+            assertNull(obfuscator.getObfuscator("other"));
+        }
+
+        @Test
+        @DisplayName("case insensitive")
+        public void testCaseInsensitive() {
+            PropertyObfuscator obfuscator = withFactory(TestObfuscator::new)
+                    .withProperty("test", all())
+                    .withCaseInsensitivePropertyNames(true)
+                    .build();
+            assertEquals(all(), obfuscator.getObfuscator("test"));
+            assertEquals(all(), obfuscator.getObfuscator("TEST"));
+            assertNull(obfuscator.getObfuscator("other"));
+        }
     }
 
-    @Test
+    @Nested
     @DisplayName("getNonNullObfuscator()")
-    public void testGetNonNullObfuscator() {
-        PropertyObfuscator obfuscator = withFactory(new TestPropertyFactory())
-                .withProperty("test", all())
-                .build();
-        assertEquals(all(), obfuscator.getNonNullObfuscator("test"));
-        assertEquals(none(), obfuscator.getNonNullObfuscator("other"));
+    public class GetNonNullObfuscator {
+
+        @Test
+        @DisplayName("case sensitive")
+        public void testCaseSensitive() {
+            PropertyObfuscator obfuscator = withFactory(TestObfuscator::new)
+                    .withProperty("test", all())
+                    .build();
+            assertEquals(all(), obfuscator.getNonNullObfuscator("test"));
+            assertEquals(none(), obfuscator.getNonNullObfuscator("TEST"));
+            assertEquals(none(), obfuscator.getNonNullObfuscator("other"));
+        }
+
+        @Test
+        @DisplayName("case insensitive")
+        public void testCaseInsensitive() {
+            PropertyObfuscator obfuscator = withFactory(TestObfuscator::new)
+                    .withProperty("test", all())
+                    .withCaseInsensitivePropertyNames(true)
+                    .build();
+            assertEquals(all(), obfuscator.getNonNullObfuscator("test"));
+            assertEquals(all(), obfuscator.getNonNullObfuscator("TEST"));
+            assertEquals(none(), obfuscator.getNonNullObfuscator("other"));
+        }
     }
 
     @Test
     @DisplayName("withFactory")
     public void testWithFactory() {
-        PropertyObfuscator obfuscator = withFactory(new TestPropertyFactory()).build();
+        PropertyObfuscator obfuscator = withFactory(TestObfuscator::new).build();
         assertThat(obfuscator, instanceOf(TestObfuscator.class));
-    }
-
-    @TestFactory
-    @DisplayName("ofType(String)")
-    public DynamicTest[] testOfType() {
-        reloadTypes();
-        return new DynamicTest[] {
-                dynamicTest(TestPropertyFactory.TYPE, () -> {
-                    PropertyObfuscator obfuscator = ofType(TestPropertyFactory.TYPE).build();
-                    assertThat(obfuscator, instanceOf(TestObfuscator.class));
-                }),
-                dynamicTest(INVALID_TYPE, () -> {
-                    IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> ofType(INVALID_TYPE));
-                    assertEquals(Messages.PropertyObfuscator.invalidType.get(INVALID_TYPE), exception.getMessage());
-                }),
-        };
-    }
-
-    @Test
-    @DisplayName("availableTypes()")
-    public void testAvailableTypes() {
-        reloadTypes();
-        assertEquals(Collections.singleton(TestPropertyFactory.TYPE), availableTypes());
     }
 
     @Nested
@@ -103,16 +105,9 @@ public class PropertyObfuscatorTest {
     public class BuilderTest {
 
         @Test
-        @DisplayName("Builder(PropertyObfuscatorFactory")
-        public void testConstructor() {
-            PropertyObfuscator obfuscator = new Builder(new TestPropertyFactory()).build();
-            assertThat(obfuscator, instanceOf(TestObfuscator.class));
-        }
-
-        @Test
         @DisplayName("transform")
         public void testTransform() {
-            Builder builder = new Builder(new TestPropertyFactory());
+            Builder builder = withFactory(TestObfuscator::new);
             @SuppressWarnings("unchecked")
             Function<Builder, String> f = mock(Function.class);
             when(f.apply(builder)).thenReturn("result");

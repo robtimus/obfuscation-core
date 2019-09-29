@@ -18,10 +18,14 @@
 package com.github.robtimus.obfuscation;
 
 import static com.github.robtimus.obfuscation.ObfuscatorUtils.append;
+import static com.github.robtimus.obfuscation.ObfuscatorUtils.checkIndex;
 import static com.github.robtimus.obfuscation.ObfuscatorUtils.checkOffsetAndLength;
 import static com.github.robtimus.obfuscation.ObfuscatorUtils.checkStartAndEnd;
+import static com.github.robtimus.obfuscation.ObfuscatorUtils.copyAll;
 import static com.github.robtimus.obfuscation.ObfuscatorUtils.copyTo;
+import static com.github.robtimus.obfuscation.ObfuscatorUtils.discardAll;
 import static com.github.robtimus.obfuscation.ObfuscatorUtils.indexOf;
+import static com.github.robtimus.obfuscation.ObfuscatorUtils.readAll;
 import static com.github.robtimus.obfuscation.ObfuscatorUtils.reader;
 import static com.github.robtimus.obfuscation.ObfuscatorUtils.repeatChar;
 import static com.github.robtimus.obfuscation.ObfuscatorUtils.skipLeadingWhitespace;
@@ -70,7 +74,9 @@ public class ObfuscatorUtilsTest {
     Arguments[] testIndexOf() {
         return new Arguments[] {
                 arguments("hello", 'l', -1, 10, 2),
+                arguments("hello", 'l', 10, -1, -1),
                 arguments("hello", 'l', 0, 5, 2),
+                arguments("hello", 'l', 5, 0, -1),
                 arguments("hello", 'l', 3, 5, 3),
                 arguments("hello", 'l', 0, 2, -1),
                 arguments("hello", 'x', -1, 10, -1),
@@ -113,6 +119,16 @@ public class ObfuscatorUtilsTest {
     }
 
     @Test
+    @DisplayName("checkIndex(char[], int)")
+    public void testCheckIndexForCharArray() {
+        char[] array = "hello world".toCharArray();
+        checkIndex(array, 0);
+        assertThrows(IndexOutOfBoundsException.class, () -> checkIndex(array, -1));
+        assertThrows(IndexOutOfBoundsException.class, () -> checkIndex(array, array.length));
+        checkIndex(array, array.length - 1);
+    }
+
+    @Test
     @DisplayName("checkOffsetAndLength(char[], int, int)")
     public void testCheckOffsetAndLengthForCharArray() {
         char[] array = "hello world".toCharArray();
@@ -134,6 +150,16 @@ public class ObfuscatorUtilsTest {
         assertThrows(IndexOutOfBoundsException.class, () -> checkStartAndEnd(array, 0, array.length + 1));
         checkStartAndEnd(array, 1, array.length);
         assertThrows(IndexOutOfBoundsException.class, () -> checkStartAndEnd(array, 1, 0));
+    }
+
+    @Test
+    @DisplayName("checkIndex(CharSequence, int)")
+    public void testCheckIndexForCharSequence() {
+        CharSequence sequence = "hello world";
+        checkIndex(sequence, 0);
+        assertThrows(IndexOutOfBoundsException.class, () -> checkIndex(sequence, -1));
+        assertThrows(IndexOutOfBoundsException.class, () -> checkIndex(sequence, sequence.length()));
+        checkIndex(sequence, sequence.length() - 1);
     }
 
     @Test
@@ -213,6 +239,35 @@ public class ObfuscatorUtilsTest {
         assertThat(copyTo(new StringReader(""), new StringBuilder()), instanceOf(CopyingReader.class));
         assertThrows(NullPointerException.class, () -> copyTo(null, new StringBuilder()));
         assertThrows(NullPointerException.class, () -> copyTo(new StringReader(""), null));
+    }
+
+    @Test
+    @DisplayName("readAll()")
+    public void testReadAll() throws IOException {
+        String string = "hello world";
+        StringReader input = new StringReader(string);
+        assertEquals(string, readAll(input).toString());
+        assertEquals(-1, input.read());
+    }
+
+    @Test
+    @DisplayName("discardAll()")
+    public void testDiscardAll() throws IOException {
+        String string = "hello world";
+        StringReader input = new StringReader(string);
+        discardAll(input);
+        assertEquals(-1, input.read());
+    }
+
+    @Test
+    @DisplayName("copyAll()")
+    public void testCopyAll() throws IOException {
+        String string = "hello world";
+        StringReader input = new StringReader(string);
+        StringBuilder destination = new StringBuilder();
+        copyAll(input, destination);
+        assertEquals(string, destination.toString());
+        assertEquals(-1, input.read());
     }
 
     @Test

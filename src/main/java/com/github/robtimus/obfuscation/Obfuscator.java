@@ -123,7 +123,7 @@ public abstract class Obfuscator {
      * @throws NullPointerException If the given value is {@code null}.
      */
     public final <T> Obfuscated<T> obfuscateObject(T value) {
-        return new Obfuscated<>(value, this, value::toString);
+        return Obfuscated.of(value, this, value::toString);
     }
 
     /**
@@ -136,7 +136,7 @@ public abstract class Obfuscator {
      * @throws NullPointerException If the given value is or supplier is {@code null}.
      */
     public final <T> Obfuscated<T> obfuscateObject(T value, Supplier<? extends CharSequence> representation) {
-        return new Obfuscated<>(value, this, representation);
+        return Obfuscated.of(value, this, representation);
     }
 
     /**
@@ -751,6 +751,7 @@ public abstract class Obfuscator {
         private int keepAtEnd;
         private int atLeastFromStart;
         private int atLeastFromEnd;
+        private int fixedLength;
         private char maskChar;
 
         private PortionBuilder() {
@@ -820,6 +821,18 @@ public abstract class Obfuscator {
         }
 
         /**
+         * Sets or removes the fixed number of {@link #withMaskChar(char) mask characters} to use for obfuscating.
+         *
+         * @param fixedLength The fixed number of mask characters, or a negative value to use the actual length of the input.
+         *                        The default is {@code -1}.
+         * @return This builder.
+         */
+        public PortionBuilder withFixedLength(int fixedLength) {
+            this.fixedLength = Math.max(-1, fixedLength);
+            return this;
+        }
+
+        /**
          * Sets the char that created obfuscators use for obfuscating.
          *
          * @param maskChar The mask character. The default is {@code *}.
@@ -834,11 +847,12 @@ public abstract class Obfuscator {
          * Specifies that the default settings should be restored.
          * Calling this method is similar to calling the following:
          * <ul>
-         * <li>{@link #keepAtStart(int) keepAtStart(0)}
-         * <li>{@link #keepAtEnd(int) keepAtEnd(0)}
-         * <li>{@link #atLeastFromStart(int) atLeastFromStart(0)}
-         * <li>{@link #atLeastFromEnd(int) atLeastFromEnd(0)}
-         * <li>{@link #withMaskChar(char) withMaskChar('*')}
+         * <li>{@link #keepAtStart(int) keepAtStart(0)}</li>
+         * <li>{@link #keepAtEnd(int) keepAtEnd(0)}</li>
+         * <li>{@link #atLeastFromStart(int) atLeastFromStart(0)}</li>
+         * <li>{@link #atLeastFromEnd(int) atLeastFromEnd(0)}</li>
+         * <li>{@link #withFixedLength(int) withFixedLength(-1)}</li>
+         * <li>{@link #withMaskChar(char) withMaskChar('*')}</li>
          * </ul>
          *
          * @return This builder.
@@ -848,6 +862,7 @@ public abstract class Obfuscator {
             keepAtEnd(0);
             atLeastFromStart(0);
             atLeastFromEnd(0);
+            withFixedLength(-1);
             withMaskChar(DEFAULT_MASK_CHAR);
             return this;
         }
@@ -881,6 +896,7 @@ public abstract class Obfuscator {
         private final int keepAtEnd;
         private final int atLeastFromStart;
         private final int atLeastFromEnd;
+        private final int fixedLength;
         private final char maskChar;
 
         private PortionObfuscator(PortionBuilder builder) {
@@ -888,6 +904,7 @@ public abstract class Obfuscator {
             this.keepAtEnd = builder.keepAtEnd;
             this.atLeastFromStart = builder.atLeastFromStart;
             this.atLeastFromEnd = builder.atLeastFromEnd;
+            this.fixedLength = builder.fixedLength;
             this.maskChar = builder.maskChar;
         }
 
@@ -920,12 +937,17 @@ public abstract class Obfuscator {
             checkStartAndEnd(s, start, end);
 
             int length = end - start;
-            char[] array = new char[length];
-
             int from = from(length);
             int to = to(length, from);
             // 0 <= from <= length == end - start, so start <= from + start <= end
             // 0 <= to <= length == end - start, so 0 <= length - to and start <= end - to
+
+            if (fixedLength > 0) {
+                // length - to - from needs to be fixedLength, so length needs to be fixedLength + from + to
+                length = fixedLength + from + to;
+            }
+
+            char[] array = new char[length];
 
             // first build the content as expected: fromStart non-obfuscated, then obfuscated, then fromEnd non-obfuscated
             for (int i = 0, j = start; i < from; i++, j++) {
@@ -955,7 +977,7 @@ public abstract class Obfuscator {
             if (from > 0) {
                 destination.append(s, start, start + from);
             }
-            ObfuscatorUtils.append(maskChar, length - to - from, destination);
+            ObfuscatorUtils.append(maskChar, fixedLength < 0 ? length - to - from : fixedLength, destination);
             if (to > 0) {
                 destination.append(s, end - to, end);
             }

@@ -27,46 +27,98 @@ import java.util.function.Supplier;
  * @author Rob Spoor
  * @param <T> The obfuscated value type.
  */
-public final class Obfuscated<T> {
+public abstract class Obfuscated<T> {
 
-    private final T obfuscated;
-    private final Obfuscator obfuscator;
-    private final Supplier<? extends CharSequence> representation;
+    private final T value;
 
-    Obfuscated(T obfuscated, Obfuscator obfuscator, Supplier<? extends CharSequence> representation) {
-        this.obfuscated = Objects.requireNonNull(obfuscated);
-        this.obfuscator = Objects.requireNonNull(obfuscator);
-        this.representation = Objects.requireNonNull(representation);
+    private Obfuscated(T value) {
+        this.value = Objects.requireNonNull(value);
+    }
+
+    private Obfuscated(Obfuscated<T> other) {
+        this.value = other.value;
+    }
+
+    static <T> Obfuscated<T> of(T value, Obfuscator obfuscator, Supplier<? extends CharSequence> representation) {
+        return new Obfuscating<>(value, obfuscator, representation);
     }
 
     /**
-     * Returns the obfuscated object.
+     * Returns the obfuscated value.
      *
-     * @return The obfuscated object.
+     * @return The obfuscated value.
      */
-    public T obfuscated() {
-        return obfuscated;
+    public final T value() {
+        return value;
     }
 
     @Override
-    public boolean equals(Object o) {
+    public final boolean equals(Object o) {
         if (this == o) {
             return true;
         }
-        if (o == null || o.getClass() != getClass()) {
-            return false;
+        if (o instanceof Obfuscated) {
+            Obfuscated<?> other = (Obfuscated<?>) o;
+            return value.equals(other.value);
         }
-        Obfuscated<?> other = (Obfuscated<?>) o;
-        return obfuscated.equals(other.obfuscated);
+        return false;
     }
 
     @Override
-    public int hashCode() {
-        return obfuscated.hashCode();
+    public final int hashCode() {
+        return value.hashCode();
     }
 
     @Override
-    public String toString() {
-        return obfuscator.obfuscateText(representation.get()).toString();
+    public abstract String toString();
+
+    /**
+     * Returns an obfuscated object that caches the results of obfuscating.
+     * This can be used when the result of obfuscation never changes, for example when obfuscating immutable objects.
+     *
+     * @return An obfuscated object that caches the results of obfuscating.
+     */
+    public abstract Obfuscated<T> cached();
+
+    private static final class Obfuscating<T> extends Obfuscated<T> {
+
+        private final Obfuscator obfuscator;
+        private final Supplier<? extends CharSequence> representation;
+
+        Obfuscating(T obfuscated, Obfuscator obfuscator, Supplier<? extends CharSequence> representation) {
+            super(obfuscated);
+            this.obfuscator = Objects.requireNonNull(obfuscator);
+            this.representation = Objects.requireNonNull(representation);
+        }
+
+        @Override
+        public String toString() {
+            return obfuscator.obfuscateText(representation.get()).toString();
+        }
+
+        @Override
+        public Obfuscated<T> cached() {
+            return new Cached<>(this, toString());
+        }
+    }
+
+    private static final class Cached<T> extends Obfuscated<T> {
+
+        private final String stringValue;
+
+        private Cached(Obfuscated<T> obfuscated, String stringValue) {
+            super(obfuscated);
+            this.stringValue = Objects.requireNonNull(stringValue);
+        }
+
+        @Override
+        public String toString() {
+            return stringValue;
+        }
+
+        @Override
+        public Obfuscated<T> cached() {
+            return this;
+        }
     }
 }

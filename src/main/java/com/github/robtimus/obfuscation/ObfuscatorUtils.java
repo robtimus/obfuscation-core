@@ -312,6 +312,41 @@ public final class ObfuscatorUtils {
     }
 
     /**
+     * Discards the contents of a {@code Reader}.
+     *
+     * @param input The {@code Reader} to discard the contents of.
+     * @throws NullPointerException If the given {@code Reader} is {@code null}.
+     * @throws IOException If an I/O error occurs.
+     */
+    public static void discardAll(Reader input) throws IOException {
+        Objects.requireNonNull(input);
+        char[] buffer = new char[1024];
+        while (input.read(buffer) != -1) {
+            // discard
+        }
+    }
+
+    /**
+     * Copies the contents of a {@code Reader} to an {@code Appendable}.
+     *
+     * @param input The {@code Reader} to copy the contents of.
+     * @param destination The {@code Appendable} to copy the contents to.
+     * @throws NullPointerException If the given {@code Reader} or {@code Appendable} is {@code null}.
+     * @throws IOException If an I/O error occurs.
+     */
+    public static void copyAll(Reader input, Appendable destination) throws IOException {
+        Objects.requireNonNull(input);
+        Objects.requireNonNull(destination);
+        @SuppressWarnings("resource")
+        Writer writer = writer(destination);
+        char[] buffer = new char[1024];
+        int len;
+        while ((len = input.read(buffer)) != -1) {
+            writer.write(buffer, 0, len);
+        }
+    }
+
+    /**
      * Appends a single character to an {@code Appendable}.
      * The character to be written is contained in the 16 low-order bits of the given integer value; the 16 high-order bits are ignored.
      *

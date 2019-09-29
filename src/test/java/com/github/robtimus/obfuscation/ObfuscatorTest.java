@@ -480,6 +480,234 @@ public class ObfuscatorTest {
             }
         }
 
+        @Nested
+        @DisplayName("keepAtStart(4).withFixedLength(3)")
+        @TestInstance(Lifecycle.PER_CLASS)
+        public class KeepAtStartWithFixedLength extends NestedObfuscatorTest {
+
+            KeepAtStartWithFixedLength() {
+                super(maskChar -> portion().keepAtStart(4).withFixedLength(3).withMaskChar(maskChar).build(), new Arguments[] {
+                        arguments("foo", '*', "foo***"),
+                        arguments("hello", '*', "hell***"),
+                        arguments("foobar", '*', "foob***"),
+                        arguments("hello", 'x', "hellxxx"),
+                        arguments("foobar", 'x', "foobxxx"),
+                }, "null***");
+            }
+
+            @ParameterizedTest(name = "{1}")
+            @MethodSource
+            @DisplayName("equals(Object)")
+            public void testEquals(Obfuscator obfuscator, Object object, boolean expected) {
+                assertEquals(expected, obfuscator.equals(object));
+            }
+
+            Arguments[] testEquals() {
+                Obfuscator obfuscator = portion().keepAtStart(4).withFixedLength(3).withMaskChar('x').build();
+                return new Arguments[] {
+                        arguments(obfuscator, obfuscator, true),
+                        arguments(obfuscator, null, false),
+                        arguments(obfuscator, portion().keepAtStart(4).withFixedLength(3).withMaskChar('x').build(), true),
+                        arguments(obfuscator, portion().keepAtStart(3).withFixedLength(3).withMaskChar('x').build(), false),
+                        arguments(obfuscator, portion().keepAtStart(4).withFixedLength(3).withMaskChar('*').build(), false),
+                        arguments(obfuscator, "foo", false),
+                };
+            }
+
+            @Test
+            @DisplayName("hashCode()")
+            public void testHashCode() {
+                Obfuscator obfuscator = portion().keepAtStart(4).withFixedLength(3).withMaskChar('x').build();
+                assertEquals(obfuscator.hashCode(), obfuscator.hashCode());
+                assertEquals(obfuscator.hashCode(), portion().keepAtStart(4).withFixedLength(3).withMaskChar('x').build().hashCode());
+            }
+        }
+
+        @Nested
+        @DisplayName("keepAtEnd(4).withFixedLength(3)")
+        @TestInstance(Lifecycle.PER_CLASS)
+        public class KeepAtEndWithFixedLength extends NestedObfuscatorTest {
+
+            KeepAtEndWithFixedLength() {
+                super(maskChar -> portion().keepAtEnd(4).withFixedLength(3).withMaskChar(maskChar).build(), new Arguments[] {
+                        arguments("foo", '*', "***foo"),
+                        arguments("hello", '*', "***ello"),
+                        arguments("foobar", '*', "***obar"),
+                        arguments("hello", 'x', "xxxello"),
+                        arguments("foobar", 'x', "xxxobar"),
+                }, "***null");
+            }
+
+            @ParameterizedTest(name = "{1}")
+            @MethodSource
+            @DisplayName("equals(Object)")
+            public void testEquals(Obfuscator obfuscator, Object object, boolean expected) {
+                assertEquals(expected, obfuscator.equals(object));
+            }
+
+            Arguments[] testEquals() {
+                Obfuscator obfuscator = portion().keepAtEnd(4).withFixedLength(3).withMaskChar('x').build();
+                return new Arguments[] {
+                        arguments(obfuscator, obfuscator, true),
+                        arguments(obfuscator, null, false),
+                        arguments(obfuscator, portion().keepAtEnd(4).withFixedLength(3).withMaskChar('x').build(), true),
+                        arguments(obfuscator, portion().keepAtEnd(3).withFixedLength(3).withMaskChar('x').build(), false),
+                        arguments(obfuscator, portion().keepAtEnd(4).withFixedLength(3).withMaskChar('*').build(), false),
+                        arguments(obfuscator, "foo", false),
+                };
+            }
+
+            @Test
+            @DisplayName("hashCode()")
+            public void testHashCode() {
+                Obfuscator obfuscator = portion().keepAtEnd(4).withFixedLength(3).withMaskChar('x').build();
+                assertEquals(obfuscator.hashCode(), obfuscator.hashCode());
+                assertEquals(obfuscator.hashCode(), portion().keepAtEnd(4).withFixedLength(3).withMaskChar('x').build().hashCode());
+            }
+        }
+
+        @Nested
+        @DisplayName("keepAtStart(4).keepAtEnd(4).withFixedLength(3)")
+        @TestInstance(Lifecycle.PER_CLASS)
+        public class KeepAtStartAndEndWithFixedLength extends NestedObfuscatorTest {
+
+            KeepAtStartAndEndWithFixedLength() {
+                super(maskChar -> portion().keepAtStart(4).keepAtEnd(4).withFixedLength(3).withMaskChar(maskChar).build(), new Arguments[] {
+                        arguments("foo", '*', "foo***"),
+                        arguments("hello", '*', "hell***o"),
+                        arguments("hello world", '*', "hell***orld"),
+                        arguments("foobar", '*', "foob***ar"),
+                        arguments("hello", 'x', "hellxxxo"),
+                        arguments("foobar", 'x', "foobxxxar"),
+                        arguments("hello world", 'x', "hellxxxorld"),
+                }, "null***");
+            }
+
+            @ParameterizedTest(name = "{1}")
+            @MethodSource
+            @DisplayName("equals(Object)")
+            public void testEquals(Obfuscator obfuscator, Object object, boolean expected) {
+                assertEquals(expected, obfuscator.equals(object));
+            }
+
+            Arguments[] testEquals() {
+                Obfuscator obfuscator = portion().keepAtStart(4).keepAtEnd(4).withFixedLength(3).withMaskChar('x').build();
+                return new Arguments[] {
+                        arguments(obfuscator, obfuscator, true),
+                        arguments(obfuscator, null, false),
+                        arguments(obfuscator, portion().keepAtStart(4).keepAtEnd(4).withFixedLength(3).withMaskChar('x').build(), true),
+                        arguments(obfuscator, portion().keepAtStart(3).keepAtEnd(4).withFixedLength(3).withMaskChar('x').build(), false),
+                        arguments(obfuscator, portion().keepAtStart(4).keepAtEnd(3).withFixedLength(3).withMaskChar('x').build(), false),
+                        arguments(obfuscator, portion().keepAtStart(4).keepAtEnd(4).withFixedLength(3).withMaskChar('*').build(), false),
+                        arguments(obfuscator, "foo", false),
+                };
+            }
+
+            @Test
+            @DisplayName("hashCode()")
+            public void testHashCode() {
+                Obfuscator obfuscator = portion().keepAtStart(4).keepAtEnd(4).withFixedLength(3).withMaskChar('x').build();
+                assertEquals(obfuscator.hashCode(), obfuscator.hashCode());
+                assertEquals(obfuscator.hashCode(), portion().keepAtStart(4).keepAtEnd(4).withFixedLength(3).withMaskChar('x').build().hashCode());
+            }
+        }
+
+        @Nested
+        @DisplayName("keepAtStart(4).atLeastFromEnd(4).withFixedLength(3)")
+        @TestInstance(Lifecycle.PER_CLASS)
+        public class KeepAtStartAtLeastFromEndWithFixedLength extends NestedObfuscatorTest {
+
+            public KeepAtStartAtLeastFromEndWithFixedLength() {
+                super(maskChar -> portion().keepAtStart(4).atLeastFromEnd(4).withFixedLength(3).withMaskChar(maskChar).build(), new Arguments[] {
+                        arguments("foo", '*', "***"),
+                        arguments("hello", '*', "h***"),
+                        arguments("hello world", '*', "hell***"),
+                        arguments("foobar", '*', "fo***"),
+                        arguments("foo", 'x', "xxx"),
+                        arguments("hello", 'x', "hxxx"),
+                        arguments("foobar", 'x', "foxxx"),
+                        arguments("hello world", 'x', "hellxxx"),
+                }, "***");
+            }
+
+            @ParameterizedTest(name = "{1}")
+            @MethodSource
+            @DisplayName("equals(Object)")
+            public void testEquals(Obfuscator obfuscator, Object object, boolean expected) {
+                assertEquals(expected, obfuscator.equals(object));
+            }
+
+            Arguments[] testEquals() {
+                Obfuscator obfuscator = portion().keepAtStart(4).atLeastFromEnd(4).withFixedLength(3).withMaskChar('x').build();
+                return new Arguments[] {
+                        arguments(obfuscator, obfuscator, true),
+                        arguments(obfuscator, null, false),
+                        arguments(obfuscator, portion().keepAtStart(4).atLeastFromEnd(4).withFixedLength(3).withMaskChar('x').build(), true),
+                        arguments(obfuscator, portion().keepAtStart(4).atLeastFromEnd(3).withFixedLength(3).withMaskChar('x').build(), false),
+                        arguments(obfuscator, portion().keepAtStart(3).atLeastFromEnd(4).withFixedLength(3).withMaskChar('x').build(), false),
+                        arguments(obfuscator, portion().keepAtStart(4).atLeastFromEnd(4).withFixedLength(3).withMaskChar('*').build(), false),
+                        arguments(obfuscator, "foo", false),
+                };
+            }
+
+            @Test
+            @DisplayName("hashCode()")
+            public void testHashCode() {
+                Obfuscator obfuscator = portion().keepAtStart(4).atLeastFromEnd(4).withFixedLength(3).withMaskChar('x').build();
+                assertEquals(obfuscator.hashCode(), obfuscator.hashCode());
+                assertEquals(obfuscator.hashCode(),
+                        portion().keepAtStart(4).atLeastFromEnd(4).withFixedLength(3).withMaskChar('x').build().hashCode());
+            }
+        }
+
+        @Nested
+        @DisplayName("keepAtEnd(4).atLeastFromStart(4).withFixedLength(3)")
+        @TestInstance(Lifecycle.PER_CLASS)
+        public class KeepAtEndAtLeastFromStartWithFixedLength extends NestedObfuscatorTest {
+
+            KeepAtEndAtLeastFromStartWithFixedLength() {
+                super(maskChar -> portion().keepAtEnd(4).atLeastFromStart(4).withFixedLength(3).withMaskChar(maskChar).build(), new Arguments[] {
+                        arguments("foo", '*', "***"),
+                        arguments("hello", '*', "***o"),
+                        arguments("hello world", '*', "***orld"),
+                        arguments("foobar", '*', "***ar"),
+                        arguments("foo", 'x', "xxx"),
+                        arguments("hello", 'x', "xxxo"),
+                        arguments("foobar", 'x', "xxxar"),
+                        arguments("hello world", 'x', "xxxorld"),
+                }, "***");
+            }
+
+            @ParameterizedTest(name = "{1}")
+            @MethodSource
+            @DisplayName("equals(Object)")
+            public void testEquals(Obfuscator obfuscator, Object object, boolean expected) {
+                assertEquals(expected, obfuscator.equals(object));
+            }
+
+            Arguments[] testEquals() {
+                Obfuscator obfuscator = portion().keepAtEnd(4).atLeastFromStart(4).withFixedLength(3).withMaskChar('x').build();
+                return new Arguments[] {
+                        arguments(obfuscator, obfuscator, true),
+                        arguments(obfuscator, null, false),
+                        arguments(obfuscator, portion().keepAtEnd(4).atLeastFromStart(4).withFixedLength(3).withMaskChar('x').build(), true),
+                        arguments(obfuscator, portion().keepAtEnd(4).atLeastFromStart(3).withFixedLength(3).withMaskChar('x').build(), false),
+                        arguments(obfuscator, portion().keepAtEnd(3).atLeastFromStart(4).withFixedLength(3).withMaskChar('x').build(), false),
+                        arguments(obfuscator, portion().keepAtEnd(4).atLeastFromStart(4).withFixedLength(3).withMaskChar('*').build(), false),
+                        arguments(obfuscator, "foo", false),
+                };
+            }
+
+            @Test
+            @DisplayName("hashCode()")
+            public void testHashCode() {
+                Obfuscator obfuscator = portion().keepAtEnd(4).atLeastFromStart(4).withFixedLength(3).withMaskChar('x').build();
+                assertEquals(obfuscator.hashCode(), obfuscator.hashCode());
+                assertEquals(obfuscator.hashCode(),
+                        portion().keepAtEnd(4).atLeastFromStart(4).withFixedLength(3).withMaskChar('x').build().hashCode());
+            }
+        }
+
         @Test
         @DisplayName("negative keepAtStart")
         public void testNegativeKeepAtStart() {
@@ -638,7 +866,7 @@ public class ObfuscatorTest {
 
             Obfuscated<String> obfuscated = obfuscator.obfuscateObject(input);
             assertEquals(expected, obfuscated.toString());
-            assertSame(input, obfuscated.obfuscated());
+            assertSame(input, obfuscated.value());
         }
 
         @ParameterizedTest(name = "{0} with {1} -> {2}")
@@ -650,7 +878,7 @@ public class ObfuscatorTest {
             Object value = new Object();
             Obfuscated<?> obfuscated = obfuscator.obfuscateObject(value, () -> input);
             assertEquals(expected, obfuscated.toString());
-            assertSame(value, obfuscated.obfuscated());
+            assertSame(value, obfuscated.value());
         }
 
         @Nested

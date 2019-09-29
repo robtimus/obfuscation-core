@@ -19,6 +19,8 @@ package com.github.robtimus.obfuscation;
 
 import static com.github.robtimus.obfuscation.Obfuscator.all;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -55,5 +57,17 @@ public class ObfuscatedTest {
         Obfuscated<?> obfuscated = all('x').obfuscateObject("foo");
         assertEquals(obfuscated.hashCode(), obfuscated.hashCode());
         assertEquals(obfuscated.hashCode(), all().obfuscateObject("foo").hashCode());
+    }
+
+    @Test
+    @DisplayName("cached()")
+    public void testCached() {
+        Obfuscated<?> obfuscated = all('x').obfuscateObject("foo");
+        Obfuscated<?> cached = obfuscated.cached();
+        assertNotSame(obfuscated, cached);
+        assertEquals(obfuscated, cached);
+        assertEquals(obfuscated.toString(), cached.toString());
+        assertSame(cached.toString(), cached.toString());
+        assertSame(cached, cached.cached());
     }
 }
