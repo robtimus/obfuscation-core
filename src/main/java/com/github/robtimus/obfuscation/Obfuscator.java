@@ -1005,12 +1005,13 @@ public abstract class Obfuscator {
             PortionObfuscator other = (PortionObfuscator) o;
             return keepAtStart == other.keepAtStart && keepAtEnd == other.keepAtEnd
                     && atLeastFromStart == other.atLeastFromStart && atLeastFromEnd == other.atLeastFromEnd
+                    && fixedLength == other.fixedLength
                     && maskChar == other.maskChar;
         }
 
         @Override
         public int hashCode() {
-            return keepAtStart ^ keepAtEnd ^ atLeastFromStart ^ atLeastFromEnd ^ maskChar;
+            return keepAtStart ^ keepAtEnd ^ atLeastFromStart ^ atLeastFromEnd ^ fixedLength ^ maskChar;
         }
 
         @Override
@@ -1018,6 +1019,7 @@ public abstract class Obfuscator {
         public String toString() {
             return Obfuscator.class.getName() + "#portion[keepAtStart=" + keepAtStart + ",keepAtEnd=" + keepAtEnd
                     + ",atLeastFromStart=" + atLeastFromStart + ",atLeastFromEnd=" + atLeastFromEnd
+                    + ",fixedLength=" + fixedLength
                     + ",maskChar=" + maskChar + "]";
         }
     }

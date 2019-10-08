@@ -509,6 +509,7 @@ public class ObfuscatorTest {
                         arguments(obfuscator, null, false),
                         arguments(obfuscator, portion().keepAtStart(4).withFixedLength(3).withMaskChar('x').build(), true),
                         arguments(obfuscator, portion().keepAtStart(3).withFixedLength(3).withMaskChar('x').build(), false),
+                        arguments(obfuscator, portion().keepAtStart(4).withFixedLength(4).withMaskChar('x').build(), false),
                         arguments(obfuscator, portion().keepAtStart(4).withFixedLength(3).withMaskChar('*').build(), false),
                         arguments(obfuscator, "foo", false),
                 };
@@ -552,6 +553,7 @@ public class ObfuscatorTest {
                         arguments(obfuscator, null, false),
                         arguments(obfuscator, portion().keepAtEnd(4).withFixedLength(3).withMaskChar('x').build(), true),
                         arguments(obfuscator, portion().keepAtEnd(3).withFixedLength(3).withMaskChar('x').build(), false),
+                        arguments(obfuscator, portion().keepAtEnd(4).withFixedLength(4).withMaskChar('x').build(), false),
                         arguments(obfuscator, portion().keepAtEnd(4).withFixedLength(3).withMaskChar('*').build(), false),
                         arguments(obfuscator, "foo", false),
                 };
@@ -598,6 +600,7 @@ public class ObfuscatorTest {
                         arguments(obfuscator, portion().keepAtStart(4).keepAtEnd(4).withFixedLength(3).withMaskChar('x').build(), true),
                         arguments(obfuscator, portion().keepAtStart(3).keepAtEnd(4).withFixedLength(3).withMaskChar('x').build(), false),
                         arguments(obfuscator, portion().keepAtStart(4).keepAtEnd(3).withFixedLength(3).withMaskChar('x').build(), false),
+                        arguments(obfuscator, portion().keepAtStart(4).keepAtEnd(4).withFixedLength(4).withMaskChar('x').build(), false),
                         arguments(obfuscator, portion().keepAtStart(4).keepAtEnd(4).withFixedLength(3).withMaskChar('*').build(), false),
                         arguments(obfuscator, "foo", false),
                 };
@@ -645,6 +648,7 @@ public class ObfuscatorTest {
                         arguments(obfuscator, portion().keepAtStart(4).atLeastFromEnd(4).withFixedLength(3).withMaskChar('x').build(), true),
                         arguments(obfuscator, portion().keepAtStart(4).atLeastFromEnd(3).withFixedLength(3).withMaskChar('x').build(), false),
                         arguments(obfuscator, portion().keepAtStart(3).atLeastFromEnd(4).withFixedLength(3).withMaskChar('x').build(), false),
+                        arguments(obfuscator, portion().keepAtStart(4).atLeastFromEnd(4).withFixedLength(4).withMaskChar('x').build(), false),
                         arguments(obfuscator, portion().keepAtStart(4).atLeastFromEnd(4).withFixedLength(3).withMaskChar('*').build(), false),
                         arguments(obfuscator, "foo", false),
                 };
@@ -693,6 +697,7 @@ public class ObfuscatorTest {
                         arguments(obfuscator, portion().keepAtEnd(4).atLeastFromStart(4).withFixedLength(3).withMaskChar('x').build(), true),
                         arguments(obfuscator, portion().keepAtEnd(4).atLeastFromStart(3).withFixedLength(3).withMaskChar('x').build(), false),
                         arguments(obfuscator, portion().keepAtEnd(3).atLeastFromStart(4).withFixedLength(3).withMaskChar('x').build(), false),
+                        arguments(obfuscator, portion().keepAtEnd(4).atLeastFromStart(4).withFixedLength(4).withMaskChar('x').build(), false),
                         arguments(obfuscator, portion().keepAtEnd(4).atLeastFromStart(4).withFixedLength(3).withMaskChar('*').build(), false),
                         arguments(obfuscator, "foo", false),
                 };

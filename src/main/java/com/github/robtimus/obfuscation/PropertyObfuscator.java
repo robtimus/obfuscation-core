@@ -64,7 +64,7 @@ public abstract class PropertyObfuscator extends Obfuscator {
      * @param property The name of the property to get the obfuscator for.
      * @return The obfuscator for the given property, or {@code null} if no obfuscator is configured for the given property.
      */
-    protected final Obfuscator getObfuscator(String property) {
+    public final Obfuscator getObfuscator(String property) {
         return obfuscators.get(property);
     }
 
@@ -74,7 +74,7 @@ public abstract class PropertyObfuscator extends Obfuscator {
      * @param property The name of the property to get the obfuscator for.
      * @return The obfuscator for the given property, or {@link #none()} if no obfuscator is configured for the given property.
      */
-    protected final Obfuscator getNonNullObfuscator(String property) {
+    public final Obfuscator getNonNullObfuscator(String property) {
         return obfuscators.getOrDefault(property, none());
     }
 
@@ -122,18 +122,6 @@ public abstract class PropertyObfuscator extends Obfuscator {
     public static Builder requestParameters(Charset encoding) {
         Objects.requireNonNull(encoding);
         return new Builder(b -> new RequestParameterObfuscator(b, encoding));
-    }
-
-    /**
-     * Returns a builder that will create obfuscators that can handle strings that contain comma separated key-value pairs in the form
-     * {@code key=value}. Whitespace before and after the {@code =} sign and after commas will be ignored; whitespace before commas will be considered
-     * a part of the value.
-     *
-     * @return A builder that will create obfuscators that can handle strings that contain comma separated key-value pairs in the form
-     *         {@code key=value}.
-     */
-    public static Builder commaSeparated() {
-        return new Builder(CommaSeparatedObfuscator::new);
     }
 
     /**
