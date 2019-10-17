@@ -20,11 +20,8 @@ package com.github.robtimus.obfuscation;
 import java.io.Reader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.TreeMap;
 import java.util.function.Function;
 
 /**
@@ -41,12 +38,8 @@ public abstract class PropertyObfuscator extends Obfuscator {
      *
      * @param builder The builder that is used to create this obfuscator.
      */
-    protected PropertyObfuscator(AbstractBuilder<?> builder) {
-        Map<String, Obfuscator> obfuscatorMap = builder.caseInsensitivePropertyNames
-                ? new TreeMap<>(String.CASE_INSENSITIVE_ORDER)
-                : new HashMap<>(builder.obfuscators.size());
-        obfuscatorMap.putAll(builder.obfuscators);
-        obfuscators = Collections.unmodifiableMap(obfuscatorMap);
+    protected PropertyObfuscator(PropertyAwareBuilder<?, ? extends PropertyObfuscator> builder) {
+        obfuscators = builder.obfuscators();
     }
 
     /**
@@ -138,87 +131,11 @@ public abstract class PropertyObfuscator extends Obfuscator {
     }
 
     /**
-     * The base class for builders for {@link PropertyObfuscator PropertyObfuscators}.
-     *
-     * @author Rob Spoor
-     * @param <B> The builder type. Sub classes should use themselves as builder type.
-     */
-    public abstract static class AbstractBuilder<B extends AbstractBuilder<B>> {
-
-        private final Map<String, Obfuscator> obfuscators;
-
-        private boolean caseInsensitivePropertyNames;
-
-        /**
-         * Creates a new builder.
-         */
-        protected AbstractBuilder() {
-            obfuscators = new HashMap<>();
-            caseInsensitivePropertyNames = false;
-        }
-
-        @SuppressWarnings("unchecked")
-        private B thisObject() {
-            return (B) this;
-        }
-
-        /**
-         * Adds a property to obfuscate.
-         *
-         * @param property The name of the property.
-         * @param obfuscator The obfuscator to use for obfuscating the property.
-         * @return This object.
-         */
-        public B withProperty(String property, Obfuscator obfuscator) {
-            Objects.requireNonNull(property);
-            Objects.requireNonNull(obfuscator);
-            obfuscators.put(property, obfuscator);
-            return thisObject();
-        }
-
-        /**
-         * Sets whether or not the case in property names should be ignored when looking up obfuscators. The default is {@code false}.
-         * <p>
-         * Note: it's undefined which obfuscator will be used if the case should be ignored and two obfuscators are added for two properties that are
-         * equal ignoring the case.
-         *
-         * @param caseInsensitivePropertyNames {@code true} to ignore case, or {@code false} otherwise.
-         * @return This object.
-         * @see PropertyObfuscator#getObfuscator(String)
-         * @see PropertyObfuscator#getNonNullObfuscator(String)
-         */
-        public B withCaseInsensitivePropertyNames(boolean caseInsensitivePropertyNames) {
-            this.caseInsensitivePropertyNames = caseInsensitivePropertyNames;
-            return thisObject();
-        }
-
-        /**
-         * This method allows the application of a function to this builder.
-         * <p>
-         * Any exception thrown by the function will be propagated to the caller.
-         *
-         * @param <R> The type of the result of the function.
-         * @param f The function to apply.
-         * @return The result of applying the function to this builder.
-         */
-        public <R> R transform(Function<? super B, ? extends R> f) {
-            return f.apply(thisObject());
-        }
-
-        /**
-         * Creates a new {@code PropertyObfuscator} with the properties and obfuscators added to this builder.
-         *
-         * @return The created {@code PropertyObfuscator}.
-         */
-        public abstract PropertyObfuscator build();
-    }
-
-    /**
      * A builder for {@link PropertyObfuscator PropertyObfuscators}.
      *
      * @author Rob Spoor
      */
-    public static final class Builder extends AbstractBuilder<Builder> {
+    public static final class Builder extends PropertyAwareBuilder<Builder, PropertyObfuscator> {
 
         private final Function<? super Builder, ? extends PropertyObfuscator> factory;
 
