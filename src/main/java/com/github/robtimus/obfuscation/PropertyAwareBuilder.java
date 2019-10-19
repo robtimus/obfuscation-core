@@ -56,6 +56,7 @@ public abstract class PropertyAwareBuilder<B extends PropertyAwareBuilder<B, T>,
      * @param property The name of the property.
      * @param obfuscator The obfuscator to use for obfuscating the property.
      * @return This object.
+     * @throws NullPointerException If the given property name or obfuscator is {@code null}.
      */
     public B withProperty(String property, Obfuscator obfuscator) {
         Objects.requireNonNull(property);
