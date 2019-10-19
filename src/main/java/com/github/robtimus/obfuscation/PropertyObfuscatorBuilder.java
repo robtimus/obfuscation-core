@@ -50,7 +50,7 @@ public class PropertyObfuscatorBuilder extends PropertyAwareBuilder<PropertyObfu
     /**
      * Creates a new builder.
      *
-     * @param factory The factory build {@link Obfuscator Obfuscators} based on this builder.
+     * @param factory The factory to build {@link Obfuscator Obfuscators} based on this builder.
      * @throws NullPointerException If the given factory is {@code null}.
      */
     public PropertyObfuscatorBuilder(Function<? super PropertyObfuscatorBuilder, ? extends Obfuscator> factory) {
