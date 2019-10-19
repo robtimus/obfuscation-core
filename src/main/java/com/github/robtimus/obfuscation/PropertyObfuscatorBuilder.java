@@ -25,7 +25,7 @@ import java.util.function.Function;
  * A builder for {@link Obfuscator Obfuscators} that can obfuscate certain properties in {@link CharSequence CharSequences} or the contents of
  * {@link Reader Readers}.
  * <p>
- * This builder needs a factory build {@link Obfuscator Obfuscators} based on this builder. This allows sub classes of {@link Obfuscator} that are
+ * This builder needs a factory to build {@link Obfuscator Obfuscators} based on this builder. This allows sub classes of {@link Obfuscator} that are
  * property aware to be built easily by just providing a constructor or factory method to that takes a {@code PropertyObfuscatorBuilder}.
  * For instance:
  * <pre><code>
