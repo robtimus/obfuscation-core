@@ -72,8 +72,6 @@ public abstract class PropertyAwareBuilder<B extends PropertyAwareBuilder<B, T>,
      *
      * @param caseInsensitivePropertyNames {@code true} to ignore case, or {@code false} otherwise.
      * @return This object.
-     * @see PropertyObfuscator#getObfuscator(String)
-     * @see PropertyObfuscator#getNonNullObfuscator(String)
      */
     public B withCaseInsensitivePropertyNames(boolean caseInsensitivePropertyNames) {
         this.caseInsensitivePropertyNames = caseInsensitivePropertyNames;

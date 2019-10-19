@@ -26,6 +26,8 @@ import java.io.Flushable;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.Function;
@@ -729,9 +731,9 @@ public abstract class Obfuscator {
     }
 
     /**
-     * Creates a new builder for obfuscators that obfuscate a specific portion of their input.
+     * Returns a builder for obfuscators that obfuscate a specific portion of their input.
      *
-     * @return A new builder for obfuscators that obfuscate a specific portion of their input.
+     * @return A builder for obfuscators that obfuscate a specific portion of their input.
      */
     public static PortionBuilder portion() {
         return new PortionBuilder();
@@ -1022,5 +1024,28 @@ public abstract class Obfuscator {
                     + ",fixedLength=" + fixedLength
                     + ",maskChar=" + maskChar + "]";
         }
+    }
+
+    /**
+     * Returns a builder that will create obfuscators that can handle UTF-8 encoded request parameter strings.
+     * These can be used for both query strings and form data strings.
+     *
+     * @return A builder that will create obfuscators that can handle request parameter strings.
+     */
+    public static PropertyObfuscatorBuilder requestParameters() {
+        return new PropertyObfuscatorBuilder(b -> new RequestParameterObfuscator(b, StandardCharsets.UTF_8));
+    }
+
+    /**
+     * Returns a builder that will create obfuscators that can handle request parameter strings.
+     * These can be used for both query strings and form data strings.
+     *
+     * @param encoding The encoding to use.
+     * @return A builder that will create obfuscators that can handle request parameter strings.
+     * @throws NullPointerException If the encoding is {@code null}.
+     */
+    public static PropertyObfuscatorBuilder requestParameters(Charset encoding) {
+        Objects.requireNonNull(encoding);
+        return new PropertyObfuscatorBuilder(b -> new RequestParameterObfuscator(b, encoding));
     }
 }

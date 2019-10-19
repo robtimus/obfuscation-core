@@ -26,14 +26,16 @@ import java.io.Writer;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
+import java.util.Map;
 import java.util.Objects;
 
-final class RequestParameterObfuscator extends PropertyObfuscator {
+final class RequestParameterObfuscator extends Obfuscator {
 
+    private final Map<String, Obfuscator> obfuscators;
     private final Charset encoding;
 
-    RequestParameterObfuscator(Builder builder, Charset encoding) {
-        super(builder);
+    RequestParameterObfuscator(PropertyObfuscatorBuilder builder, Charset encoding) {
+        obfuscators = builder.obfuscators();
         this.encoding = Objects.requireNonNull(encoding);
     }
 
@@ -89,7 +91,7 @@ final class RequestParameterObfuscator extends PropertyObfuscator {
             destination.append(s, start, end);
         } else {
             String name = URLDecoder.decode(s.subSequence(start, index).toString(), encoding.name());
-            Obfuscator obfuscator = getObfuscator(name);
+            Obfuscator obfuscator = obfuscators.get(name);
             if (obfuscator == null) {
                 destination.append(s, start, end);
             } else {
@@ -108,21 +110,25 @@ final class RequestParameterObfuscator extends PropertyObfuscator {
 
     @Override
     public boolean equals(Object o) {
-        if (!super.equals(o)) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || o.getClass() != getClass()) {
             return false;
         }
         RequestParameterObfuscator other = (RequestParameterObfuscator) o;
-        return encoding.equals(other.encoding);
+        return obfuscators.equals(other.obfuscators)
+                && encoding.equals(other.encoding);
     }
 
     @Override
     public int hashCode() {
-        return super.hashCode() ^ encoding.hashCode();
+        return obfuscators.hashCode() ^ encoding.hashCode();
     }
 
     @Override
     @SuppressWarnings("nls")
     public String toString() {
-        return PropertyObfuscator.class.getName() + "#requestParameters[obfuscators=" + obfuscators() + ",encoding=" + encoding + "]";
+        return Obfuscator.class.getName() + "#requestParameters[obfuscators=" + obfuscators + ",encoding=" + encoding + "]";
     }
 }

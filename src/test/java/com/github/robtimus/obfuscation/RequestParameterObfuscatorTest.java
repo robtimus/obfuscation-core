@@ -18,7 +18,7 @@
 package com.github.robtimus.obfuscation;
 
 import static com.github.robtimus.obfuscation.Obfuscator.all;
-import static com.github.robtimus.obfuscation.PropertyObfuscator.requestParameters;
+import static com.github.robtimus.obfuscation.Obfuscator.requestParameters;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -37,7 +37,6 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import com.github.robtimus.obfuscation.PropertyObfuscator.Builder;
 
 @SuppressWarnings({ "javadoc", "nls" })
 @TestInstance(Lifecycle.PER_CLASS)
@@ -514,7 +513,7 @@ public class RequestParameterObfuscatorTest {
         return createObfuscator(requestParameters(encoding));
     }
 
-    private Obfuscator createObfuscator(Builder builder) {
+    private Obfuscator createObfuscator(PropertyObfuscatorBuilder builder) {
         Obfuscator obfuscator = all();
         return builder
                 .withProperty("foo", obfuscator)
