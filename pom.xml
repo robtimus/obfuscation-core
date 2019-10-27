@@ -20,13 +20,13 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.github.robtimus</groupId>
-  <artifactId>obfuscation</artifactId>
+  <artifactId>obfuscation-core</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>obfuscation</name>
+  <name>obfuscation-core</name>
   <description>Provides functionality for obfuscating text</description>
-  <url>https://robtimus.github.io/obfuscation/</url>
+  <url>https://robtimus.github.io/obfuscation-core/</url>
   <inceptionYear>2019</inceptionYear>
 
   <licenses>
@@ -44,15 +44,15 @@
   </developers>
 
   <scm>
-    <connection>scm:git:git@github.com:robtimus/obfuscation.git</connection>
-    <developerConnection>scm:git:git@github.com:robtimus/obfuscation.git</developerConnection>
+    <connection>scm:git:git@github.com:robtimus/obfuscation-core.git</connection>
+    <developerConnection>scm:git:git@github.com:robtimus/obfuscation-core.git</developerConnection>
     <tag>HEAD</tag>
-    <url>https://github.com/robtimus/obfuscation</url>
+    <url>https://github.com/robtimus/obfuscation-core</url>
   </scm>
 
   <issueManagement>
     <system>GitHub</system>
-    <url>https://github.com/robtimus/obfuscation/issues</url>
+    <url>https://github.com/robtimus/obfuscation-core/issues</url>
   </issueManagement>
 
   <distributionManagement>

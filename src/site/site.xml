@@ -15,7 +15,7 @@
   limitations under the License.
 -->
 
-<project name="obfuscation"
+<project name="obfuscation-core"
   xmlns="https://maven.apache.org/xsd/decoration-1.7.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="https://maven.apache.org/xsd/decoration-1.7.0.xsd https://maven.apache.org/xsd/decoration-1.7.0.xsd">
 
@@ -36,10 +36,10 @@
     prettyPrint();
   });
 </script>]]></head>
-    <menu name="obfuscation">
+    <menu name="obfuscation-core">
       <item name="Overview" href="index.html" />
       <item name="Download" href="download.html" />
-      <item name="Releases" href="https://github.com/robtimus/obfuscation/releases" />
+      <item name="Releases" href="https://github.com/robtimus/obfuscation-core/releases" />
       <item name="JavaDocs" href="apidocs/index.html" />
     </menu>
     <menu ref="reports" />
