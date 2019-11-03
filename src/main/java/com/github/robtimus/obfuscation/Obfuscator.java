@@ -74,6 +74,68 @@ public abstract class Obfuscator {
      * Obfuscates the contents a {@code CharSequence}.
      *
      * @param s The {@code CharSequence} with the contents to obfuscate.
+     * @param destination The {@code StringBuilder} to append the obfuscated contents to.
+     * @throws NullPointerException If the given {@code CharSequence} or {@code StringBuilder} is {@code null}.
+     */
+    public final void obfuscateText(CharSequence s, StringBuilder destination) {
+        obfuscateText(s, 0, s.length(), destination);
+    }
+
+    /**
+     * Obfuscates parts of the contents a {@code CharSequence}.
+     *
+     * @param s The {@code CharSequence} with the contents to obfuscate.
+     * @param start The index in the {@code CharSequence} to start obfuscating, inclusive.
+     * @param end The index in the {@code CharSequence} to end obfuscating, exclusive.
+     * @param destination The {@code StringBuilder} to append the obfuscated contents to.
+     * @throws NullPointerException If the given {@code CharSequence} or {@code StringBuilder} is {@code null}.
+     * @throws IndexOutOfBoundsException If the given start index is negative or larger than the given end index,
+     *                                       or if the given end index is larger than the given {@code CharSequence}'s length.
+     */
+    public void obfuscateText(CharSequence s, int start, int end, StringBuilder destination) {
+        try {
+            obfuscateText(s, start, end, (Appendable) destination);
+        } catch (IOException e) {
+            // should not occur
+            throw new IllegalStateException(e);
+        }
+    }
+
+    /**
+     * Obfuscates the contents a {@code CharSequence}.
+     *
+     * @param s The {@code CharSequence} with the contents to obfuscate.
+     * @param destination The {@code StringBuffer} to append the obfuscated contents to.
+     * @throws NullPointerException If the given {@code CharSequence} or {@code StringBuffer} is {@code null}.
+     */
+    public final void obfuscateText(CharSequence s, StringBuffer destination) {
+        obfuscateText(s, 0, s.length(), destination);
+    }
+
+    /**
+     * Obfuscates parts of the contents a {@code CharSequence}.
+     *
+     * @param s The {@code CharSequence} with the contents to obfuscate.
+     * @param start The index in the {@code CharSequence} to start obfuscating, inclusive.
+     * @param end The index in the {@code CharSequence} to end obfuscating, exclusive.
+     * @param destination The {@code StringBuffer} to append the obfuscated contents to.
+     * @throws NullPointerException If the given {@code CharSequence} or {@code StringBuffer} is {@code null}.
+     * @throws IndexOutOfBoundsException If the given start index is negative or larger than the given end index,
+     *                                       or if the given end index is larger than the given {@code CharSequence}'s length.
+     */
+    public void obfuscateText(CharSequence s, int start, int end, StringBuffer destination) {
+        try {
+            obfuscateText(s, start, end, (Appendable) destination);
+        } catch (IOException e) {
+            // should not occur
+            throw new IllegalStateException(e);
+        }
+    }
+
+    /**
+     * Obfuscates the contents a {@code CharSequence}.
+     *
+     * @param s The {@code CharSequence} with the contents to obfuscate.
      * @param destination The {@code Appendable} to append the obfuscated contents to.
      * @throws NullPointerException If the given {@code CharSequence} or {@code Appendable} is {@code null}.
      * @throws IOException If an I/O error occurs.

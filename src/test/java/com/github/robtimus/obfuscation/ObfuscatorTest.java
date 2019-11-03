@@ -792,6 +792,72 @@ public class ObfuscatorTest {
 
         @ParameterizedTest(name = "{0} with {1} -> {2}")
         @MethodSource("testData")
+        @DisplayName("obfuscateText(CharSequence, StringBuilder)")
+        public void testObfuscateTextCharSequenceToStringBuilder(String input, char maskChar, String expected) {
+            Obfuscator obfuscator = obfuscatorProvider.apply(maskChar);
+
+            StringBuilder sb = new StringBuilder();
+            obfuscator.obfuscateText(input, sb);
+            assertEquals(expected, sb.toString());
+
+            sb.delete(0, sb.length());
+            obfuscator.obfuscateText(new StringBuffer(input), sb);
+            assertEquals(expected, sb.toString());
+        }
+
+        @ParameterizedTest(name = "{0} with {1} -> {2}")
+        @MethodSource("testData")
+        @DisplayName("obfuscateText(CharSequence, int, int, StringBuilder)")
+        public void testObfuscateTextCharSequenceRangeToStringBuilder(String input, char maskChar, String expected) {
+            final String prefix = "foo";
+            final String postfix = "bar";
+
+            Obfuscator obfuscator = obfuscatorProvider.apply(maskChar);
+
+            StringBuilder sb = new StringBuilder();
+            obfuscator.obfuscateText(prefix + input + postfix, prefix.length(), prefix.length() + input.length(), sb);
+            assertEquals(expected, sb.toString());
+
+            sb.delete(0, sb.length());
+            obfuscator.obfuscateText(new StringBuilder(prefix + input + postfix), prefix.length(), prefix.length() + input.length(), sb);
+            assertEquals(expected, sb.toString());
+        }
+
+        @ParameterizedTest(name = "{0} with {1} -> {2}")
+        @MethodSource("testData")
+        @DisplayName("obfuscateText(CharSequence, StringBuffer)")
+        public void testObfuscateTextCharSequenceToStringBuffer(String input, char maskChar, String expected) {
+            Obfuscator obfuscator = obfuscatorProvider.apply(maskChar);
+
+            StringBuffer sb = new StringBuffer();
+            obfuscator.obfuscateText(input, sb);
+            assertEquals(expected, sb.toString());
+
+            sb.delete(0, sb.length());
+            obfuscator.obfuscateText(new StringBuffer(input), sb);
+            assertEquals(expected, sb.toString());
+        }
+
+        @ParameterizedTest(name = "{0} with {1} -> {2}")
+        @MethodSource("testData")
+        @DisplayName("obfuscateText(CharSequence, int, int, StringBuffer)")
+        public void testObfuscateTextCharSequenceRangeToStringBuffer(String input, char maskChar, String expected) {
+            final String prefix = "foo";
+            final String postfix = "bar";
+
+            Obfuscator obfuscator = obfuscatorProvider.apply(maskChar);
+
+            StringBuffer sb = new StringBuffer();
+            obfuscator.obfuscateText(prefix + input + postfix, prefix.length(), prefix.length() + input.length(), sb);
+            assertEquals(expected, sb.toString());
+
+            sb.delete(0, sb.length());
+            obfuscator.obfuscateText(new StringBuilder(prefix + input + postfix), prefix.length(), prefix.length() + input.length(), sb);
+            assertEquals(expected, sb.toString());
+        }
+
+        @ParameterizedTest(name = "{0} with {1} -> {2}")
+        @MethodSource("testData")
         @DisplayName("obfuscateText(CharSequence, Appendable)")
         public void testObfuscateTextCharSequenceToAppendable(String input, char maskChar, String expected) throws IOException {
             Obfuscator obfuscator = obfuscatorProvider.apply(maskChar);

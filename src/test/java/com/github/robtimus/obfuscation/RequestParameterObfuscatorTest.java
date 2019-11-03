@@ -64,7 +64,7 @@ public class RequestParameterObfuscatorTest {
         Obfuscator obfuscator = createObfuscator();
 
         StringBuilder destination = new StringBuilder();
-        obfuscator.obfuscateText(input + "&x=y", 1, input.length() - 1, destination);
+        obfuscator.obfuscateText(input + "&x=y", 1, input.length() - 1, (Appendable) destination);
         assertEquals(expected, destination.toString());
     }
 
