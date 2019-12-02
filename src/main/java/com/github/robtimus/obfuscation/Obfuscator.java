@@ -19,6 +19,7 @@ package com.github.robtimus.obfuscation;
 
 import static com.github.robtimus.obfuscation.ObfuscatorUtils.checkOffsetAndLength;
 import static com.github.robtimus.obfuscation.ObfuscatorUtils.checkStartAndEnd;
+import static com.github.robtimus.obfuscation.ObfuscatorUtils.getChars;
 import static com.github.robtimus.obfuscation.ObfuscatorUtils.readAll;
 import static com.github.robtimus.obfuscation.ObfuscatorUtils.repeatChar;
 import java.io.Closeable;
@@ -637,13 +638,7 @@ public abstract class Obfuscator {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || o.getClass() != getClass()) {
-                return false;
-            }
-            return true;
+            return this == o;
         }
 
         @Override
@@ -1159,16 +1154,12 @@ public abstract class Obfuscator {
 
             char[] array = new char[length];
 
-            // first build the content as expected: fromStart non-obfuscated, then obfuscated, then fromEnd non-obfuscated
-            for (int i = 0, j = start; i < from; i++, j++) {
-                array[i] = s.charAt(j);
-            }
+            // first build the content as expected: 0 to from non-obfuscated, then obfuscated, then from end - to non-obfuscated
+            getChars(s, start, start + from, array, 0);
             for (int i = from; i < length - to; i++) {
                 array[i] = maskChar;
             }
-            for (int i = length - to, j = end - to; i < length; i++, j++) {
-                array[i] = s.charAt(j);
-            }
+            getChars(s, end - to, end, array, length - to);
             return new CharArraySequence(array);
         }
 
@@ -1183,7 +1174,7 @@ public abstract class Obfuscator {
             // 0 <= from <= length == end - start, so start <= from + start <= end
             // 0 <= to <= length == end - start, so 0 <= length - to and start <= end - to
 
-            // first build the content as expected: fromStart non-obfuscated, then obfuscated, then fromEnd non-obfuscated
+            // first build the content as expected: 0 to from non-obfuscated, then obfuscated, then end - to non-obfuscated
             if (from > 0) {
                 destination.append(s, start, start + from);
             }

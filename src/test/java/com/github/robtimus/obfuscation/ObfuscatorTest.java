@@ -713,6 +713,44 @@ public class ObfuscatorTest {
             }
         }
 
+        @Nested
+        @DisplayName("obfuscate last 2 chars")
+        @TestInstance(Lifecycle.PER_CLASS)
+        public class LastTwoChars extends NestedObfuscatorTest {
+
+            LastTwoChars() {
+                super(maskChar -> portion().keepAtStart(Integer.MAX_VALUE).atLeastFromEnd(2).withMaskChar(maskChar).build(), new Arguments[] {
+                        arguments("foo", '*', "f**"),
+                        arguments("hello", '*', "hel**"),
+                        arguments("hello world", '*', "hello wor**"),
+                        arguments("foobar", '*', "foob**"),
+                        arguments("foo", 'x', "fxx"),
+                        arguments("hello", 'x', "helxx"),
+                        arguments("foobar", 'x', "foobxx"),
+                        arguments("hello world", 'x', "hello worxx"),
+                }, "nu**");
+            }
+        }
+
+        @Nested
+        @DisplayName("obfuscate first 2 chars")
+        @TestInstance(Lifecycle.PER_CLASS)
+        public class FirstTwoChars extends NestedObfuscatorTest {
+
+            FirstTwoChars() {
+                super(maskChar -> portion().keepAtEnd(Integer.MAX_VALUE).atLeastFromStart(2).withMaskChar(maskChar).build(), new Arguments[] {
+                        arguments("foo", '*', "**o"),
+                        arguments("hello", '*', "**llo"),
+                        arguments("hello world", '*', "**llo world"),
+                        arguments("foobar", '*', "**obar"),
+                        arguments("foo", 'x', "xxo"),
+                        arguments("hello", 'x', "xxllo"),
+                        arguments("foobar", 'x', "xxobar"),
+                        arguments("hello world", 'x', "xxllo world"),
+                }, "**ll");
+            }
+        }
+
         @Test
         @DisplayName("negative keepAtStart")
         public void testNegativeKeepAtStart() {

@@ -103,6 +103,35 @@ public final class ObfuscatorUtils {
         return fromIndex;
     }
 
+    /**
+     * Copies characters from a {@code CharSequence} into a destination character array.
+     * This method is a more generic version of {@link String#getChars(int, int, char[], int)}, {@link StringBuilder#getChars(int, int, char[], int)}
+     * and {@link StringBuffer#getChars(int, int, char[], int)}.
+     *
+     * @param src The {@code CharSequence} to copy characters from.
+     * @param srcBegin The index of the first character in the {@code CharSequence} to copy.
+     * @param srcEnd The index after the last character in the {@code CharSequence} to copy.
+     * @param dst The destination array.
+     * @param dstBegin The start offset in the destination array.
+     * @throws NullPointerException If the given {@code CharSequence} or character array is {@code null}.
+     * @throws IndexOutOfBoundsException If any of the indexes is invalid.
+     */
+    public static void getChars(CharSequence src, int srcBegin, int srcEnd, char[] dst, int dstBegin) {
+        if (src instanceof String) {
+            ((String) src).getChars(srcBegin, srcEnd, dst, dstBegin);
+        } else if (src instanceof StringBuilder) {
+            ((StringBuilder) src).getChars(srcBegin, srcEnd, dst, dstBegin);
+        } else if (src instanceof StringBuffer) {
+            ((StringBuffer) src).getChars(srcBegin, srcEnd, dst, dstBegin);
+        } else {
+            checkStartAndEnd(src, srcBegin, srcEnd);
+            checkStartAndEnd(dst, dstBegin, dstBegin + srcEnd - srcBegin);
+            for (int i = srcBegin, j = dstBegin; i < srcEnd; i++, j++) {
+                dst[j] = src.charAt(i);
+            }
+        }
+    }
+
     // index checking
 
     /**

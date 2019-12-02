@@ -24,6 +24,7 @@ import static com.github.robtimus.obfuscation.ObfuscatorUtils.checkStartAndEnd;
 import static com.github.robtimus.obfuscation.ObfuscatorUtils.copyAll;
 import static com.github.robtimus.obfuscation.ObfuscatorUtils.copyTo;
 import static com.github.robtimus.obfuscation.ObfuscatorUtils.discardAll;
+import static com.github.robtimus.obfuscation.ObfuscatorUtils.getChars;
 import static com.github.robtimus.obfuscation.ObfuscatorUtils.indexOf;
 import static com.github.robtimus.obfuscation.ObfuscatorUtils.readAll;
 import static com.github.robtimus.obfuscation.ObfuscatorUtils.reader;
@@ -34,9 +35,12 @@ import static com.github.robtimus.obfuscation.ObfuscatorUtils.wrapArray;
 import static com.github.robtimus.obfuscation.ObfuscatorUtils.writer;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.DynamicContainer.dynamicContainer;
+import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -49,9 +53,14 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.nio.CharBuffer;
 import java.util.Arrays;
+import java.util.function.Function;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.DynamicNode;
+import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -116,6 +125,46 @@ public class ObfuscatorUtilsTest {
                 arguments("hello world", 0, 6, 5),
                 arguments("hello world", 5, 6, 5),
         };
+    }
+
+    @TestFactory
+    @DisplayName("getChars(CharSequence, int, int, char, int)")
+    public DynamicNode[] testGetChars() {
+        return new DynamicNode[] {
+                testGetChars("String", s -> s),
+                testGetChars("StringBuilder", StringBuilder::new),
+                testGetChars("StringBuffer", StringBuffer::new),
+                testGetChars("CharSequence", CharBuffer::wrap),
+        };
+    }
+
+    private DynamicNode testGetChars(String type, Function<String, CharSequence> constructor) {
+        String input = "hello world";
+        DynamicTest[] tests = {
+                dynamicTest("negative srcBegin", () -> assertThrows(IndexOutOfBoundsException.class,
+                        () -> getChars(constructor.apply(input), -1, input.length(), new char[input.length()], 0))),
+                dynamicTest("too large srcEnd", () -> assertThrows(IndexOutOfBoundsException.class,
+                        () -> getChars(constructor.apply(input), 0, input.length() + 1, new char[input.length()], 0))),
+                dynamicTest("srcBegin > srcEnd", () -> assertThrows(IndexOutOfBoundsException.class,
+                        () -> getChars(constructor.apply(input), 1, 0, new char[input.length()], 0))),
+                dynamicTest("negative dstBegin", () -> assertThrows(IndexOutOfBoundsException.class,
+                        () -> getChars(constructor.apply(input), 0, input.length(), new char[input.length()], -1))),
+                dynamicTest("too large portion", () -> assertThrows(IndexOutOfBoundsException.class,
+                        () -> getChars(constructor.apply(input), 0, input.length(), new char[input.length()], 1))),
+                dynamicTest("get all", () -> {
+                    char[] dst = new char[input.length() + 2];
+                    getChars(constructor.apply(input), 0, input.length(), dst, 1);
+                    char[] expected = ('\0' + input + '\0').toCharArray();
+                    assertArrayEquals(expected, dst);
+                }),
+                dynamicTest("get some", () -> {
+                    char[] dst = new char[input.length()];
+                    getChars(constructor.apply(input), 1, input.length() - 1, dst, 1);
+                    char[] expected = ('\0' + input.substring(1, input.length() - 1) + '\0').toCharArray();
+                    assertArrayEquals(expected, dst);
+                }),
+        };
+        return dynamicContainer(type, Arrays.asList(tests));
     }
 
     @Test
