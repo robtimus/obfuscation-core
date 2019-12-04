@@ -491,6 +491,7 @@ public class RequestParameterObfuscatorTest {
                 arguments(obfuscator, obfuscator, true),
                 arguments(obfuscator, null, false),
                 arguments(obfuscator, createObfuscator(), true),
+                arguments(obfuscator, createObfuscator(requestParameters().withCaseInsensitivePropertyNames(true)), false),
                 arguments(obfuscator, requestParameters().build(), false),
                 arguments(obfuscator, createObfuscator(StandardCharsets.US_ASCII), false),
                 arguments(obfuscator, "foo", false),

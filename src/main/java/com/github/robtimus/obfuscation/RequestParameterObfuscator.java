@@ -32,10 +32,12 @@ import java.util.Objects;
 final class RequestParameterObfuscator extends Obfuscator {
 
     private final Map<String, Obfuscator> obfuscators;
+    private final boolean caseInsensitivePropertyNames;
     private final Charset encoding;
 
     RequestParameterObfuscator(PropertyObfuscatorBuilder builder, Charset encoding) {
         obfuscators = builder.obfuscators();
+        caseInsensitivePropertyNames = builder.caseInsensitivePropertyNames();
         this.encoding = Objects.requireNonNull(encoding);
     }
 
@@ -113,6 +115,7 @@ final class RequestParameterObfuscator extends Obfuscator {
         }
         RequestParameterObfuscator other = (RequestParameterObfuscator) o;
         return obfuscators.equals(other.obfuscators)
+                && caseInsensitivePropertyNames == other.caseInsensitivePropertyNames
                 && encoding.equals(other.encoding);
     }
 
@@ -124,6 +127,10 @@ final class RequestParameterObfuscator extends Obfuscator {
     @Override
     @SuppressWarnings("nls")
     public String toString() {
-        return Obfuscator.class.getName() + "#requestParameters[obfuscators=" + obfuscators + ",encoding=" + encoding + "]";
+        return Obfuscator.class.getName()
+                + "#requestParameters[obfuscators=" + obfuscators
+                + ",caseInsensitivePropertyNames=" + caseInsensitivePropertyNames
+                + ",encoding=" + encoding
+                + "]";
     }
 }

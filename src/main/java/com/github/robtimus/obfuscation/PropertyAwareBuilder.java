@@ -93,6 +93,15 @@ public abstract class PropertyAwareBuilder<B extends PropertyAwareBuilder<B, T>,
     }
 
     /**
+     * Returns whether or not the case in property names should be ignored when looking up obfuscators.
+     *
+     * @return {@code true} if the case should be ignored, or {@code false} otherwise.
+     */
+    public boolean caseInsensitivePropertyNames() {
+        return caseInsensitivePropertyNames;
+    }
+
+    /**
      * Returns a new unmodifiable map with all added obfuscators. This map will use case insensitive lookups if
      * {@link #withCaseInsensitivePropertyNames(boolean) withCaseInsensitivePropertyNames(false)} was called.
      *
