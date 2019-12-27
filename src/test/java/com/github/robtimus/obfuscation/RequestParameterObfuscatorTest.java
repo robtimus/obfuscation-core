@@ -18,10 +18,14 @@
 package com.github.robtimus.obfuscation;
 
 import static com.github.robtimus.obfuscation.Obfuscator.all;
-import static com.github.robtimus.obfuscation.Obfuscator.requestParameters;
+import static com.github.robtimus.obfuscation.RequestParameterObfuscator.builder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
@@ -29,6 +33,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.function.Function;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -37,6 +42,7 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import com.github.robtimus.obfuscation.RequestParameterObfuscator.Builder;
 
 @SuppressWarnings({ "javadoc", "nls" })
 @TestInstance(Lifecycle.PER_CLASS)
@@ -491,8 +497,7 @@ public class RequestParameterObfuscatorTest {
                 arguments(obfuscator, obfuscator, true),
                 arguments(obfuscator, null, false),
                 arguments(obfuscator, createObfuscator(), true),
-                arguments(obfuscator, createObfuscator(requestParameters().withCaseInsensitivePropertyNames(true)), false),
-                arguments(obfuscator, requestParameters().build(), false),
+                arguments(obfuscator, builder().build(), false),
                 arguments(obfuscator, createObfuscator(StandardCharsets.US_ASCII), false),
                 arguments(obfuscator, "foo", false),
         };
@@ -506,19 +511,37 @@ public class RequestParameterObfuscatorTest {
         assertEquals(obfuscator.hashCode(), createObfuscator().hashCode());
     }
 
+    @Nested
+    @DisplayName("Builder")
+    public class BuilderTest {
+
+        @Test
+        @DisplayName("transform")
+        public void testTransform() {
+            Builder builder = builder();
+            @SuppressWarnings("unchecked")
+            Function<Builder, String> f = mock(Function.class);
+            when(f.apply(builder)).thenReturn("result");
+
+            assertEquals("result", builder.transform(f));
+            verify(f).apply(builder);
+            verifyNoMoreInteractions(f);
+        }
+    }
+
     private Obfuscator createObfuscator() {
-        return createObfuscator(requestParameters());
+        return createObfuscator(builder());
     }
 
     private Obfuscator createObfuscator(Charset encoding) {
-        return createObfuscator(requestParameters(encoding));
+        return createObfuscator(builder().withEncoding(encoding));
     }
 
-    private Obfuscator createObfuscator(PropertyObfuscatorBuilder builder) {
+    private Obfuscator createObfuscator(Builder builder) {
         Obfuscator obfuscator = all();
         return builder
-                .withProperty("foo", obfuscator)
-                .withProperty("no-value", obfuscator)
+                .withParameter("foo", obfuscator)
+                .withParameter("no-value", obfuscator)
                 .build();
     }
 }

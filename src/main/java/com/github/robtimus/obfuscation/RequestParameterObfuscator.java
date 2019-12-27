@@ -26,19 +26,24 @@ import java.io.Writer;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
-import java.util.Map;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
+import java.util.function.Function;
 
-final class RequestParameterObfuscator extends Obfuscator {
+/**
+ * An obfuscator that obfuscates request parameters in {@link CharSequence CharSequences} or the contents of {@link Reader Readers}.
+ * It can be used for both query strings and form data strings.
+ *
+ * @author Rob Spoor
+ */
+public final class RequestParameterObfuscator extends Obfuscator {
 
-    private final Map<String, Obfuscator> obfuscators;
-    private final boolean caseInsensitivePropertyNames;
+    private final StringMap<Obfuscator> obfuscators;
     private final Charset encoding;
 
-    RequestParameterObfuscator(PropertyObfuscatorBuilder builder, Charset encoding) {
+    private RequestParameterObfuscator(Builder builder) {
         obfuscators = builder.obfuscators();
-        caseInsensitivePropertyNames = builder.caseInsensitivePropertyNames();
-        this.encoding = Objects.requireNonNull(encoding);
+        encoding = builder.encoding;
     }
 
     @Override
@@ -115,7 +120,6 @@ final class RequestParameterObfuscator extends Obfuscator {
         }
         RequestParameterObfuscator other = (RequestParameterObfuscator) o;
         return obfuscators.equals(other.obfuscators)
-                && caseInsensitivePropertyNames == other.caseInsensitivePropertyNames
                 && encoding.equals(other.encoding);
     }
 
@@ -127,10 +131,100 @@ final class RequestParameterObfuscator extends Obfuscator {
     @Override
     @SuppressWarnings("nls")
     public String toString() {
-        return Obfuscator.class.getName()
-                + "#requestParameters[obfuscators=" + obfuscators
-                + ",caseInsensitivePropertyNames=" + caseInsensitivePropertyNames
+        return getClass().getName()
+                + "[obfuscators=" + obfuscators
                 + ",encoding=" + encoding
                 + "]";
+    }
+
+    /**
+     * Returns a builder that will create {@code RequestParameterObfuscators}.
+     *
+     * @return A builder that will create {@code RequestParameterObfuscators}.
+     */
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    /**
+     * A builder for {@link RequestParameterObfuscator RequestParameterObfuscators}.
+     *
+     * @author Rob Spoor
+     */
+    public static final class Builder {
+
+        private final StringMap.Builder<Obfuscator> obfuscators;
+
+        private Charset encoding;
+
+        private Builder() {
+            obfuscators = StringMap.builder();
+            encoding = StandardCharsets.UTF_8;
+        }
+
+        /**
+         * Adds a parameter to obfuscate.
+         *
+         * @param parameter The name of the parameter. It will be treated case sensitively.
+         * @param obfuscator The obfuscator to use for obfuscating the parameter.
+         * @return This object.
+         * @throws NullPointerException If the given parameter name or obfuscator is {@code null}.
+         */
+        public Builder withParameter(String parameter, Obfuscator obfuscator) {
+            return withParameter(parameter, obfuscator, true);
+        }
+
+        /**
+         * Adds a parameter to obfuscate.
+         *
+         * @param parameter The name of the parameter.
+         * @param obfuscator The obfuscator to use for obfuscating the parameter.
+         * @param caseSensitive {@code true} if the parameter name should be treated case sensitively,
+         *                          or {@code false} if it should be treated case insensitively.
+         * @return This object.
+         * @throws NullPointerException If the given parameter name or obfuscator is {@code null}.
+         */
+        public Builder withParameter(String parameter, Obfuscator obfuscator, boolean caseSensitive) {
+            obfuscators.withEntry(parameter, obfuscator, caseSensitive);
+            return this;
+        }
+
+        /**
+         * Sets the encoding to use. The default is {@link StandardCharsets#UTF_8}.
+         *
+         * @param encoding The encoding.
+         * @return This object.
+         * @throws NullPointerException If the given encoding mode is {@code null}.
+         */
+        public Builder withEncoding(Charset encoding) {
+            this.encoding = Objects.requireNonNull(encoding);
+            return this;
+        }
+
+        /**
+         * This method allows the application of a function to this builder.
+         * <p>
+         * Any exception thrown by the function will be propagated to the caller.
+         *
+         * @param <R> The type of the result of the function.
+         * @param f The function to apply.
+         * @return The result of applying the function to this builder.
+         */
+        public <R> R transform(Function<? super Builder, ? extends R> f) {
+            return f.apply(this);
+        }
+
+        private StringMap<Obfuscator> obfuscators() {
+            return obfuscators.build();
+        }
+
+        /**
+         * Creates a new {@code RequestParameterObfuscator} with the properties and obfuscators added to this builder.
+         *
+         * @return The created {@code RequestParameterObfuscator}.
+         */
+        public RequestParameterObfuscator build() {
+            return new RequestParameterObfuscator(this);
+        }
     }
 }
