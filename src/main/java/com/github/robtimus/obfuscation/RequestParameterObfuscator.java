@@ -19,6 +19,7 @@ package com.github.robtimus.obfuscation;
 
 import static com.github.robtimus.obfuscation.ObfuscatorUtils.checkStartAndEnd;
 import static com.github.robtimus.obfuscation.ObfuscatorUtils.indexOf;
+import static com.github.robtimus.obfuscation.ObfuscatorUtils.map;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -27,8 +28,10 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
+import com.github.robtimus.obfuscation.ObfuscatorUtils.MapBuilder;
 
 /**
  * An obfuscator that obfuscates request parameters in {@link CharSequence CharSequences} or the contents of {@link Reader Readers}.
@@ -38,7 +41,7 @@ import java.util.function.Function;
  */
 public final class RequestParameterObfuscator extends Obfuscator {
 
-    private final StringMap<Obfuscator> obfuscators;
+    private final Map<String, Obfuscator> obfuscators;
     private final Charset encoding;
 
     private RequestParameterObfuscator(Builder builder) {
@@ -153,17 +156,18 @@ public final class RequestParameterObfuscator extends Obfuscator {
      */
     public static final class Builder {
 
-        private final StringMap.Builder<Obfuscator> obfuscators;
+        private final MapBuilder<Obfuscator> obfuscators;
 
         private Charset encoding;
 
         private Builder() {
-            obfuscators = StringMap.builder();
+            obfuscators = map();
             encoding = StandardCharsets.UTF_8;
         }
 
         /**
          * Adds a parameter to obfuscate.
+         * This method is an alias for {@link #withParameter(String, Obfuscator, boolean) withParameter(parameter, obfuscator, true)}.
          *
          * @param parameter The name of the parameter. It will be treated case sensitively.
          * @param obfuscator The obfuscator to use for obfuscating the parameter.
@@ -214,7 +218,7 @@ public final class RequestParameterObfuscator extends Obfuscator {
             return f.apply(this);
         }
 
-        private StringMap<Obfuscator> obfuscators() {
+        private Map<String, Obfuscator> obfuscators() {
             return obfuscators.build();
         }
 
