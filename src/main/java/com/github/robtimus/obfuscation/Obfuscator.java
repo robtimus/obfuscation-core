@@ -37,7 +37,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
- * A class that will obfuscate {@link CharSequence CharSequences} or the contents of {@link Reader Readers}.
+ * An object that will obfuscate {@link CharSequence CharSequences} or the contents of {@link Reader Readers}.
  *
  * @author Rob Spoor
  */

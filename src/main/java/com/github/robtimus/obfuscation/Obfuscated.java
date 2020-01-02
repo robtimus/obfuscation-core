@@ -21,7 +21,7 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 /**
- * A class that provides obfuscation for another value. This obfuscation is performed when {@link #toString()} is called, and can be used to prevent
+ * An object that provides obfuscation for another value. This obfuscation is performed when {@link #toString()} is called, and can be used to prevent
  * leaking the obfuscated value's string presentation by accident, e.g. by logging it.
  *
  * @author Rob Spoor
