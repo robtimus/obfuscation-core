@@ -1,6 +1,6 @@
 /*
  * RequestParameterObfuscator.java
- * Copyright 2019 Rob Spoor
+ * Copyright 2020 Rob Spoor
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 
 package com.github.robtimus.obfuscation;
 
+import static com.github.robtimus.obfuscation.CaseSensitivity.CASE_SENSITIVE;
 import static com.github.robtimus.obfuscation.ObfuscatorUtils.checkStartAndEnd;
 import static com.github.robtimus.obfuscation.ObfuscatorUtils.indexOf;
 import static com.github.robtimus.obfuscation.ObfuscatorUtils.map;
@@ -167,15 +168,17 @@ public final class RequestParameterObfuscator extends Obfuscator {
 
         /**
          * Adds a parameter to obfuscate.
-         * This method is an alias for {@link #withParameter(String, Obfuscator, boolean) withParameter(parameter, obfuscator, true)}.
+         * This method is an alias for
+         * {@link #withParameter(String, Obfuscator, CaseSensitivity) withParameter(parameter, obfuscator, CASE_SENSITIVE)}.
          *
          * @param parameter The name of the parameter. It will be treated case sensitively.
          * @param obfuscator The obfuscator to use for obfuscating the parameter.
          * @return This object.
          * @throws NullPointerException If the given parameter name or obfuscator is {@code null}.
+         * @throws IllegalArgumentException If a parameter with the same name and the same case sensitivity was already added.
          */
         public Builder withParameter(String parameter, Obfuscator obfuscator) {
-            return withParameter(parameter, obfuscator, true);
+            return withParameter(parameter, obfuscator, CASE_SENSITIVE);
         }
 
         /**
@@ -183,13 +186,13 @@ public final class RequestParameterObfuscator extends Obfuscator {
          *
          * @param parameter The name of the parameter.
          * @param obfuscator The obfuscator to use for obfuscating the parameter.
-         * @param caseSensitive {@code true} if the parameter name should be treated case sensitively,
-         *                          or {@code false} if it should be treated case insensitively.
+         * @param caseSensitivity The case sensitivity for the parameter name.
          * @return This object.
-         * @throws NullPointerException If the given parameter name or obfuscator is {@code null}.
+         * @throws NullPointerException If the given parameter name, obfuscator or case sensitivity is {@code null}.
+         * @throws IllegalArgumentException If a parameter with the same name and the same case sensitivity was already added.
          */
-        public Builder withParameter(String parameter, Obfuscator obfuscator, boolean caseSensitive) {
-            obfuscators.withEntry(parameter, obfuscator, caseSensitive);
+        public Builder withParameter(String parameter, Obfuscator obfuscator, CaseSensitivity caseSensitivity) {
+            obfuscators.withEntry(parameter, obfuscator, caseSensitivity);
             return this;
         }
 

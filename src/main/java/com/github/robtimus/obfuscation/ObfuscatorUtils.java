@@ -1,6 +1,6 @@
 /*
  * ObfuscatorUtils.java
- * Copyright 2019 Rob Spoor
+ * Copyright 2020 Rob Spoor
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 
 package com.github.robtimus.obfuscation;
 
+import static com.github.robtimus.obfuscation.CaseSensitivity.CASE_SENSITIVE;
 import java.io.Closeable;
 import java.io.Flushable;
 import java.io.IOException;
@@ -557,15 +558,16 @@ public final class ObfuscatorUtils {
 
         /**
          * Adds an entry.
-         * This method is an alias for {@link #withEntry(String, Object, boolean) withEntry(key, value, true)}.
+         * This method is an alias for {@link #withEntry(String, Object, CaseSensitivity) withEntry(key, value, CASE_SENSITIVE)}.
          *
          * @param key The key for the entry.
          * @param value The value for the entry.
          * @return This object.
          * @throws NullPointerException If the key or value is {@code null}.
+         * @throws IllegalArgumentException If an entry with the same key and the same case sensitivity was already added.
          */
         public MapBuilder<V> withEntry(String key, V value) {
-            return withEntry(key, value, true);
+            return withEntry(key, value, CASE_SENSITIVE);
         }
 
         /**
@@ -573,19 +575,21 @@ public final class ObfuscatorUtils {
          *
          * @param key The key for the entry.
          * @param value The value for the entry.
-         * @param caseSensitive {@code true} if the key should be treated case sensitively,
-         *                          or {@code false} if it should be treated case insensitively.
+         * @param caseSensitivity The case sensitivity for the key.
          * @return This object.
-         * @throws NullPointerException If the key or value is {@code null}.
+         * @throws NullPointerException If the key, value or case sensitivity is {@code null}.
+         * @throws IllegalArgumentException If an entry with the same key and the same case sensitivity was already added.
          */
-        public MapBuilder<V> withEntry(String key, V value, boolean caseSensitive) {
+        public MapBuilder<V> withEntry(String key, V value, CaseSensitivity caseSensitivity) {
             Objects.requireNonNull(key);
             Objects.requireNonNull(value);
-            if (caseSensitive) {
-                caseSensitiveMap.put(key, value);
-            } else {
-                caseInsensitiveMap.put(key, value);
+            Objects.requireNonNull(caseSensitivity);
+
+            Map<String, V> map = caseSensitivity.isCaseSensitive() ? caseSensitiveMap : caseInsensitiveMap;
+            if (map.containsKey(key)) {
+                throw new IllegalArgumentException(Messages.stringMap.duplicateKey.get(key, caseSensitivity));
             }
+            map.put(key, value);
             return this;
         }
 

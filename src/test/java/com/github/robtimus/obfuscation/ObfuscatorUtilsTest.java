@@ -1,6 +1,6 @@
 /*
  * ObfuscatorUtilsTest.java
- * Copyright 2019 Rob Spoor
+ * Copyright 2020 Rob Spoor
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@
 
 package com.github.robtimus.obfuscation;
 
+import static com.github.robtimus.obfuscation.CaseSensitivity.CASE_INSENSITIVE;
+import static com.github.robtimus.obfuscation.CaseSensitivity.CASE_SENSITIVE;
 import static com.github.robtimus.obfuscation.ObfuscatorUtils.append;
 import static com.github.robtimus.obfuscation.ObfuscatorUtils.checkIndex;
 import static com.github.robtimus.obfuscation.ObfuscatorUtils.checkOffsetAndLength;
@@ -584,11 +586,11 @@ public class ObfuscatorUtilsTest {
         }
 
         @Test
-        @DisplayName("withEntry(String, K, boolean)")
+        @DisplayName("withEntry(String, K, CaseSensitivity)")
         public void testWithEntry() {
             MapBuilder<Integer> builder = ObfuscatorUtils.<Integer>map()
-                    .withEntry("a", 1, true)
-                    .withEntry("b", 2, false);
+                    .withEntry("a", 1, CASE_SENSITIVE)
+                    .withEntry("b", 2, CASE_INSENSITIVE);
 
             Map<String, Integer> expectedCaseSensitiveMap = new HashMap<>();
             expectedCaseSensitiveMap.put("a", 1);
@@ -598,14 +600,27 @@ public class ObfuscatorUtilsTest {
             assertEquals(expectedCaseSensitiveMap, builder.caseSensitiveMap());
             assertEquals(expectedCaseInsensitiveMap, builder.caseInsensitiveMap());
 
-            builder.withEntry("a", 3, false);
-            builder.withEntry("b", 4, true);
+            builder.withEntry("a", 3, CASE_INSENSITIVE);
+            builder.withEntry("b", 4, CASE_SENSITIVE);
 
             expectedCaseSensitiveMap.put("b", 4);
             expectedCaseInsensitiveMap.put("a", 3);
 
             assertEquals(expectedCaseSensitiveMap, builder.caseSensitiveMap());
             assertEquals(expectedCaseInsensitiveMap, builder.caseInsensitiveMap());
+
+            assertDuplicateKey(builder, "a", 5, CaseSensitivity.CASE_SENSITIVE);
+            assertDuplicateKey(builder, "b", 7, CaseSensitivity.CASE_SENSITIVE);
+            assertDuplicateKey(builder, "a", 9, CaseSensitivity.CASE_INSENSITIVE);
+            assertDuplicateKey(builder, "b", 11, CaseSensitivity.CASE_INSENSITIVE);
+
+            assertEquals(expectedCaseSensitiveMap, builder.caseSensitiveMap());
+            assertEquals(expectedCaseInsensitiveMap, builder.caseInsensitiveMap());
+        }
+
+        private void assertDuplicateKey(MapBuilder<Integer> builder, String key, Integer value, CaseSensitivity caseSensitivity) {
+            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> builder.withEntry(key, value, caseSensitivity));
+            assertEquals(Messages.stringMap.duplicateKey.get(key, caseSensitivity), exception.getMessage());
         }
 
         @Test
@@ -636,9 +651,9 @@ public class ObfuscatorUtilsTest {
             @DisplayName("only case sensitive entries")
             public void testOnlyCaseSensitiveEntries() {
                 Map<String, Integer> map = ObfuscatorUtils.<Integer>map()
-                        .withEntry("a", 1, true)
-                        .withEntry("b", 2, true)
-                        .withEntry("c", 3, true)
+                        .withEntry("a", 1, CASE_SENSITIVE)
+                        .withEntry("b", 2, CASE_SENSITIVE)
+                        .withEntry("c", 3, CASE_SENSITIVE)
                         .build();
 
                 Map<String, Integer> expectedMap = new HashMap<>();
@@ -663,9 +678,9 @@ public class ObfuscatorUtilsTest {
             @DisplayName("only case insensitive entries")
             public void testOnlyCaseInsensitiveEntries() {
                 Map<String, Integer> map = ObfuscatorUtils.<Integer>map()
-                        .withEntry("a", 1, false)
-                        .withEntry("b", 2, false)
-                        .withEntry("c", 3, false)
+                        .withEntry("a", 1, CASE_INSENSITIVE)
+                        .withEntry("b", 2, CASE_INSENSITIVE)
+                        .withEntry("c", 3, CASE_INSENSITIVE)
                         .build();
 
                 Map<String, Integer> expectedMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
@@ -692,10 +707,10 @@ public class ObfuscatorUtilsTest {
             public class MixedCaseEntriesTest {
 
                 private final Map<String, Integer> map = ObfuscatorUtils.<Integer>map()
-                        .withEntry("a", 1, true)
-                        .withEntry("b", 2, false)
-                        .withEntry("c", 3, true)
-                        .withEntry("d", 4, false)
+                        .withEntry("a", 1, CASE_SENSITIVE)
+                        .withEntry("b", 2, CASE_INSENSITIVE)
+                        .withEntry("c", 3, CASE_SENSITIVE)
+                        .withEntry("d", 4, CASE_INSENSITIVE)
                         .build();
 
                 @Test
@@ -1127,48 +1142,48 @@ public class ObfuscatorUtilsTest {
                             arguments(null, false),
                             // same mappings
                             arguments(ObfuscatorUtils.<Integer>map()
-                                    .withEntry("a", 1, true)
-                                    .withEntry("b", 2, false)
-                                    .withEntry("c", 3, true)
-                                    .withEntry("d", 4, false)
+                                    .withEntry("a", 1, CASE_SENSITIVE)
+                                    .withEntry("b", 2, CASE_INSENSITIVE)
+                                    .withEntry("c", 3, CASE_SENSITIVE)
+                                    .withEntry("d", 4, CASE_INSENSITIVE)
                                     .build(), true),
                             // same mappings, since case insensitive keys match case insensitively
                             arguments(ObfuscatorUtils.<Integer>map()
-                                    .withEntry("a", 1, true)
-                                    .withEntry("B", 2, false)
-                                    .withEntry("c", 3, true)
-                                    .withEntry("D", 4, false)
+                                    .withEntry("a", 1, CASE_SENSITIVE)
+                                    .withEntry("B", 2, CASE_INSENSITIVE)
+                                    .withEntry("c", 3, CASE_SENSITIVE)
+                                    .withEntry("D", 4, CASE_INSENSITIVE)
                                     .build(), true),
                             // different mappings, since the cases have been swapped
                             arguments(ObfuscatorUtils.<Integer>map()
-                                    .withEntry("a", 1, false)
-                                    .withEntry("b", 2, true)
-                                    .withEntry("c", 3, false)
-                                    .withEntry("d", 4, true)
+                                    .withEntry("a", 1, CASE_INSENSITIVE)
+                                    .withEntry("b", 2, CASE_SENSITIVE)
+                                    .withEntry("c", 3, CASE_INSENSITIVE)
+                                    .withEntry("d", 4, CASE_SENSITIVE)
                                     .build(), false),
                             // different mappings, since case sensitive keys match case sensitively;
                             arguments(ObfuscatorUtils.<Integer>map()
-                                    .withEntry("A", 1, true)
-                                    .withEntry("b", 2, false)
-                                    .withEntry("c", 3, true)
-                                    .withEntry("d", 4, false)
+                                    .withEntry("A", 1, CASE_SENSITIVE)
+                                    .withEntry("b", 2, CASE_INSENSITIVE)
+                                    .withEntry("c", 3, CASE_SENSITIVE)
+                                    .withEntry("d", 4, CASE_INSENSITIVE)
                                     .build(), false),
                             // case sensitive is different, case insensitive is the same
                             arguments(ObfuscatorUtils.<Integer>map()
-                                    .withEntry("a", 1, false)
-                                    .withEntry("b", 2, true)
-                                    .withEntry("d", 4, true)
+                                    .withEntry("a", 1, CASE_INSENSITIVE)
+                                    .withEntry("b", 2, CASE_SENSITIVE)
+                                    .withEntry("d", 4, CASE_SENSITIVE)
                                     .build(), false),
                             // case sensitive is the same, case insensitive is different
                             arguments(ObfuscatorUtils.<Integer>map()
-                                    .withEntry("a", 1, true)
-                                    .withEntry("b", 2, false)
-                                    .withEntry("c", 3, true)
+                                    .withEntry("a", 1, CASE_SENSITIVE)
+                                    .withEntry("b", 2, CASE_INSENSITIVE)
+                                    .withEntry("c", 3, CASE_SENSITIVE)
                                     .build(), false),
                             // case sensitive and case insensitive are both different
                             arguments(ObfuscatorUtils.<Integer>map()
-                                    .withEntry("a", 1, true)
-                                    .withEntry("b", 2, false)
+                                    .withEntry("a", 1, CASE_SENSITIVE)
+                                    .withEntry("b", 2, CASE_INSENSITIVE)
                                     .build(), false),
                             // a different map type with the same mappings; equals checks that the given map contains entries of map
                             arguments(hashMap, true),

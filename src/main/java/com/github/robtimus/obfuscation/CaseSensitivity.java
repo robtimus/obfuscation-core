@@ -1,5 +1,5 @@
 /*
- * package-info.java
+ * CaseSensitivity.java
  * Copyright 2020 Rob Spoor
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +15,29 @@
  * limitations under the License.
  */
 
-/**
- * Contains classes and interfaces for obfuscating text.
- */
 package com.github.robtimus.obfuscation;
+
+/**
+ * Represents the possible case sensitivities.
+ *
+ * @author Rob Spoor
+ */
+public enum CaseSensitivity {
+
+    /** Case sensitive. */
+    CASE_SENSITIVE(true),
+
+    /** Case insensitive. */
+    CASE_INSENSITIVE(false),
+    ;
+
+    private final boolean caseSensitive;
+
+    CaseSensitivity(boolean caseSensitive) {
+        this.caseSensitive = caseSensitive;
+    }
+
+    boolean isCaseSensitive() {
+        return caseSensitive;
+    }
+}
