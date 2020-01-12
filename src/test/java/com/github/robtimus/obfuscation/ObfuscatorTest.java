@@ -714,6 +714,94 @@ public class ObfuscatorTest {
         }
 
         @Nested
+        @DisplayName("keepAtStart(4).withFixedLength(0)")
+        @TestInstance(Lifecycle.PER_CLASS)
+        public class KeepAtStartWithZeroFixedLength extends NestedObfuscatorTest {
+
+            KeepAtStartWithZeroFixedLength() {
+                super(maskChar -> portion().keepAtStart(4).withFixedLength(0).withMaskChar(maskChar).build(), new Arguments[] {
+                        arguments("foo", '*', "foo"),
+                        arguments("hello", '*', "hell"),
+                        arguments("foobar", '*', "foob"),
+                        arguments("hello", 'x', "hell"),
+                        arguments("foobar", 'x', "foob"),
+                }, "null");
+            }
+        }
+
+        @Nested
+        @DisplayName("keepAtEnd(4).withFixedLength(0)")
+        @TestInstance(Lifecycle.PER_CLASS)
+        public class KeepAtEndWithZeroFixedLength extends NestedObfuscatorTest {
+
+            KeepAtEndWithZeroFixedLength() {
+                super(maskChar -> portion().keepAtEnd(4).withFixedLength(0).withMaskChar(maskChar).build(), new Arguments[] {
+                        arguments("foo", '*', "foo"),
+                        arguments("hello", '*', "ello"),
+                        arguments("foobar", '*', "obar"),
+                        arguments("hello", 'x', "ello"),
+                        arguments("foobar", 'x', "obar"),
+                }, "null");
+            }
+        }
+
+        @Nested
+        @DisplayName("keepAtStart(4).keepAtEnd(4).withFixedLength(0)")
+        @TestInstance(Lifecycle.PER_CLASS)
+        public class KeepAtStartAndEndWithZeroFixedLength extends NestedObfuscatorTest {
+
+            KeepAtStartAndEndWithZeroFixedLength() {
+                super(maskChar -> portion().keepAtStart(4).keepAtEnd(4).withFixedLength(0).withMaskChar(maskChar).build(), new Arguments[] {
+                        arguments("foo", '*', "foo"),
+                        arguments("hello", '*', "hello"),
+                        arguments("hello world", '*', "hellorld"),
+                        arguments("foobar", '*', "foobar"),
+                        arguments("hello", 'x', "hello"),
+                        arguments("foobar", 'x', "foobar"),
+                        arguments("hello world", 'x', "hellorld"),
+                }, "null");
+            }
+        }
+
+        @Nested
+        @DisplayName("keepAtStart(4).atLeastFromEnd(4).withFixedLength(0)")
+        @TestInstance(Lifecycle.PER_CLASS)
+        public class KeepAtStartAtLeastFromEndWithZeroFixedLength extends NestedObfuscatorTest {
+
+            public KeepAtStartAtLeastFromEndWithZeroFixedLength() {
+                super(maskChar -> portion().keepAtStart(4).atLeastFromEnd(4).withFixedLength(0).withMaskChar(maskChar).build(), new Arguments[] {
+                        arguments("foo", '*', ""),
+                        arguments("hello", '*', "h"),
+                        arguments("hello world", '*', "hell"),
+                        arguments("foobar", '*', "fo"),
+                        arguments("foo", 'x', ""),
+                        arguments("hello", 'x', "h"),
+                        arguments("foobar", 'x', "fo"),
+                        arguments("hello world", 'x', "hell"),
+                }, "");
+            }
+        }
+
+        @Nested
+        @DisplayName("keepAtEnd(4).atLeastFromStart(4).withFixedLength(0)")
+        @TestInstance(Lifecycle.PER_CLASS)
+        public class KeepAtEndAtLeastFromStartWithZeroFixedLength extends NestedObfuscatorTest {
+
+            KeepAtEndAtLeastFromStartWithZeroFixedLength() {
+                super(maskChar -> portion().keepAtEnd(4).atLeastFromStart(4).withFixedLength(0).withMaskChar(maskChar).build(), new Arguments[] {
+                        arguments("foo", '*', ""),
+                        arguments("hello", '*', "o"),
+                        arguments("hello world", '*', "orld"),
+                        arguments("foobar", '*', "ar"),
+                        arguments("foo", 'x', ""),
+                        arguments("hello", 'x', "o"),
+                        arguments("foobar", 'x', "ar"),
+                        arguments("hello world", 'x', "orld"),
+                }, "");
+            }
+        }
+
+        @Nested
         @DisplayName("obfuscate last 2 chars")
         @TestInstance(Lifecycle.PER_CLASS)
         public class LastTwoChars extends NestedObfuscatorTest {

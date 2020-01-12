@@ -1145,7 +1145,7 @@ public abstract class Obfuscator {
             // 0 <= from <= length == end - start, so start <= from + start <= end
             // 0 <= to <= length == end - start, so 0 <= length - to and start <= end - to
 
-            if (fixedLength > 0) {
+            if (fixedLength >= 0) {
                 // length - to - from needs to be fixedLength, so length needs to be fixedLength + from + to
                 length = fixedLength + from + to;
             }
