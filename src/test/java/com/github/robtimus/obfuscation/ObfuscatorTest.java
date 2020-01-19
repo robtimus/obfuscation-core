@@ -20,6 +20,7 @@ package com.github.robtimus.obfuscation;
 import static com.github.robtimus.obfuscation.Obfuscator.all;
 import static com.github.robtimus.obfuscation.Obfuscator.fixedLength;
 import static com.github.robtimus.obfuscation.Obfuscator.fixedValue;
+import static com.github.robtimus.obfuscation.Obfuscator.fromFunction;
 import static com.github.robtimus.obfuscation.Obfuscator.none;
 import static com.github.robtimus.obfuscation.Obfuscator.portion;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -41,6 +42,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
+import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -60,7 +62,7 @@ public class ObfuscatorTest {
                     arguments("foo", 'x', "xxx"),
                     arguments("hello", '*', "*****"),
                     arguments("hello", 'x', "xxxxx"),
-            }, "****");
+            }, "", "****");
         }
 
         @ParameterizedTest(name = "{1}")
@@ -99,7 +101,7 @@ public class ObfuscatorTest {
             super(maskChar -> none(), new Arguments[] {
                     arguments("foo", '*', "foo"),
                     arguments("hello", '*', "hello"),
-            }, "null");
+            }, "", "null");
         }
 
         @ParameterizedTest(name = "{1}")
@@ -139,7 +141,7 @@ public class ObfuscatorTest {
                     arguments("foo", 'x', "xxxxxxxx"),
                     arguments("hello", '*', "********"),
                     arguments("hello", 'x', "xxxxxxxx"),
-            }, "********");
+            }, "********", "********");
         }
 
         @Test
@@ -186,7 +188,7 @@ public class ObfuscatorTest {
             super(maskChar -> fixedLength(0, maskChar), new Arguments[] {
                     arguments("foo", '*', ""),
                     arguments("hello", '*', ""),
-            }, "");
+            }, "", "");
         }
     }
 
@@ -201,12 +203,12 @@ public class ObfuscatorTest {
                     arguments("foo", 'x', "obfuscated"),
                     arguments("hello", '*', "obfuscated"),
                     arguments("hello", 'x', "obfuscated"),
-            }, "obfuscated");
+            }, "obfuscated", "obfuscated");
         }
 
         @Test
         @DisplayName("null fixed value")
-        public void testNegativeLength() {
+        public void testNullFixedValue() {
             assertThrows(NullPointerException.class, () -> fixedValue(null));
         }
 
@@ -246,7 +248,7 @@ public class ObfuscatorTest {
             super(maskChar -> fixedValue(""), new Arguments[] {
                     arguments("foo", '*', ""),
                     arguments("hello", '*', ""),
-            }, "");
+            }, "", "");
         }
     }
 
@@ -266,7 +268,7 @@ public class ObfuscatorTest {
                         arguments("foobar", '*', "foob**"),
                         arguments("hello", 'x', "hellx"),
                         arguments("foobar", 'x', "foobxx"),
-                }, "null");
+                }, "", "null");
             }
 
             @ParameterizedTest(name = "{1}")
@@ -309,7 +311,7 @@ public class ObfuscatorTest {
                         arguments("foobar", '*', "**obar"),
                         arguments("hello", 'x', "xello"),
                         arguments("foobar", 'x', "xxobar"),
-                }, "null");
+                }, "", "null");
             }
 
             @ParameterizedTest(name = "{1}")
@@ -354,7 +356,7 @@ public class ObfuscatorTest {
                         arguments("hello", 'x', "hello"),
                         arguments("foobar", 'x', "foobar"),
                         arguments("hello world", 'x', "hellxxxorld"),
-                }, "null");
+                }, "", "null");
             }
 
             @ParameterizedTest(name = "{1}")
@@ -401,7 +403,7 @@ public class ObfuscatorTest {
                         arguments("hello", 'x', "hxxxx"),
                         arguments("foobar", 'x', "foxxxx"),
                         arguments("hello world", 'x', "hellxxxxxxx"),
-                }, "****");
+                }, "", "****");
             }
 
             @ParameterizedTest(name = "{1}")
@@ -448,7 +450,7 @@ public class ObfuscatorTest {
                         arguments("hello", 'x', "xxxxo"),
                         arguments("foobar", 'x', "xxxxar"),
                         arguments("hello world", 'x', "xxxxxxxorld"),
-                }, "****");
+                }, "", "****");
             }
 
             @ParameterizedTest(name = "{1}")
@@ -492,7 +494,7 @@ public class ObfuscatorTest {
                         arguments("foobar", '*', "foob***"),
                         arguments("hello", 'x', "hellxxx"),
                         arguments("foobar", 'x', "foobxxx"),
-                }, "null***");
+                }, "***", "null***");
             }
 
             @ParameterizedTest(name = "{1}")
@@ -536,7 +538,7 @@ public class ObfuscatorTest {
                         arguments("foobar", '*', "***obar"),
                         arguments("hello", 'x', "xxxello"),
                         arguments("foobar", 'x', "xxxobar"),
-                }, "***null");
+                }, "***", "***null");
             }
 
             @ParameterizedTest(name = "{1}")
@@ -582,7 +584,7 @@ public class ObfuscatorTest {
                         arguments("hello", 'x', "hellxxxo"),
                         arguments("foobar", 'x', "foobxxxar"),
                         arguments("hello world", 'x', "hellxxxorld"),
-                }, "null***");
+                }, "***", "null***");
             }
 
             @ParameterizedTest(name = "{1}")
@@ -630,7 +632,7 @@ public class ObfuscatorTest {
                         arguments("hello", 'x', "hxxx"),
                         arguments("foobar", 'x', "foxxx"),
                         arguments("hello world", 'x', "hellxxx"),
-                }, "***");
+                }, "***", "***");
             }
 
             @ParameterizedTest(name = "{1}")
@@ -679,7 +681,7 @@ public class ObfuscatorTest {
                         arguments("hello", 'x', "xxxo"),
                         arguments("foobar", 'x', "xxxar"),
                         arguments("hello world", 'x', "xxxorld"),
-                }, "***");
+                }, "***", "***");
             }
 
             @ParameterizedTest(name = "{1}")
@@ -725,7 +727,7 @@ public class ObfuscatorTest {
                         arguments("foobar", '*', "foob"),
                         arguments("hello", 'x', "hell"),
                         arguments("foobar", 'x', "foob"),
-                }, "null");
+                }, "", "null");
             }
         }
 
@@ -741,7 +743,7 @@ public class ObfuscatorTest {
                         arguments("foobar", '*', "obar"),
                         arguments("hello", 'x', "ello"),
                         arguments("foobar", 'x', "obar"),
-                }, "null");
+                }, "", "null");
             }
         }
 
@@ -759,7 +761,7 @@ public class ObfuscatorTest {
                         arguments("hello", 'x', "hello"),
                         arguments("foobar", 'x', "foobar"),
                         arguments("hello world", 'x', "hellorld"),
-                }, "null");
+                }, "", "null");
             }
         }
 
@@ -778,7 +780,7 @@ public class ObfuscatorTest {
                         arguments("hello", 'x', "h"),
                         arguments("foobar", 'x', "fo"),
                         arguments("hello world", 'x', "hell"),
-                }, "");
+                }, "", "");
             }
         }
 
@@ -797,7 +799,7 @@ public class ObfuscatorTest {
                         arguments("hello", 'x', "o"),
                         arguments("foobar", 'x', "ar"),
                         arguments("hello world", 'x', "orld"),
-                }, "");
+                }, "", "");
             }
         }
 
@@ -816,7 +818,7 @@ public class ObfuscatorTest {
                         arguments("hello", 'x', "helxx"),
                         arguments("foobar", 'x', "foobxx"),
                         arguments("hello world", 'x', "hello worxx"),
-                }, "nu**");
+                }, "", "nu**");
             }
         }
 
@@ -835,7 +837,7 @@ public class ObfuscatorTest {
                         arguments("hello", 'x', "xxllo"),
                         arguments("foobar", 'x', "xxobar"),
                         arguments("hello world", 'x', "xxllo world"),
-                }, "**ll");
+                }, "", "**ll");
             }
         }
 
@@ -877,15 +879,154 @@ public class ObfuscatorTest {
         }
     }
 
+    @Nested
+    @DisplayName("fromFunction(s -> s.toString().toUpperCase())")
+    @TestInstance(Lifecycle.PER_CLASS)
+    public class FromFunction extends NestedObfuscatorTest {
+
+        FromFunction() {
+            super(maskChar -> fromFunction(s -> s.toString().toUpperCase()), new Arguments[] {
+                    arguments("foo", '*', "FOO"),
+                    arguments("foo", 'x', "FOO"),
+                    arguments("hello", '*', "HELLO"),
+                    arguments("hello", 'x', "HELLO"),
+            }, "", "NULL");
+        }
+
+        @Test
+        @DisplayName("null function")
+        public void testNullFunction() {
+            assertThrows(NullPointerException.class, () -> fromFunction(null));
+        }
+
+        @ParameterizedTest(name = "{1}")
+        @MethodSource
+        @DisplayName("equals(Object)")
+        public void testEquals(Obfuscator obfuscator, Object object, boolean expected) {
+            assertEquals(expected, obfuscator.equals(object));
+        }
+
+        Arguments[] testEquals() {
+            Function<CharSequence, String> function = s -> s.toString().toUpperCase();
+            Obfuscator obfuscator = fromFunction(function);
+            return new Arguments[] {
+                    arguments(obfuscator, obfuscator, true),
+                    arguments(obfuscator, null, false),
+                    arguments(obfuscator, fromFunction(function), true),
+                    arguments(obfuscator, fromFunction(s -> s.toString()), false),
+                    arguments(obfuscator, "foo", false),
+            };
+        }
+
+        @Test
+        @DisplayName("hashCode()")
+        public void testHashCode() {
+            Function<CharSequence, String> function = s -> s.toString().toUpperCase();
+            Obfuscator obfuscator = fromFunction(function);
+            assertEquals(obfuscator.hashCode(), obfuscator.hashCode());
+            assertEquals(obfuscator.hashCode(), fromFunction(function).hashCode());
+        }
+
+        @Nested
+        @DisplayName("Function returns null")
+        public class FunctionReturnsNull {
+
+            private final Obfuscator obfuscator = fromFunction(s -> null);
+
+            private void testThrowsNullPointerException(String input, Executable executable) {
+                NullPointerException exception = assertThrows(NullPointerException.class, executable);
+                assertEquals(Messages.fromFunction.functionReturnedNull.get(input), exception.getMessage());
+            }
+
+            @Test
+            @DisplayName("obfuscateText(CharSequence)")
+            public void testObfuscateTextCharSequence() {
+                testThrowsNullPointerException("Hello World", () -> obfuscator.obfuscateText("Hello World"));
+            }
+
+            @Test
+            @DisplayName("obfuscateText(CharSequence, int, int)")
+            public void testObfuscateTextCharSequenceRange() {
+                testThrowsNullPointerException("lo", () -> obfuscator.obfuscateText("Hello World", 3, 5));
+            }
+
+            @Test
+            @DisplayName("obfuscateText(CharSequence, StringBuilder)")
+            public void testObfuscateTextCharSequenceToStringBuilder() {
+                StringBuilder destination = new StringBuilder();
+                testThrowsNullPointerException("Hello World", () -> obfuscator.obfuscateText("Hello World", destination));
+                assertEquals("", destination.toString());
+            }
+
+            @Test
+            @DisplayName("obfuscateText(CharSequence, int, int, StringBuilder)")
+            public void testObfuscateTextCharSequenceRangeToStringBuilder() {
+                StringBuilder destination = new StringBuilder();
+                testThrowsNullPointerException("lo", () -> obfuscator.obfuscateText("Hello World", 3, 5, destination));
+                assertEquals("", destination.toString());
+            }
+
+            @Test
+            @DisplayName("obfuscateText(CharSequence, StringBuffer)")
+            public void testObfuscateTextCharSequenceToStringBuffer() {
+                StringBuffer destination = new StringBuffer();
+                testThrowsNullPointerException("Hello World", () -> obfuscator.obfuscateText("Hello World", destination));
+                assertEquals("", destination.toString());
+            }
+
+            @Test
+            @DisplayName("obfuscateText(CharSequence, int, int, StringBuffer)")
+            public void testObfuscateTextCharSequenceRangeToStringBuffer() {
+                StringBuffer destination = new StringBuffer();
+                testThrowsNullPointerException("lo", () -> obfuscator.obfuscateText("Hello World", 3, 5, destination));
+                assertEquals("", destination.toString());
+            }
+
+            @Test
+            @DisplayName("obfuscateText(CharSequence, Appendable)")
+            public void testObfuscateTextCharSequenceToAppendable() {
+                Writer destination = new StringWriter();
+                testThrowsNullPointerException("Hello World", () -> obfuscator.obfuscateText("Hello World", destination));
+                assertEquals("", destination.toString());
+            }
+
+            @Test
+            @DisplayName("obfuscateText(CharSequence, int, int, Appendable)")
+            public void testObfuscateTextCharSequenceRangeToAppendable() {
+                Writer destination = new StringWriter();
+                testThrowsNullPointerException("lo", () -> obfuscator.obfuscateText("Hello World", 3, 5, destination));
+                assertEquals("", destination.toString());
+            }
+
+            @Test
+            @DisplayName("obfuscateText(Reader)")
+            public void testObfuscateTextReader() {
+                testThrowsNullPointerException("Hello World", () -> obfuscator.obfuscateText(new StringReader("Hello World")));
+            }
+
+            @Test
+            @DisplayName("obfuscateText(Reader, Appendable)")
+            public void testObfuscateTextReaderToAppendable() {
+                StringBuilder destination = new StringBuilder();
+                testThrowsNullPointerException("Hello World", () -> obfuscator.obfuscateText(new StringReader("Hello World"), destination));
+                assertEquals("", destination.toString());
+            }
+        }
+    }
+
     private static class NestedObfuscatorTest {
 
         private final Function<Character, Obfuscator> obfuscatorProvider;
         private final Arguments[] testData;
+        private final String obfuscatedEmpty;
         private final String obfuscatedNull;
 
-        NestedObfuscatorTest(Function<Character, Obfuscator> obfuscatorProvider, Arguments[] testData, String obfuscatedNull) {
+        NestedObfuscatorTest(Function<Character, Obfuscator> obfuscatorProvider, Arguments[] testData,
+                String obfuscatedEmpty, String obfuscatedNull) {
+
             this.obfuscatorProvider = obfuscatorProvider;
             this.testData = testData;
+            this.obfuscatedEmpty = obfuscatedEmpty;
             this.obfuscatedNull = obfuscatedNull;
         }
 
@@ -906,6 +1047,7 @@ public class ObfuscatorTest {
 
             Obfuscator obfuscator = obfuscatorProvider.apply(maskChar);
 
+            assertEquals(expected, obfuscator.obfuscateText(input, 0, input.length()).toString());
             assertEquals(expected, obfuscator.obfuscateText(prefix + input + postfix, prefix.length(), prefix.length() + input.length()).toString());
             assertEquals(expected, obfuscator.obfuscateText(prefix + input, prefix.length(), prefix.length() + input.length()).toString());
             assertEquals(expected, obfuscator.obfuscateText(input + postfix, 0, input.length()).toString());
@@ -996,13 +1138,21 @@ public class ObfuscatorTest {
             obfuscator.obfuscateText(new StringBuilder(input), writer);
             assertEquals(expected, writer.toString());
 
-            StringBuilder sb = new StringBuilder();
-            obfuscator.obfuscateText(input, sb);
-            assertEquals(expected, sb.toString());
+            StringBuilder stringBuilder = new StringBuilder();
+            obfuscator.obfuscateText(input, (Appendable) stringBuilder);
+            assertEquals(expected, stringBuilder.toString());
 
-            sb.delete(0, sb.length());
-            obfuscator.obfuscateText(new StringBuffer(input), sb);
-            assertEquals(expected, sb.toString());
+            stringBuilder.delete(0, stringBuilder.length());
+            obfuscator.obfuscateText(new StringBuilder(input), (Appendable) stringBuilder);
+            assertEquals(expected, stringBuilder.toString());
+
+            StringBuffer stringBuffer = new StringBuffer();
+            obfuscator.obfuscateText(input, (Appendable) stringBuffer);
+            assertEquals(expected, stringBuffer.toString());
+
+            stringBuffer.delete(0, stringBuffer.length());
+            obfuscator.obfuscateText(new StringBuilder(input), (Appendable) stringBuffer);
+            assertEquals(expected, stringBuffer.toString());
         }
 
         @ParameterizedTest(name = "{0} with {1} -> {2}")
@@ -1022,13 +1172,23 @@ public class ObfuscatorTest {
             obfuscator.obfuscateText(new StringBuilder(prefix + input + postfix), prefix.length(), prefix.length() + input.length(), writer);
             assertEquals(expected, writer.toString());
 
-            StringBuilder sb = new StringBuilder();
-            obfuscator.obfuscateText(prefix + input + postfix, prefix.length(), prefix.length() + input.length(), sb);
-            assertEquals(expected, sb.toString());
+            StringBuilder stringBuilder = new StringBuilder();
+            obfuscator.obfuscateText(prefix + input + postfix, prefix.length(), prefix.length() + input.length(), (Appendable) stringBuilder);
+            assertEquals(expected, stringBuilder.toString());
 
-            sb.delete(0, sb.length());
-            obfuscator.obfuscateText(new StringBuilder(prefix + input + postfix), prefix.length(), prefix.length() + input.length(), sb);
-            assertEquals(expected, sb.toString());
+            stringBuilder.delete(0, stringBuilder.length());
+            obfuscator.obfuscateText(new StringBuilder(prefix + input + postfix), prefix.length(), prefix.length() + input.length(),
+                    (Appendable) stringBuilder);
+            assertEquals(expected, stringBuilder.toString());
+
+            StringBuffer stringBuffer = new StringBuffer();
+            obfuscator.obfuscateText(prefix + input + postfix, prefix.length(), prefix.length() + input.length(), (Appendable) stringBuffer);
+            assertEquals(expected, stringBuffer.toString());
+
+            stringBuffer.delete(0, stringBuffer.length());
+            obfuscator.obfuscateText(new StringBuilder(prefix + input + postfix), prefix.length(), prefix.length() + input.length(),
+                    (Appendable) stringBuffer);
+            assertEquals(expected, stringBuffer.toString());
         }
 
         @ParameterizedTest(name = "{0} with {1} -> {2}")
@@ -1050,9 +1210,13 @@ public class ObfuscatorTest {
             obfuscator.obfuscateText(new StringReader(input), writer);
             assertEquals(expected, writer.toString());
 
-            StringBuilder sb = new StringBuilder();
-            obfuscator.obfuscateText(new StringReader(input), sb);
-            assertEquals(expected, sb.toString());
+            StringBuilder stringBuilder = new StringBuilder();
+            obfuscator.obfuscateText(new StringReader(input), stringBuilder);
+            assertEquals(expected, stringBuilder.toString());
+
+            StringBuffer stringBuffer = new StringBuffer();
+            obfuscator.obfuscateText(new StringReader(input), stringBuffer);
+            assertEquals(expected, stringBuffer.toString());
         }
 
         @ParameterizedTest(name = "{0} with {1} -> {2}")
@@ -1467,7 +1631,9 @@ public class ObfuscatorTest {
         }
 
         Arguments[] testData() {
-            return testData;
+            Arguments[] result = Arrays.copyOf(testData, testData.length + 1);
+            result[testData.length] = arguments("", '*', obfuscatedEmpty);
+            return result;
         }
     }
 }

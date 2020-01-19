@@ -19,6 +19,7 @@ package com.github.robtimus.obfuscation;
 
 import static com.github.robtimus.obfuscation.ObfuscatorUtils.checkOffsetAndLength;
 import static com.github.robtimus.obfuscation.ObfuscatorUtils.checkStartAndEnd;
+import static com.github.robtimus.obfuscation.ObfuscatorUtils.discardAll;
 import static com.github.robtimus.obfuscation.ObfuscatorUtils.getChars;
 import static com.github.robtimus.obfuscation.ObfuscatorUtils.readAll;
 import static com.github.robtimus.obfuscation.ObfuscatorUtils.repeatChar;
@@ -52,7 +53,7 @@ public abstract class Obfuscator {
      * @return The obfuscated contents.
      * @throws NullPointerException If the given {@code CharSequence} is {@code null}.
      */
-    public final CharSequence obfuscateText(CharSequence s) {
+    public CharSequence obfuscateText(CharSequence s) {
         return obfuscateText(s, 0, s.length());
     }
 
@@ -76,7 +77,7 @@ public abstract class Obfuscator {
      * @param destination The {@code StringBuilder} to append the obfuscated contents to.
      * @throws NullPointerException If the given {@code CharSequence} or {@code StringBuilder} is {@code null}.
      */
-    public final void obfuscateText(CharSequence s, StringBuilder destination) {
+    public void obfuscateText(CharSequence s, StringBuilder destination) {
         obfuscateText(s, 0, s.length(), destination);
     }
 
@@ -107,7 +108,7 @@ public abstract class Obfuscator {
      * @param destination The {@code StringBuffer} to append the obfuscated contents to.
      * @throws NullPointerException If the given {@code CharSequence} or {@code StringBuffer} is {@code null}.
      */
-    public final void obfuscateText(CharSequence s, StringBuffer destination) {
+    public void obfuscateText(CharSequence s, StringBuffer destination) {
         obfuscateText(s, 0, s.length(), destination);
     }
 
@@ -139,7 +140,7 @@ public abstract class Obfuscator {
      * @throws NullPointerException If the given {@code CharSequence} or {@code Appendable} is {@code null}.
      * @throws IOException If an I/O error occurs.
      */
-    public final void obfuscateText(CharSequence s, Appendable destination) throws IOException {
+    public void obfuscateText(CharSequence s, Appendable destination) throws IOException {
         obfuscateText(s, 0, s.length(), destination);
     }
 
@@ -165,7 +166,7 @@ public abstract class Obfuscator {
      * @throws NullPointerException If the given {@code Reader} is {@code null}.
      * @throws IOException If an I/O error occurs.
      */
-    public final CharSequence obfuscateText(Reader input) throws IOException {
+    public CharSequence obfuscateText(Reader input) throws IOException {
         StringBuilder sb = new StringBuilder();
         obfuscateText(input, sb);
         return sb;
@@ -390,15 +391,69 @@ public abstract class Obfuscator {
         }
 
         @Override
+        public CharSequence obfuscateText(CharSequence s) {
+            Objects.requireNonNull(s);
+            return repeatChar(maskChar, s.length());
+        }
+
+        @Override
         public CharSequence obfuscateText(CharSequence s, int start, int end) {
             checkStartAndEnd(s, start, end);
             return repeatChar(maskChar, end - start);
         }
 
         @Override
+        public void obfuscateText(CharSequence s, StringBuilder destination) {
+            Objects.requireNonNull(s);
+            Objects.requireNonNull(destination);
+            int count = s.length();
+            if (count > 0) {
+                destination.append(repeatChar(maskChar, count));
+            }
+        }
+
+        @Override
+        public void obfuscateText(CharSequence s, int start, int end, StringBuilder destination) {
+            checkStartAndEnd(s, start, end);
+            if (start < end) {
+                destination.append(repeatChar(maskChar, end - start));
+            }
+        }
+
+        @Override
+        public void obfuscateText(CharSequence s, StringBuffer destination) {
+            Objects.requireNonNull(s);
+            Objects.requireNonNull(destination);
+            int count = s.length();
+            if (count > 0) {
+                destination.append(repeatChar(maskChar, count));
+            }
+        }
+
+        @Override
+        public void obfuscateText(CharSequence s, int start, int end, StringBuffer destination) {
+            checkStartAndEnd(s, start, end);
+            if (start < end) {
+                destination.append(repeatChar(maskChar, end - start));
+            }
+        }
+
+        @Override
+        public void obfuscateText(CharSequence s, Appendable destination) throws IOException {
+            Objects.requireNonNull(s);
+            ObfuscatorUtils.append(maskChar, s.length(), destination);
+        }
+
+        @Override
         public void obfuscateText(CharSequence s, int start, int end, Appendable destination) throws IOException {
             checkStartAndEnd(s, start, end);
             ObfuscatorUtils.append(maskChar, end - start, destination);
+        }
+
+        @Override
+        public CharSequence obfuscateText(Reader input) throws IOException {
+            long count = discardAll(input);
+            return repeatChar(maskChar, (int) Math.min(count, Integer.MAX_VALUE));
         }
 
         @Override
@@ -528,9 +583,48 @@ public abstract class Obfuscator {
         private static final NoneObfuscator INSTANCE = new NoneObfuscator();
 
         @Override
+        public CharSequence obfuscateText(CharSequence s) {
+            return s;
+        }
+
+        @Override
         public CharSequence obfuscateText(CharSequence s, int start, int end) {
             checkStartAndEnd(s, start, end);
             return start == 0 && end == s.length() ? s : s.subSequence(start, end);
+        }
+
+        @Override
+        public void obfuscateText(CharSequence s, StringBuilder destination) {
+            Objects.requireNonNull(s);
+            destination.append(s);
+        }
+
+        @Override
+        public void obfuscateText(CharSequence s, int start, int end, StringBuilder destination) {
+            checkStartAndEnd(s, start, end);
+            destination.append(s, start, end);
+        }
+
+        @Override
+        public void obfuscateText(CharSequence s, StringBuffer destination) {
+            Objects.requireNonNull(s);
+            destination.append(s);
+        }
+
+        @Override
+        public void obfuscateText(CharSequence s, int start, int end, StringBuffer destination) {
+            checkStartAndEnd(s, start, end);
+            destination.append(s, start, end);
+        }
+
+        @Override
+        public void obfuscateText(CharSequence s, Appendable destination) throws IOException {
+            Objects.requireNonNull(s);
+            if (s instanceof String && destination instanceof Writer) {
+                ((Writer) destination).write((String) s);
+            } else {
+                destination.append(s);
+            }
         }
 
         @Override
@@ -691,9 +785,45 @@ public abstract class Obfuscator {
         }
 
         @Override
+        public CharSequence obfuscateText(CharSequence s) {
+            Objects.requireNonNull(s);
+            return fixedMask;
+        }
+
+        @Override
         public CharSequence obfuscateText(CharSequence s, int start, int end) {
             checkStartAndEnd(s, start, end);
             return fixedMask;
+        }
+
+        @Override
+        public void obfuscateText(CharSequence s, StringBuilder destination) {
+            Objects.requireNonNull(s);
+            destination.append(fixedMask);
+        }
+
+        @Override
+        public void obfuscateText(CharSequence s, int start, int end, StringBuilder destination) {
+            checkStartAndEnd(s, start, end);
+            destination.append(fixedMask);
+        }
+
+        @Override
+        public void obfuscateText(CharSequence s, StringBuffer destination) {
+            Objects.requireNonNull(s);
+            destination.append(fixedMask);
+        }
+
+        @Override
+        public void obfuscateText(CharSequence s, int start, int end, StringBuffer destination) {
+            checkStartAndEnd(s, start, end);
+            destination.append(fixedMask);
+        }
+
+        @Override
+        public void obfuscateText(CharSequence s, Appendable destination) throws IOException {
+            Objects.requireNonNull(s);
+            destination.append(fixedMask);
         }
 
         @Override
@@ -703,11 +833,14 @@ public abstract class Obfuscator {
         }
 
         @Override
+        public CharSequence obfuscateText(Reader input) throws IOException {
+            discardAll(input);
+            return fixedMask;
+        }
+
+        @Override
         public void obfuscateText(Reader input, Appendable destination) throws IOException {
-            char[] buffer = new char[1024];
-            while (input.read(buffer) != -1) {
-                // do nothing
-            }
+            discardAll(input);
             destination.append(fixedMask);
         }
 
@@ -821,9 +954,45 @@ public abstract class Obfuscator {
         }
 
         @Override
+        public CharSequence obfuscateText(CharSequence s) {
+            Objects.requireNonNull(s);
+            return fixedValue;
+        }
+
+        @Override
         public CharSequence obfuscateText(CharSequence s, int start, int end) {
             checkStartAndEnd(s, start, end);
             return fixedValue;
+        }
+
+        @Override
+        public void obfuscateText(CharSequence s, StringBuilder destination) {
+            Objects.requireNonNull(s);
+            destination.append(fixedValue);
+        }
+
+        @Override
+        public void obfuscateText(CharSequence s, int start, int end, StringBuilder destination) {
+            checkStartAndEnd(s, start, end);
+            destination.append(fixedValue);
+        }
+
+        @Override
+        public void obfuscateText(CharSequence s, StringBuffer destination) {
+            Objects.requireNonNull(s);
+            destination.append(fixedValue);
+        }
+
+        @Override
+        public void obfuscateText(CharSequence s, int start, int end, StringBuffer destination) {
+            checkStartAndEnd(s, start, end);
+            destination.append(fixedValue);
+        }
+
+        @Override
+        public void obfuscateText(CharSequence s, Appendable destination) throws IOException {
+            Objects.requireNonNull(s);
+            destination.append(fixedValue);
         }
 
         @Override
@@ -833,11 +1002,14 @@ public abstract class Obfuscator {
         }
 
         @Override
+        public CharSequence obfuscateText(Reader input) throws IOException {
+            discardAll(input);
+            return fixedValue;
+        }
+
+        @Override
         public void obfuscateText(Reader input, Appendable destination) throws IOException {
-            char[] buffer = new char[1024];
-            while (input.read(buffer) != -1) {
-                // do nothing
-            }
+            discardAll(input);
             destination.append(fixedValue);
         }
 
@@ -1183,6 +1355,12 @@ public abstract class Obfuscator {
         }
 
         @Override
+        public CharSequence obfuscateText(Reader input) throws IOException {
+            CharSequence s = readAll(input);
+            return obfuscateText(s);
+        }
+
+        @Override
         public void obfuscateText(Reader input, Appendable destination) throws IOException {
             CharSequence s = readAll(input);
             obfuscateText(s, destination);
@@ -1220,6 +1398,128 @@ public abstract class Obfuscator {
                     + ",atLeastFromStart=" + atLeastFromStart + ",atLeastFromEnd=" + atLeastFromEnd
                     + ",fixedLength=" + fixedLength
                     + ",maskChar=" + maskChar + "]";
+        }
+    }
+
+    /**
+     * Returns an obfuscator that uses a function to obfuscate text. This method allows you to create an obfuscator using a predefined function.
+     * The returned obfuscator is immutable if the given function is.
+     * <p>
+     * Note: the function should never return {@code null}. The returned obfuscator will throw a {@link NullPointerException} if the function returns
+     * {@code null} when obfuscating text.
+     *
+     * @param function The function to use.
+     * @return An obfuscator that uses the given function to obfuscate text.
+     * @throws NullPointerException If the given function is {@code null}.
+     */
+    public static Obfuscator fromFunction(Function<? super CharSequence, ? extends CharSequence> function) {
+        return new FromFunctionObfuscator(function);
+    }
+
+    private static final class FromFunctionObfuscator extends Obfuscator {
+
+        private final Function<? super CharSequence, ? extends CharSequence> function;
+
+        private FromFunctionObfuscator(Function<? super CharSequence, ? extends CharSequence> function) {
+            this.function = Objects.requireNonNull(function);
+        }
+
+        @Override
+        public CharSequence obfuscateText(CharSequence s) {
+            Objects.requireNonNull(s);
+            return applyFunction(s);
+        }
+
+        @Override
+        public CharSequence obfuscateText(CharSequence s, int start, int end) {
+            checkStartAndEnd(s, start, end);
+            return applyFunction(s, start, end);
+        }
+
+        @Override
+        public void obfuscateText(CharSequence s, StringBuilder destination) {
+            Objects.requireNonNull(s);
+            destination.append(applyFunction(s));
+        }
+
+        @Override
+        public void obfuscateText(CharSequence s, int start, int end, StringBuilder destination) {
+            checkStartAndEnd(s, start, end);
+            destination.append(applyFunction(s, start, end));
+        }
+
+        @Override
+        public void obfuscateText(CharSequence s, StringBuffer destination) {
+            Objects.requireNonNull(s);
+            destination.append(applyFunction(s));
+        }
+
+        @Override
+        public void obfuscateText(CharSequence s, int start, int end, StringBuffer destination) {
+            checkStartAndEnd(s, start, end);
+            destination.append(applyFunction(s, start, end));
+        }
+
+        @Override
+        public void obfuscateText(CharSequence s, Appendable destination) throws IOException {
+            Objects.requireNonNull(s);
+            destination.append(applyFunction(s));
+        }
+
+        @Override
+        public void obfuscateText(CharSequence s, int start, int end, Appendable destination) throws IOException {
+            checkStartAndEnd(s, start, end);
+            destination.append(applyFunction(s, start, end));
+        }
+
+        @Override
+        public CharSequence obfuscateText(Reader input) throws IOException {
+            CharSequence s = readAll(input);
+            return applyFunction(s);
+        }
+
+        @Override
+        public void obfuscateText(Reader input, Appendable destination) throws IOException {
+            CharSequence s = readAll(input);
+            destination.append(applyFunction(s));
+        }
+
+        private CharSequence applyFunction(CharSequence s) {
+            CharSequence result = function.apply(s);
+            return Objects.requireNonNull(result, () -> Messages.fromFunction.functionReturnedNull.get(s));
+        }
+
+        private CharSequence applyFunction(CharSequence s, int start, int end) {
+            checkStartAndEnd(s, start, end);
+            return applyFunction(s.subSequence(start, end));
+        }
+
+        @Override
+        public Writer streamTo(Appendable destination) {
+            return new CachingObfuscatingWriter(this, destination);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || o.getClass() != getClass()) {
+                return false;
+            }
+            FromFunctionObfuscator other = (FromFunctionObfuscator) o;
+            return function.equals(other.function);
+        }
+
+        @Override
+        public int hashCode() {
+            return function.hashCode();
+        }
+
+        @Override
+        @SuppressWarnings("nls")
+        public String toString() {
+            return Obfuscator.class.getName() + "#fromFunction(" + function + ")";
         }
     }
 }

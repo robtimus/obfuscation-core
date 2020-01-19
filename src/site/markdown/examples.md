@@ -70,6 +70,22 @@ If your text has a variable length, you should consider providing a fixed length
     obfuscated = obfuscator.obfuscateText("foo");
     // obfuscated represents "fo***o"
 
+## Using a predefined function
+
+Assuming the current class has a method `CharSequence obfuscate(CharSequence s)`:
+
+    Obfuscator obfuscator = Obfuscator.fromFunction(this::obfuscate);
+    CharSequence obfuscated = obfuscator.obfuscateText("Hello World");
+    // obfuscated is the result of calling obfuscate("Hello World")
+
+Note that the input argument needs to be either `CharSequence` or `Object`; the return type of the method may be a sub type of `CharSequence` like `String` or `StringBuilder`.
+
+If the method's input argument is instead `String` you need to use a lambda that calls `toString()` on its argument before passing it to the method:
+
+    Obfuscator obfuscator = Obfuscator.fromFunction(s -> obfuscate(s.toString()));
+    CharSequence obfuscated = obfuscator.obfuscateText("Hello World");
+    // obfuscated is the result of calling obfuscate("Hello World".toString())
+
 ## Obfuscating objects
 
     LocalDate date = LocalDate.of(2020, 1, 1);

@@ -361,15 +361,20 @@ public final class ObfuscatorUtils {
      * Discards the contents of a {@code Reader}.
      *
      * @param input The {@code Reader} to discard the contents of.
+     * @return The number of discarded characters.
      * @throws NullPointerException If the given {@code Reader} is {@code null}.
      * @throws IOException If an I/O error occurs.
      */
-    public static void discardAll(Reader input) throws IOException {
+    public static long discardAll(Reader input) throws IOException {
         Objects.requireNonNull(input);
         char[] buffer = new char[1024];
-        while (input.read(buffer) != -1) {
+        long count = 0;
+        int len;
+        while ((len = input.read(buffer)) != -1) {
             // discard
+            count += len;
         }
+        return count;
     }
 
     /**
@@ -419,6 +424,7 @@ public final class ObfuscatorUtils {
         if (count < 0) {
             throw new IllegalArgumentException(count + " < 0"); //$NON-NLS-1$
         }
+        Objects.requireNonNull(destination);
         if (count > 0) {
             if (destination instanceof Writer) {
                 Writer writer = (Writer) destination;

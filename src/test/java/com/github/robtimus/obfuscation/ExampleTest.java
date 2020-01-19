@@ -119,6 +119,35 @@ public class ExampleTest {
     }
 
     @Nested
+    @DisplayName("From function")
+    public class FromFunction {
+
+        @Test
+        @DisplayName("method takes CharSequence")
+        public void testCharSequenceArgument() {
+            Obfuscator obfuscator = Obfuscator.fromFunction(this::obfuscate);
+            CharSequence obfuscated = obfuscator.obfuscateText("Hello World");
+            assertEquals("Hello World as CharSequence", obfuscated);
+        }
+
+        @Test
+        @DisplayName("method takes String")
+        public void testCharStringArgument() {
+            Obfuscator obfuscator = Obfuscator.fromFunction(s -> obfuscate(s.toString()));
+            CharSequence obfuscated = obfuscator.obfuscateText("Hello World");
+            assertEquals("Hello World as String", obfuscated);
+        }
+
+        private CharSequence obfuscate(CharSequence s) {
+            return s + " as CharSequence";
+        }
+
+        private CharSequence obfuscate(String s) {
+            return s + " as String";
+        }
+    }
+
+    @Nested
     @DisplayName("Obfuscating objects")
     public class Objects {
 
