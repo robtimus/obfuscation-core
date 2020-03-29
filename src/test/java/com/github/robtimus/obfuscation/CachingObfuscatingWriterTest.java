@@ -35,6 +35,7 @@ public class CachingObfuscatingWriterTest {
         "-1, false"
     })
     @DisplayName("capacity")
+    @SuppressWarnings("resource")
     public void testNegativeCapacity(int capacity, boolean expectSuccess) {
         if (expectSuccess) {
             assertDoesNotThrow(() -> new CachingObfuscatingWriter(all(), new StringBuilder(), capacity));

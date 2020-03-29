@@ -274,6 +274,7 @@ public class ObfuscatorUtilsTest {
 
     @Test
     @DisplayName("reader(CharSequence)")
+    @SuppressWarnings("resource")
     public void testReader() {
         assertThat(reader(""), instanceOf(CharSequenceReader.class));
         assertThrows(NullPointerException.class, () -> reader(null));
@@ -281,6 +282,7 @@ public class ObfuscatorUtilsTest {
 
     @Test
     @DisplayName("reader(CharSequence, int, int)")
+    @SuppressWarnings("resource")
     public void testReaderWithRange() {
         CharSequence sequence = "hello world";
         assertThat(reader(sequence, 0, sequence.length()), instanceOf(CharSequenceReader.class));
@@ -307,6 +309,7 @@ public class ObfuscatorUtilsTest {
 
     @Test
     @DisplayName("copyTo(Reader, Appendable) with nulls")
+    @SuppressWarnings("resource")
     public void testCopyTo() {
         assertThat(copyTo(new StringReader(""), new StringBuilder()), instanceOf(CopyingReader.class));
         assertThrows(NullPointerException.class, () -> copyTo(null, new StringBuilder()));

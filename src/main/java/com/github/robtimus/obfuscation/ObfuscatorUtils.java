@@ -330,6 +330,7 @@ public final class ObfuscatorUtils {
      * @return A {@code Reader} that transparently appends all text read from the given {@code Reader} to the given {@code Appendable}.
      * @throws NullPointerException If the given {@code Reader} or {@code Appendable} is {@code null}.
      */
+    @SuppressWarnings("resource")
     public static Reader copyTo(Reader input, Appendable appendable) {
         Objects.requireNonNull(input);
         Objects.requireNonNull(appendable);
@@ -346,6 +347,7 @@ public final class ObfuscatorUtils {
      * @throws NullPointerException If the given {@code Reader} is {@code null}.
      * @throws IOException If an I/O error occurs.
      */
+    @SuppressWarnings("resource")
     public static CharSequence readAll(Reader input) throws IOException {
         Objects.requireNonNull(input);
         StringBuilder sb = new StringBuilder();
@@ -365,6 +367,7 @@ public final class ObfuscatorUtils {
      * @throws NullPointerException If the given {@code Reader} is {@code null}.
      * @throws IOException If an I/O error occurs.
      */
+    @SuppressWarnings("resource")
     public static long discardAll(Reader input) throws IOException {
         Objects.requireNonNull(input);
         char[] buffer = new char[1024];
@@ -385,10 +388,10 @@ public final class ObfuscatorUtils {
      * @throws NullPointerException If the given {@code Reader} or {@code Appendable} is {@code null}.
      * @throws IOException If an I/O error occurs.
      */
+    @SuppressWarnings("resource")
     public static void copyAll(Reader input, Appendable destination) throws IOException {
         Objects.requireNonNull(input);
         Objects.requireNonNull(destination);
-        @SuppressWarnings("resource")
         Writer writer = writer(destination);
         char[] buffer = new char[1024];
         int len;
