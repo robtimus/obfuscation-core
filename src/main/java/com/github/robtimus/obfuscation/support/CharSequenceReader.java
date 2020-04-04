@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-package com.github.robtimus.obfuscation;
+package com.github.robtimus.obfuscation.support;
 
-import static com.github.robtimus.obfuscation.ObfuscatorUtils.checkOffsetAndLength;
+import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.checkOffsetAndLength;
 import java.io.IOException;
 import java.io.Reader;
 

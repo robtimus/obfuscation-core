@@ -1,5 +1,5 @@
 /*
- * RepeatingCharSequenceTest.java
+ * CharArraySequenceTest.java
  * Copyright 2020 Rob Spoor
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.github.robtimus.obfuscation;
+package com.github.robtimus.obfuscation.support;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -26,22 +26,18 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({ "javadoc", "nls" })
-public class RepeatingCharSequenceTest {
-
-    public RepeatingCharSequenceTest() {
-        super();
-    }
+public class CharArraySequenceTest {
 
     @Test
     @DisplayName("charAt(int) and length()")
     public void testCharAtAndLength() {
-        String string = "***********";
-        CharSequence sequence = RepeatingCharSequence.valueOf('*', string.length());
+        String string = "hello world";
+        CharArraySequence sequence = new CharArraySequence(string.toCharArray());
 
         testCharAtAndLength(string, sequence);
     }
 
-    private void testCharAtAndLength(String string, CharSequence sequence) {
+    private void testCharAtAndLength(String string, CharArraySequence sequence) {
         assertEquals(string.length(), sequence.length());
         for (int i = 0; i < sequence.length(); i++) {
             assertEquals(string.charAt(i), sequence.charAt(i));
@@ -53,10 +49,12 @@ public class RepeatingCharSequenceTest {
     @Test
     @DisplayName("toString()")
     public void testToString() {
-        String string = "***********";
-        CharSequence sequence = RepeatingCharSequence.valueOf('*', string.length());
+        String string = "hello world";
+        CharArraySequence sequence = new CharArraySequence(string.toCharArray());
 
         assertEquals(string, sequence.toString());
+        // check caching
+        assertSame(sequence.toString(), sequence.toString());
     }
 
     @Nested
@@ -66,7 +64,7 @@ public class RepeatingCharSequenceTest {
         @Test
         @DisplayName("charAt(int) and length()")
         public void testCharAtAndLength() {
-            String source = "***********";
+            String source = "hello world";
             testCharAtAndLength(source, 0, source.length());
             testCharAtAndLength(source, 3, source.length());
             testCharAtAndLength(source, 0, 8);
@@ -75,21 +73,19 @@ public class RepeatingCharSequenceTest {
 
         private void testCharAtAndLength(String source, int start, int end) {
             String string = source.substring(start, end);
-            CharSequence sequence = RepeatingCharSequence.valueOf(source.charAt(0), source.length()).subSequence(start, end);
+            CharArraySequence sequence = new CharArraySequence(source.toCharArray()).subSequence(start, end);
 
-            RepeatingCharSequenceTest.this.testCharAtAndLength(string, sequence);
+            CharArraySequenceTest.this.testCharAtAndLength(string, sequence);
         }
 
         @Test
         @DisplayName("toString()")
         public void testToString() {
-            String source = "***********";
+            String source = "hello world";
             String string = source.substring(3, 8);
-            CharSequence sequence = RepeatingCharSequence.valueOf(source.charAt(0), source.length()).subSequence(3, 8);
+            CharArraySequence sequence = new CharArraySequence(source.toCharArray()).subSequence(3, 8);
 
             assertEquals(string, sequence.toString());
-            // check caching
-            assertSame(sequence.toString(), sequence.toString());
         }
 
         @Nested
@@ -99,7 +95,7 @@ public class RepeatingCharSequenceTest {
             @Test
             @DisplayName("charAt(int) and length()")
             public void testCharAtAndLength() {
-                String source = "***********";
+                String source = "hello world";
                 testCharAtAndLength(source, 0, String::length);
                 testCharAtAndLength(source, 1, String::length);
                 testCharAtAndLength(source, 0, s -> 4);
@@ -110,17 +106,17 @@ public class RepeatingCharSequenceTest {
                 String substring = source.substring(3, 8);
                 int end = endMapper.applyAsInt(substring);
                 String string = substring.substring(start, end);
-                CharSequence sequence = RepeatingCharSequence.valueOf(source.charAt(0), source.length()).subSequence(3, 8).subSequence(start, end);
+                CharArraySequence sequence = new CharArraySequence(source.toCharArray()).subSequence(3, 8).subSequence(start, end);
 
-                RepeatingCharSequenceTest.this.testCharAtAndLength(string, sequence);
+                CharArraySequenceTest.this.testCharAtAndLength(string, sequence);
             }
 
             @Test
             @DisplayName("toString()")
             public void testToString() {
-                String source = "***********";
+                String source = "hello world";
                 String string = source.substring(3, 8).substring(1, 4);
-                CharSequence sequence = RepeatingCharSequence.valueOf(source.charAt(0), source.length()).subSequence(3, 8).subSequence(1, 4);
+                CharArraySequence sequence = new CharArraySequence(source.toCharArray()).subSequence(3, 8).subSequence(1, 4);
 
                 assertEquals(string, sequence.toString());
             }

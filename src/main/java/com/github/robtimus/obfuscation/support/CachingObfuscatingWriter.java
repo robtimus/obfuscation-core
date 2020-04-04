@@ -15,11 +15,12 @@
  * limitations under the License.
  */
 
-package com.github.robtimus.obfuscation;
+package com.github.robtimus.obfuscation.support;
 
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Objects;
+import com.github.robtimus.obfuscation.Obfuscator;
 
 /**
  * A writer that caches all contents until it is closed. The cached contents will then be obfuscated and appended to the writer's destination.

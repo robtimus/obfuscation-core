@@ -15,27 +15,28 @@
  * limitations under the License.
  */
 
-package com.github.robtimus.obfuscation;
+package com.github.robtimus.obfuscation.support;
 
-import static com.github.robtimus.obfuscation.CaseSensitivity.CASE_INSENSITIVE;
-import static com.github.robtimus.obfuscation.CaseSensitivity.CASE_SENSITIVE;
-import static com.github.robtimus.obfuscation.ObfuscatorUtils.append;
-import static com.github.robtimus.obfuscation.ObfuscatorUtils.checkIndex;
-import static com.github.robtimus.obfuscation.ObfuscatorUtils.checkOffsetAndLength;
-import static com.github.robtimus.obfuscation.ObfuscatorUtils.checkStartAndEnd;
-import static com.github.robtimus.obfuscation.ObfuscatorUtils.copyAll;
-import static com.github.robtimus.obfuscation.ObfuscatorUtils.copyTo;
-import static com.github.robtimus.obfuscation.ObfuscatorUtils.discardAll;
-import static com.github.robtimus.obfuscation.ObfuscatorUtils.getChars;
-import static com.github.robtimus.obfuscation.ObfuscatorUtils.indexOf;
-import static com.github.robtimus.obfuscation.ObfuscatorUtils.map;
-import static com.github.robtimus.obfuscation.ObfuscatorUtils.readAll;
-import static com.github.robtimus.obfuscation.ObfuscatorUtils.reader;
-import static com.github.robtimus.obfuscation.ObfuscatorUtils.repeatChar;
-import static com.github.robtimus.obfuscation.ObfuscatorUtils.skipLeadingWhitespace;
-import static com.github.robtimus.obfuscation.ObfuscatorUtils.skipTrailingWhitespace;
-import static com.github.robtimus.obfuscation.ObfuscatorUtils.wrapArray;
-import static com.github.robtimus.obfuscation.ObfuscatorUtils.writer;
+import static com.github.robtimus.obfuscation.support.CaseSensitivity.CASE_INSENSITIVE;
+import static com.github.robtimus.obfuscation.support.CaseSensitivity.CASE_SENSITIVE;
+import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.append;
+import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.checkIndex;
+import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.checkOffsetAndLength;
+import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.checkStartAndEnd;
+import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.copyAll;
+import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.copyTo;
+import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.discardAll;
+import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.getChars;
+import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.indexOf;
+import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.map;
+import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.maskAll;
+import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.readAll;
+import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.reader;
+import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.repeatChar;
+import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.skipLeadingWhitespace;
+import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.skipTrailingWhitespace;
+import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.wrapArray;
+import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.writer;
 import static java.util.stream.Collectors.toConcurrentMap;
 import static java.util.stream.Collectors.toMap;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -50,11 +51,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.DynamicContainer.dynamicContainer;
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -77,6 +74,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DynamicNode;
 import org.junit.jupiter.api.DynamicTest;
@@ -88,12 +86,15 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.ArgumentCaptor;
-import com.github.robtimus.obfuscation.ObfuscatorUtils.MapBuilder;
+import com.github.robtimus.obfuscation.support.ObfuscatorUtils.MapBuilder;
 
 @SuppressWarnings({ "javadoc", "nls" })
 @TestInstance(Lifecycle.PER_CLASS)
 public class ObfuscatorUtilsTest {
+
+    public static void assertClosedException(IOException exception) {
+        assertEquals(Messages.stream.closed.get(), exception.getMessage());
+    }
 
     @ParameterizedTest(name = "{1} in {0}[{2}, {3})")
     @MethodSource
@@ -317,7 +318,7 @@ public class ObfuscatorUtilsTest {
     }
 
     @Test
-    @DisplayName("readAll()")
+    @DisplayName("readAll(Reader)")
     public void testReadAll() throws IOException {
         String string = "hello world";
         StringReader input = new StringReader(string);
@@ -326,7 +327,7 @@ public class ObfuscatorUtilsTest {
     }
 
     @Test
-    @DisplayName("discardAll()")
+    @DisplayName("discardAll(Reader)")
     public void testDiscardAll() throws IOException {
         String string = "hello world";
         StringReader input = new StringReader(string);
@@ -334,43 +335,46 @@ public class ObfuscatorUtilsTest {
         assertEquals(-1, input.read());
     }
 
-    @Test
-    @DisplayName("copyAll()")
-    public void testCopyAll() throws IOException {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("appendableArguments")
+    @DisplayName("copyAll(Reader, Appendable)")
+    public void testCopyAll(@SuppressWarnings("unused") String appendableType, Supplier<Appendable> destinationSupplier) throws IOException {
         String string = "hello world";
         StringReader input = new StringReader(string);
-        StringBuilder destination = new StringBuilder();
+        Appendable destination = destinationSupplier.get();
         copyAll(input, destination);
         assertEquals(string, destination.toString());
         assertEquals(-1, input.read());
     }
 
-    @Test
-    @DisplayName("append(int)")
-    public void testAppendInt() throws IOException {
-        int c = 1 << 16 | 'a';
-
-        Writer writer = new StringWriter();
-        append(c, writer);
-        assertEquals("a", writer.toString());
-
-        StringBuilder builder = new StringBuilder();
-        append(c, builder);
-        assertEquals("a", builder.toString());
-
-        StringBuffer buffer = new StringBuffer();
-        append(c, buffer);
-        assertEquals("a", buffer.toString());
-
-        Appendable appendable = mock(Appendable.class);
-        append(c, appendable);
-        verify(appendable).append('a');
-        verifyNoMoreInteractions(appendable);
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("appendableArguments")
+    @DisplayName("maskAll(Reader, char, Appendable)")
+    public void testMaskAll(@SuppressWarnings("unused") String appendableType, Supplier<Appendable> destinationSupplier) throws IOException {
+        String string = "hello world";
+        String expected = string.replaceAll(".", "*");
+        StringReader input = new StringReader(string);
+        Appendable destination = destinationSupplier.get();
+        maskAll(input, '*', destination);
+        assertEquals(expected, destination.toString());
+        assertEquals(-1, input.read());
     }
 
-    @Test
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("appendableArguments")
+    @DisplayName("append(int)")
+    public void testAppendInt(@SuppressWarnings("unused") String appendableType, Supplier<Appendable> destinationSupplier) throws IOException {
+        int c = 1 << 16 | 'a';
+
+        Appendable destination = destinationSupplier.get();
+        append(c, destination);
+        assertEquals("a", destination.toString());
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("appendableArguments")
     @DisplayName("append(char, int)")
-    public void testAppendRepeated() throws IOException {
+    public void testAppendRepeated(@SuppressWarnings("unused") String appendableType, Supplier<Appendable> destinationSupplier) throws IOException {
         char c = '*';
         int count = 2048 + 32;
 
@@ -378,194 +382,94 @@ public class ObfuscatorUtilsTest {
         Arrays.fill(array, c);
         String expected = new String(array);
 
-        Writer writer = new StringWriter();
-        append(c, 0, writer);
-        assertEquals("", writer.toString());
-        append(c, count, writer);
-        assertEquals(expected, writer.toString());
+        Appendable destination = destinationSupplier.get();
+        append(c, 0, destination);
+        assertEquals("", destination.toString());
+        append(c, count, destination);
+        assertEquals(expected, destination.toString());
 
-        StringBuilder sb = new StringBuilder();
-        append(c, 0, sb);
-        assertEquals("", sb.toString());
-        append(c, count, sb);
-        assertEquals(expected, sb.toString());
-
-        assertThrows(IllegalArgumentException.class, () -> append(c, -1, writer));
-        assertThrows(IllegalArgumentException.class, () -> append(c, -1, sb));
+        assertThrows(IllegalArgumentException.class, () -> append(c, -1, destination));
     }
 
-    @Test
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("appendableArguments")
     @DisplayName("append(char[])")
-    public void testAppendCharArray() throws IOException {
+    public void testAppendCharArray(@SuppressWarnings("unused") String appendableType, Supplier<Appendable> destinationSupplier) throws IOException {
         String input = "hello world";
         char[] array = input.toCharArray();
 
-        Writer writer = new StringWriter();
-        append(array, writer);
-        assertEquals(input, writer.toString());
+        Appendable destination = destinationSupplier.get();
+        append(array, destination);
+        assertEquals(input, destination.toString());
 
-        StringBuilder builder = new StringBuilder();
-        append(array, builder);
-        assertEquals(input, builder.toString());
-
-        StringBuffer buffer = new StringBuffer();
-        append(array, buffer);
-        assertEquals(input, buffer.toString());
-
-        Appendable appendable = mock(Appendable.class);
-        ArgumentCaptor<CharSequence> captor = ArgumentCaptor.forClass(CharSequence.class);
-        append(array, appendable);
-        verify(appendable).append(captor.capture());
-        verifyNoMoreInteractions(appendable);
-        assertEquals(input, captor.getValue().toString());
-
-        assertThrows(NullPointerException.class, () -> append((char[]) null, writer));
-        assertThrows(NullPointerException.class, () -> append((char[]) null, builder));
-        assertThrows(NullPointerException.class, () -> append((char[]) null, buffer));
-        assertThrows(NullPointerException.class, () -> append((char[]) null, appendable));
+        assertThrows(NullPointerException.class, () -> append((char[]) null, destination));
     }
 
-    @Test
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("appendableArguments")
     @DisplayName("append(char[], int, int)")
-    public void testAppendCharArrayRange() throws IOException {
+    public void testAppendCharArrayRange(@SuppressWarnings("unused") String appendableType, Supplier<Appendable> destinationSupplier)
+            throws IOException {
+
         String input = "hello world";
         char[] array = input.toCharArray();
 
-        Writer writer = new StringWriter();
-        append(array, 5, 5, writer);
-        assertEquals("", writer.toString());
-        append(array, 3, 8, writer);
-        assertEquals(input.substring(3, 8), writer.toString());
+        Appendable destination = destinationSupplier.get();
+        append(array, 5, 5, destination);
+        assertEquals("", destination.toString());
+        append(array, 3, 8, destination);
+        assertEquals(input.substring(3, 8), destination.toString());
 
-        StringBuilder builder = new StringBuilder();
-        append(array, 5, 5, builder);
-        assertEquals("", builder.toString());
-        append(array, 3, 8, builder);
-        assertEquals(input.substring(3, 8), builder.toString());
+        assertThrows(NullPointerException.class, () -> append((char[]) null, 0, 0, destination));
 
-        StringBuffer buffer = new StringBuffer();
-        append(array, 5, 5, buffer);
-        assertEquals("", buffer.toString());
-        append(array, 3, 8, buffer);
-        assertEquals(input.substring(3, 8), buffer.toString());
-
-        Appendable appendable = mock(Appendable.class);
-        ArgumentCaptor<CharSequence> captor = ArgumentCaptor.forClass(CharSequence.class);
-        append(array, 5, 5, appendable);
-        verify(appendable, never()).append(any());
-        verify(appendable, never()).append(any(), anyInt(), anyInt());
-        append(array, 3, 8, appendable);
-        verify(appendable).append(captor.capture(), eq(3), eq(8));
-        verifyNoMoreInteractions(appendable);
-        assertEquals(input, captor.getValue().toString());
-
-        assertThrows(NullPointerException.class, () -> append((char[]) null, 0, 0, writer));
-        assertThrows(NullPointerException.class, () -> append((char[]) null, 0, 0, builder));
-        assertThrows(NullPointerException.class, () -> append((char[]) null, 0, 0, buffer));
-        assertThrows(NullPointerException.class, () -> append((char[]) null, 0, 0, appendable));
-
-        assertThrows(IndexOutOfBoundsException.class, () -> append(array, -1, array.length, writer));
-        assertThrows(IndexOutOfBoundsException.class, () -> append(array, 0, array.length + 1, writer));
-        assertThrows(IndexOutOfBoundsException.class, () -> append(array, 0, -1, writer));
-        assertThrows(IndexOutOfBoundsException.class, () -> append(array, array.length + 1, array.length, writer));
-        assertThrows(IndexOutOfBoundsException.class, () -> append(array, -1, array.length, builder));
-        assertThrows(IndexOutOfBoundsException.class, () -> append(array, 0, array.length + 1, builder));
-        assertThrows(IndexOutOfBoundsException.class, () -> append(array, 0, -1, builder));
-        assertThrows(IndexOutOfBoundsException.class, () -> append(array, array.length + 1, array.length, builder));
-        assertThrows(IndexOutOfBoundsException.class, () -> append(array, -1, array.length, buffer));
-        assertThrows(IndexOutOfBoundsException.class, () -> append(array, 0, array.length + 1, buffer));
-        assertThrows(IndexOutOfBoundsException.class, () -> append(array, 0, -1, buffer));
-        assertThrows(IndexOutOfBoundsException.class, () -> append(array, array.length + 1, array.length, buffer));
-        assertThrows(IndexOutOfBoundsException.class, () -> append(array, -1, array.length, appendable));
-        assertThrows(IndexOutOfBoundsException.class, () -> append(array, 0, array.length + 1, appendable));
-        assertThrows(IndexOutOfBoundsException.class, () -> append(array, 0, -1, appendable));
-        assertThrows(IndexOutOfBoundsException.class, () -> append(array, array.length + 1, array.length, appendable));
+        assertThrows(IndexOutOfBoundsException.class, () -> append(array, -1, array.length, destination));
+        assertThrows(IndexOutOfBoundsException.class, () -> append(array, 0, array.length + 1, destination));
+        assertThrows(IndexOutOfBoundsException.class, () -> append(array, 0, -1, destination));
+        assertThrows(IndexOutOfBoundsException.class, () -> append(array, array.length + 1, array.length, destination));
     }
 
-    @Test
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("appendableArguments")
     @DisplayName("append(String)")
-    public void testAppendString() throws IOException {
+    public void testAppendString(@SuppressWarnings("unused") String appendableType, Supplier<Appendable> destinationSupplier) throws IOException {
         String input = "hello world";
 
-        Writer writer = new StringWriter();
-        append(input, writer);
-        assertEquals(input, writer.toString());
+        Appendable destination = destinationSupplier.get();
+        append(input, destination);
+        assertEquals(input, destination.toString());
 
-        StringBuilder builder = new StringBuilder();
-        append(input, builder);
-        assertEquals(input, builder.toString());
-
-        StringBuffer buffer = new StringBuffer();
-        append(input, buffer);
-        assertEquals(input, buffer.toString());
-
-        Appendable appendable = mock(Appendable.class);
-        ArgumentCaptor<CharSequence> captor = ArgumentCaptor.forClass(CharSequence.class);
-        append(input, appendable);
-        verify(appendable).append(captor.capture());
-        verifyNoMoreInteractions(appendable);
-        assertEquals(input, captor.getValue().toString());
-
-        assertThrows(NullPointerException.class, () -> append((String) null, writer));
-        assertThrows(NullPointerException.class, () -> append((String) null, builder));
-        assertThrows(NullPointerException.class, () -> append((String) null, buffer));
-        assertThrows(NullPointerException.class, () -> append((String) null, appendable));
+        assertThrows(NullPointerException.class, () -> append((String) null, destination));
     }
 
-    @Test
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("appendableArguments")
     @DisplayName("append(String, int, int)")
-    public void testAppendStringRange() throws IOException {
+    public void testAppendStringRange(@SuppressWarnings("unused") String appendableType, Supplier<Appendable> destinationSupplier)
+            throws IOException {
+
         String input = "hello world";
 
-        Writer writer = new StringWriter();
-        append(input, 5, 5, writer);
-        assertEquals("", writer.toString());
-        append(input, 3, 8, writer);
-        assertEquals(input.substring(3, 8), writer.toString());
+        Appendable destination = destinationSupplier.get();
+        append(input, 5, 5, destination);
+        assertEquals("", destination.toString());
+        append(input, 3, 8, destination);
+        assertEquals(input.substring(3, 8), destination.toString());
 
-        StringBuilder builder = new StringBuilder();
-        append(input, 5, 5, builder);
-        assertEquals("", builder.toString());
-        append(input, 3, 8, builder);
-        assertEquals(input.substring(3, 8), builder.toString());
+        assertThrows(NullPointerException.class, () -> append((String) null, 0, 0, destination));
 
-        StringBuffer buffer = new StringBuffer();
-        append(input, 5, 5, buffer);
-        assertEquals("", buffer.toString());
-        append(input, 3, 8, buffer);
-        assertEquals(input.substring(3, 8), buffer.toString());
+        assertThrows(IndexOutOfBoundsException.class, () -> append(input, -1, input.length(), destination));
+        assertThrows(IndexOutOfBoundsException.class, () -> append(input, 0, input.length() + 1, destination));
+        assertThrows(IndexOutOfBoundsException.class, () -> append(input, 0, -1, destination));
+        assertThrows(IndexOutOfBoundsException.class, () -> append(input, input.length() + 1, input.length(), destination));
+    }
 
-        Appendable appendable = mock(Appendable.class);
-        ArgumentCaptor<CharSequence> captor = ArgumentCaptor.forClass(CharSequence.class);
-        append(input, 5, 5, appendable);
-        verify(appendable, never()).append(any());
-        verify(appendable, never()).append(any(), anyInt(), anyInt());
-        append(input, 3, 8, appendable);
-        verify(appendable).append(captor.capture(), eq(3), eq(8));
-        verifyNoMoreInteractions(appendable);
-        assertEquals(input, captor.getValue().toString());
-
-        assertThrows(NullPointerException.class, () -> append((String) null, 0, 0, writer));
-        assertThrows(NullPointerException.class, () -> append((String) null, 0, 0, builder));
-        assertThrows(NullPointerException.class, () -> append((String) null, 0, 0, buffer));
-        assertThrows(NullPointerException.class, () -> append((String) null, 0, 0, appendable));
-
-        assertThrows(IndexOutOfBoundsException.class, () -> append(input, -1, input.length(), writer));
-        assertThrows(IndexOutOfBoundsException.class, () -> append(input, 0, input.length() + 1, writer));
-        assertThrows(IndexOutOfBoundsException.class, () -> append(input, 0, -1, writer));
-        assertThrows(IndexOutOfBoundsException.class, () -> append(input, input.length() + 1, input.length(), writer));
-        assertThrows(IndexOutOfBoundsException.class, () -> append(input, -1, input.length(), builder));
-        assertThrows(IndexOutOfBoundsException.class, () -> append(input, 0, input.length() + 1, builder));
-        assertThrows(IndexOutOfBoundsException.class, () -> append(input, 0, -1, builder));
-        assertThrows(IndexOutOfBoundsException.class, () -> append(input, input.length() + 1, input.length(), builder));
-        assertThrows(IndexOutOfBoundsException.class, () -> append(input, -1, input.length(), buffer));
-        assertThrows(IndexOutOfBoundsException.class, () -> append(input, 0, input.length() + 1, buffer));
-        assertThrows(IndexOutOfBoundsException.class, () -> append(input, 0, -1, buffer));
-        assertThrows(IndexOutOfBoundsException.class, () -> append(input, input.length() + 1, input.length(), buffer));
-        assertThrows(IndexOutOfBoundsException.class, () -> append(input, -1, input.length(), appendable));
-        assertThrows(IndexOutOfBoundsException.class, () -> append(input, 0, input.length() + 1, appendable));
-        assertThrows(IndexOutOfBoundsException.class, () -> append(input, 0, -1, appendable));
-        assertThrows(IndexOutOfBoundsException.class, () -> append(input, input.length() + 1, input.length(), appendable));
+    Arguments[] appendableArguments() {
+        return new Arguments[] {
+                arguments(StringBuilder.class.getSimpleName(), (Supplier<Appendable>) StringBuilder::new),
+                arguments(StringBuffer.class.getSimpleName(), (Supplier<Appendable>) StringBuffer::new),
+                arguments(StringWriter.class.getSimpleName(), (Supplier<Appendable>) StringWriter::new),
+                arguments(Appendable.class.getSimpleName(), (Supplier<Appendable>) TestAppendable::new),
+        };
     }
 
     @Nested

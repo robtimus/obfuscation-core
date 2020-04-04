@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.github.robtimus.obfuscation;
+package com.github.robtimus.obfuscation.support;
 
 import java.io.IOException;
 import java.io.Writer;

@@ -17,12 +17,15 @@
 
 package com.github.robtimus.obfuscation;
 
-import static com.github.robtimus.obfuscation.ObfuscatorUtils.checkOffsetAndLength;
-import static com.github.robtimus.obfuscation.ObfuscatorUtils.checkStartAndEnd;
-import static com.github.robtimus.obfuscation.ObfuscatorUtils.discardAll;
-import static com.github.robtimus.obfuscation.ObfuscatorUtils.getChars;
-import static com.github.robtimus.obfuscation.ObfuscatorUtils.readAll;
-import static com.github.robtimus.obfuscation.ObfuscatorUtils.repeatChar;
+import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.checkOffsetAndLength;
+import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.checkStartAndEnd;
+import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.copyAll;
+import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.discardAll;
+import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.getChars;
+import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.readAll;
+import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.repeatChar;
+import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.maskAll;
+import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.wrapArray;
 import java.io.Closeable;
 import java.io.Flushable;
 import java.io.IOException;
@@ -36,6 +39,9 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import com.github.robtimus.obfuscation.support.CachingObfuscatingWriter;
+import com.github.robtimus.obfuscation.support.ObfuscatingWriter;
+import com.github.robtimus.obfuscation.support.ObfuscatorUtils;
 
 /**
  * An object that will obfuscate {@link CharSequence CharSequences} or the contents of {@link Reader Readers}.
@@ -463,16 +469,7 @@ public abstract class Obfuscator {
                 return;
             }
 
-            char[] buffer = new char[1024];
-            char[] mask = new char[buffer.length];
-            Arrays.fill(mask, maskChar);
-            CharArraySequence csq = new CharArraySequence(mask);
-
-            int len;
-            while ((len = input.read(buffer)) != -1) {
-                csq.resetWithStartAndEnd(0, len);
-                destination.append(csq);
-            }
+            maskAll(input, maskChar, destination);
         }
 
         private void obfuscateText(Reader input, Writer destination) throws IOException {
@@ -644,14 +641,7 @@ public abstract class Obfuscator {
                 return;
             }
 
-            char[] buffer = new char[1024];
-            CharArraySequence csq = new CharArraySequence(buffer);
-
-            int len;
-            while ((len = input.read(buffer)) != -1) {
-                csq.resetWithStartAndEnd(0, len);
-                destination.append(csq);
-            }
+            copyAll(input, destination);
         }
 
         private void obfuscateText(Reader input, Writer destination) throws IOException {
@@ -1330,7 +1320,7 @@ public abstract class Obfuscator {
                 array[i] = maskChar;
             }
             getChars(s, end - to, end, array, length - to);
-            return new CharArraySequence(array);
+            return wrapArray(array);
         }
 
         @Override

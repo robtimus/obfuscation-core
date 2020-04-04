@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.github.robtimus.obfuscation;
+package com.github.robtimus.obfuscation.support;
 
 /**
  * Represents the possible case sensitivities.

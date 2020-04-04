@@ -257,12 +257,28 @@
         <version>${version.plugin.i18n}</version>
         <executions>
           <execution>
+            <id>generate-messages</id>
             <goals>
               <goal>generate</goal>
             </goals>
             <configuration>
               <bundleName>com.github.robtimus.obfuscation.obfuscation</bundleName>
               <className>com.github.robtimus.obfuscation.Messages</className>
+              <licenseText>Apache-2.0</licenseText>
+              <licenseCopyrightHolder>Rob Spoor</licenseCopyrightHolder>
+              <licenseCopyrightYear>2020</licenseCopyrightYear>
+              <publicVisibility>false</publicVisibility>
+              <suppressWarnings>nls</suppressWarnings>
+            </configuration>
+          </execution>
+          <execution>
+            <id>generate-support-messages</id>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <configuration>
+              <bundleName>com.github.robtimus.obfuscation.obfuscation-support</bundleName>
+              <className>com.github.robtimus.obfuscation.support.Messages</className>
               <licenseText>Apache-2.0</licenseText>
               <licenseCopyrightHolder>Rob Spoor</licenseCopyrightHolder>
               <licenseCopyrightYear>2020</licenseCopyrightYear>

@@ -15,12 +15,12 @@
  * limitations under the License.
  */
 
-package com.github.robtimus.obfuscation;
+package com.github.robtimus.obfuscation.http;
 
-import static com.github.robtimus.obfuscation.CaseSensitivity.CASE_SENSITIVE;
-import static com.github.robtimus.obfuscation.ObfuscatorUtils.checkStartAndEnd;
-import static com.github.robtimus.obfuscation.ObfuscatorUtils.indexOf;
-import static com.github.robtimus.obfuscation.ObfuscatorUtils.map;
+import static com.github.robtimus.obfuscation.support.CaseSensitivity.CASE_SENSITIVE;
+import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.checkStartAndEnd;
+import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.indexOf;
+import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.map;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -32,7 +32,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
-import com.github.robtimus.obfuscation.ObfuscatorUtils.MapBuilder;
+import com.github.robtimus.obfuscation.Obfuscator;
+import com.github.robtimus.obfuscation.support.CachingObfuscatingWriter;
+import com.github.robtimus.obfuscation.support.CaseSensitivity;
+import com.github.robtimus.obfuscation.support.ObfuscatorUtils.MapBuilder;
 
 /**
  * An obfuscator that obfuscates request parameters in {@link CharSequence CharSequences} or the contents of {@link Reader Readers}.

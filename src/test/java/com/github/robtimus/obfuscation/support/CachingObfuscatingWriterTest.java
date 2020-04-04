@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.github.robtimus.obfuscation;
+package com.github.robtimus.obfuscation.support;
 
 import static com.github.robtimus.obfuscation.Obfuscator.all;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;

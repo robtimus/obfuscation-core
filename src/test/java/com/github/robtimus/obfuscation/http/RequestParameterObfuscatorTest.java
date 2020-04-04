@@ -15,10 +15,11 @@
  * limitations under the License.
  */
 
-package com.github.robtimus.obfuscation;
+package com.github.robtimus.obfuscation.http;
 
 import static com.github.robtimus.obfuscation.Obfuscator.all;
-import static com.github.robtimus.obfuscation.RequestParameterObfuscator.builder;
+import static com.github.robtimus.obfuscation.http.RequestParameterObfuscator.builder;
+import static com.github.robtimus.obfuscation.support.ObfuscatorUtilsTest.assertClosedException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -34,6 +35,7 @@ import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -42,7 +44,9 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import com.github.robtimus.obfuscation.RequestParameterObfuscator.Builder;
+import com.github.robtimus.obfuscation.Obfuscator;
+import com.github.robtimus.obfuscation.http.RequestParameterObfuscator.Builder;
+import com.github.robtimus.obfuscation.support.TestAppendable;
 
 @SuppressWarnings({ "javadoc", "nls" })
 @TestInstance(Lifecycle.PER_CLASS)
@@ -96,94 +100,71 @@ public class RequestParameterObfuscatorTest {
     @DisplayName("streamTo(Appendable)")
     public class StreamTo {
 
-        @Test
+        @ParameterizedTest(name = "{0}")
+        @MethodSource("appendableArguments")
         @DisplayName("write(int)")
-        public void testWriteInt() throws IOException {
+        public void testWriteInt(@SuppressWarnings("unused") String appendableType, Supplier<Appendable> destinationSupplier) throws IOException {
             Obfuscator obfuscator = createObfuscator();
 
             String input = "foo=bar&hello=world&no-value";
             String expected = "foo=***&hello=world&no-value";
 
-            Writer writer = new StringWriter();
-            try (Writer w = obfuscator.streamTo(writer)) {
+            Appendable destination = destinationSupplier.get();
+            try (Writer w = obfuscator.streamTo(destination)) {
                 for (int i = 0; i < input.length(); i++) {
                     w.write(input.charAt(i));
                 }
             }
-            assertEquals(expected, writer.toString());
+            assertEquals(expected, destination.toString());
 
             IOException exception = assertThrows(IOException.class, () -> {
                 @SuppressWarnings("resource")
-                Writer w = obfuscator.streamTo(writer);
+                Writer w = obfuscator.streamTo(destination);
                 w.close();
                 w.write('x');
             });
-            assertEquals(Messages.stream.closed.get(), exception.getMessage());
-
-            StringBuilder sb = new StringBuilder();
-            try (Writer w = obfuscator.streamTo(sb)) {
-                for (int i = 0; i < input.length(); i++) {
-                    w.write(input.charAt(i));
-                }
-            }
-            assertEquals(expected, sb.toString());
-
-            exception = assertThrows(IOException.class, () -> {
-                @SuppressWarnings("resource")
-                Writer w = obfuscator.streamTo(sb);
-                w.close();
-                w.write('x');
-            });
-            assertEquals(Messages.stream.closed.get(), exception.getMessage());
+            assertClosedException(exception);
         }
 
-        @Test
+        @ParameterizedTest(name = "{0}")
+        @MethodSource("appendableArguments")
         @DisplayName("write(char[])")
-        public void testWriteCharArray() throws IOException {
+        public void testWriteCharArray(@SuppressWarnings("unused") String appendableType, Supplier<Appendable> destinationSupplier)
+                throws IOException {
+
             Obfuscator obfuscator = createObfuscator();
 
             String input = "foo=bar&hello=world&no-value";
             String expected = "foo=***&hello=world&no-value";
 
-            Writer writer = new StringWriter();
-            try (Writer w = obfuscator.streamTo(writer)) {
+            Appendable destination = destinationSupplier.get();
+            try (Writer w = obfuscator.streamTo(destination)) {
                 w.write(input.toCharArray());
             }
-            assertEquals(expected, writer.toString());
+            assertEquals(expected, destination.toString());
 
             IOException exception = assertThrows(IOException.class, () -> {
                 @SuppressWarnings("resource")
-                Writer w = obfuscator.streamTo(writer);
+                Writer w = obfuscator.streamTo(destination);
                 w.close();
                 w.write(input.toCharArray());
             });
-            assertEquals(Messages.stream.closed.get(), exception.getMessage());
-
-            StringBuilder sb = new StringBuilder();
-            try (Writer w = obfuscator.streamTo(sb)) {
-                w.write(input.toCharArray());
-            }
-            assertEquals(expected, sb.toString());
-
-            exception = assertThrows(IOException.class, () -> {
-                @SuppressWarnings("resource")
-                Writer w = obfuscator.streamTo(sb);
-                w.close();
-                w.write(input.toCharArray());
-            });
-            assertEquals(Messages.stream.closed.get(), exception.getMessage());
+            assertClosedException(exception);
         }
 
-        @Test
+        @ParameterizedTest(name = "{0}")
+        @MethodSource("appendableArguments")
         @DisplayName("write(char[], int, int)")
-        public void testWriteCharArrayRange() throws IOException {
+        public void testWriteCharArrayRange(@SuppressWarnings("unused") String appendableType, Supplier<Appendable> destinationSupplier)
+                throws IOException {
+
             Obfuscator obfuscator = createObfuscator();
 
             String input = "foo=bar&hello=world&no-value";
             String expected = "foo=***&hello=world&no-value";
 
-            Writer writer = new StringWriter();
-            try (Writer w = obfuscator.streamTo(writer)) {
+            Appendable destination = destinationSupplier.get();
+            try (Writer w = obfuscator.streamTo(destination)) {
                 char[] content = input.toCharArray();
                 int index = 0;
                 while (index < input.length()) {
@@ -197,89 +178,54 @@ public class RequestParameterObfuscatorTest {
                 assertThrows(IndexOutOfBoundsException.class, () -> w.write(content, 1, content.length));
                 assertThrows(IndexOutOfBoundsException.class, () -> w.write(content, 0, -1));
             }
-            assertEquals(expected, writer.toString());
+            assertEquals(expected, destination.toString());
 
             IOException exception = assertThrows(IOException.class, () -> {
                 @SuppressWarnings("resource")
-                Writer w = obfuscator.streamTo(writer);
+                Writer w = obfuscator.streamTo(destination);
                 w.close();
                 w.write(input.toCharArray(), 0, 1);
             });
-            assertEquals(Messages.stream.closed.get(), exception.getMessage());
-
-            StringBuilder sb = new StringBuilder();
-            try (Writer w = obfuscator.streamTo(sb)) {
-                char[] content = input.toCharArray();
-                int index = 0;
-                while (index < input.length()) {
-                    int to = Math.min(index + 5, input.length());
-                    w.write(content, index, to - index);
-                    index = to;
-                }
-
-                assertThrows(IndexOutOfBoundsException.class, () -> w.write(content, 0, content.length + 1));
-                assertThrows(IndexOutOfBoundsException.class, () -> w.write(content, -1, content.length));
-                assertThrows(IndexOutOfBoundsException.class, () -> w.write(content, 1, content.length));
-                assertThrows(IndexOutOfBoundsException.class, () -> w.write(content, 0, -1));
-            }
-            assertEquals(expected, sb.toString());
-
-            exception = assertThrows(IOException.class, () -> {
-                @SuppressWarnings("resource")
-                Writer w = obfuscator.streamTo(sb);
-                w.close();
-                w.write(input.toCharArray(), 0, 1);
-            });
-            assertEquals(Messages.stream.closed.get(), exception.getMessage());
+            assertClosedException(exception);
         }
 
-        @Test
+        @ParameterizedTest(name = "{0}")
+        @MethodSource("appendableArguments")
         @DisplayName("write(String)")
-        public void testWriteString() throws IOException {
+        public void testWriteString(@SuppressWarnings("unused") String appendableType, Supplier<Appendable> destinationSupplier) throws IOException {
             Obfuscator obfuscator = createObfuscator();
 
             String input = "foo=bar&hello=world&no-value";
             String expected = "foo=***&hello=world&no-value";
 
-            Writer writer = new StringWriter();
-            try (Writer w = obfuscator.streamTo(writer)) {
+            Appendable destination = destinationSupplier.get();
+            try (Writer w = obfuscator.streamTo(destination)) {
                 w.write(input);
             }
-            assertEquals(expected, writer.toString());
+            assertEquals(expected, destination.toString());
 
             IOException exception = assertThrows(IOException.class, () -> {
                 @SuppressWarnings("resource")
-                Writer w = obfuscator.streamTo(writer);
+                Writer w = obfuscator.streamTo(destination);
                 w.close();
                 w.write(input);
             });
-            assertEquals(Messages.stream.closed.get(), exception.getMessage());
-
-            StringBuilder sb = new StringBuilder();
-            try (Writer w = obfuscator.streamTo(sb)) {
-                w.write(input);
-            }
-            assertEquals(expected, sb.toString());
-
-            exception = assertThrows(IOException.class, () -> {
-                @SuppressWarnings("resource")
-                Writer w = obfuscator.streamTo(sb);
-                w.close();
-                w.write(input);
-            });
-            assertEquals(Messages.stream.closed.get(), exception.getMessage());
+            assertClosedException(exception);
         }
 
-        @Test
+        @ParameterizedTest(name = "{0}")
+        @MethodSource("appendableArguments")
         @DisplayName("write(String, int, int)")
-        public void testWriteStringRange() throws IOException {
+        public void testWriteStringRange(@SuppressWarnings("unused") String appendableType, Supplier<Appendable> destinationSupplier)
+                throws IOException {
+
             Obfuscator obfuscator = createObfuscator();
 
             String input = "foo=bar&hello=world&no-value";
             String expected = "foo=***&hello=world&no-value";
 
-            Writer writer = new StringWriter();
-            try (Writer w = obfuscator.streamTo(writer)) {
+            Appendable destination = destinationSupplier.get();
+            try (Writer w = obfuscator.streamTo(destination)) {
                 int index = 0;
                 while (index < input.length()) {
                     int to = Math.min(index + 5, input.length());
@@ -287,83 +233,56 @@ public class RequestParameterObfuscatorTest {
                     index = to;
                 }
             }
-            assertEquals(expected, writer.toString());
+            assertEquals(expected, destination.toString());
 
             IOException exception = assertThrows(IOException.class, () -> {
                 @SuppressWarnings("resource")
-                Writer w = obfuscator.streamTo(writer);
+                Writer w = obfuscator.streamTo(destination);
                 w.close();
                 w.write(input, 0, 1);
             });
-            assertEquals(Messages.stream.closed.get(), exception.getMessage());
-
-            StringBuilder sb = new StringBuilder();
-            try (Writer w = obfuscator.streamTo(sb)) {
-                int index = 0;
-                while (index < input.length()) {
-                    int to = Math.min(index + 5, input.length());
-                    w.write(input, index, to - index);
-                    index = to;
-                }
-            }
-            assertEquals(expected, sb.toString());
-
-            exception = assertThrows(IOException.class, () -> {
-                @SuppressWarnings("resource")
-                Writer w = obfuscator.streamTo(sb);
-                w.close();
-                w.write(input, 0, 1);
-            });
-            assertEquals(Messages.stream.closed.get(), exception.getMessage());
+            assertClosedException(exception);
         }
 
-        @Test
+        @ParameterizedTest(name = "{0}")
+        @MethodSource("appendableArguments")
         @DisplayName("append(CharSequence)")
-        public void testAppendCharSequence() throws IOException {
+        public void testAppendCharSequence(@SuppressWarnings("unused") String appendableType, Supplier<Appendable> destinationSupplier)
+                throws IOException {
+
             Obfuscator obfuscator = createObfuscator();
 
             String input = "foo=bar&hello=world&no-value";
             String expected = "foo=***&hello=world&no-value";
 
-            Writer writer = new StringWriter();
-            try (Writer w = obfuscator.streamTo(writer)) {
+            Appendable destination = destinationSupplier.get();
+            try (Writer w = obfuscator.streamTo(destination)) {
                 w.append(input);
             }
-            assertEquals(expected, writer.toString());
+            assertEquals(expected, destination.toString());
 
             IOException exception = assertThrows(IOException.class, () -> {
                 @SuppressWarnings("resource")
-                Writer w = obfuscator.streamTo(writer);
+                Writer w = obfuscator.streamTo(destination);
                 w.close();
                 w.append(input);
             });
-            assertEquals(Messages.stream.closed.get(), exception.getMessage());
-
-            StringBuilder sb = new StringBuilder();
-            try (Writer w = obfuscator.streamTo(sb)) {
-                w.append(input);
-            }
-            assertEquals(expected, sb.toString());
-
-            exception = assertThrows(IOException.class, () -> {
-                @SuppressWarnings("resource")
-                Writer w = obfuscator.streamTo(writer);
-                w.close();
-                w.append(input);
-            });
-            assertEquals(Messages.stream.closed.get(), exception.getMessage());
+            assertClosedException(exception);
         }
 
-        @Test
+        @ParameterizedTest(name = "{0}")
+        @MethodSource("appendableArguments")
         @DisplayName("append(CharSequence, int, int)")
-        public void testAppendCharSequenceRange() throws IOException {
+        public void testAppendCharSequenceRange(@SuppressWarnings("unused") String appendableType, Supplier<Appendable> destinationSupplier)
+                throws IOException {
+
             Obfuscator obfuscator = createObfuscator();
 
             String input = "foo=bar&hello=world&no-value";
             String expected = "foo=***&hello=world&no-value";
 
-            Writer writer = new StringWriter();
-            try (Writer w = obfuscator.streamTo(writer)) {
+            Appendable destination = destinationSupplier.get();
+            try (Writer w = obfuscator.streamTo(destination)) {
                 int index = 0;
                 while (index < input.length()) {
                     int to = Math.min(index + 5, input.length());
@@ -376,111 +295,70 @@ public class RequestParameterObfuscatorTest {
                 assertThrows(IndexOutOfBoundsException.class, () -> w.write(input, 1, input.length()));
                 assertThrows(IndexOutOfBoundsException.class, () -> w.write(input, 0, -1));
             }
-            assertEquals(expected, writer.toString());
+            assertEquals(expected, destination.toString());
 
             IOException exception = assertThrows(IOException.class, () -> {
                 @SuppressWarnings("resource")
-                Writer w = obfuscator.streamTo(writer);
+                Writer w = obfuscator.streamTo(destination);
                 w.close();
                 w.append(input, 0, 1);
             });
-            assertEquals(Messages.stream.closed.get(), exception.getMessage());
-
-            StringBuilder sb = new StringBuilder();
-            try (Writer w = obfuscator.streamTo(sb)) {
-                int index = 0;
-                while (index < input.length()) {
-                    int to = Math.min(index + 5, input.length());
-                    w.append(input, index, to);
-                    index = to;
-                }
-
-                assertThrows(IndexOutOfBoundsException.class, () -> w.write(input, 0, input.length() + 1));
-                assertThrows(IndexOutOfBoundsException.class, () -> w.write(input, -1, input.length()));
-                assertThrows(IndexOutOfBoundsException.class, () -> w.write(input, 1, input.length()));
-                assertThrows(IndexOutOfBoundsException.class, () -> w.write(input, 0, -1));
-            }
-            assertEquals(expected, sb.toString());
-
-            exception = assertThrows(IOException.class, () -> {
-                @SuppressWarnings("resource")
-                Writer w = obfuscator.streamTo(writer);
-                w.close();
-                w.append(input, 0, 1);
-            });
-            assertEquals(Messages.stream.closed.get(), exception.getMessage());
+            assertClosedException(exception);
         }
 
-        @Test
+        @ParameterizedTest(name = "{0}")
+        @MethodSource("appendableArguments")
         @DisplayName("append(char)")
-        public void testAppendChar() throws IOException {
+        public void testAppendChar(@SuppressWarnings("unused") String appendableType, Supplier<Appendable> destinationSupplier) throws IOException {
             Obfuscator obfuscator = createObfuscator();
 
             String input = "foo=bar&hello=world&no-value";
             String expected = "foo=***&hello=world&no-value";
 
-            Writer writer = new StringWriter();
-            try (Writer w = obfuscator.streamTo(writer)) {
+            Appendable destination = destinationSupplier.get();
+            try (Writer w = obfuscator.streamTo(destination)) {
                 for (int i = 0; i < input.length(); i++) {
                     w.append(input.charAt(i));
                 }
             }
-            assertEquals(expected, writer.toString());
+            assertEquals(expected, destination.toString());
 
             IOException exception = assertThrows(IOException.class, () -> {
                 @SuppressWarnings("resource")
-                Writer w = obfuscator.streamTo(writer);
+                Writer w = obfuscator.streamTo(destination);
                 w.close();
                 w.append('x');
             });
-            assertEquals(Messages.stream.closed.get(), exception.getMessage());
-
-            StringBuilder sb = new StringBuilder();
-            try (Writer w = obfuscator.streamTo(sb)) {
-                for (int i = 0; i < input.length(); i++) {
-                    w.append(input.charAt(i));
-                }
-            }
-            assertEquals(expected, sb.toString());
-
-            exception = assertThrows(IOException.class, () -> {
-                @SuppressWarnings("resource")
-                Writer w = obfuscator.streamTo(sb);
-                w.close();
-                w.append('x');
-            });
-            assertEquals(Messages.stream.closed.get(), exception.getMessage());
+            assertClosedException(exception);
         }
 
-        @Test
-        public void testFlush() throws IOException {
+        @ParameterizedTest(name = "{0}")
+        @MethodSource("appendableArguments")
+        @DisplayName("flush()")
+        public void testFlush(@SuppressWarnings("unused") String appendableType, Supplier<Appendable> destinationSupplier) throws IOException {
             Obfuscator obfuscator = createObfuscator();
 
-            Writer writer = new StringWriter();
-            try (Writer w = obfuscator.streamTo(writer)) {
+            Appendable destination = destinationSupplier.get();
+            try (Writer w = obfuscator.streamTo(destination)) {
                 w.flush();
             }
 
             IOException exception = assertThrows(IOException.class, () -> {
                 @SuppressWarnings("resource")
-                Writer w = obfuscator.streamTo(writer);
+                Writer w = obfuscator.streamTo(destination);
                 w.close();
                 w.flush();
             });
-            assertEquals(Messages.stream.closed.get(), exception.getMessage());
+            assertClosedException(exception);
+        }
 
-            StringBuilder sb = new StringBuilder();
-            try (Writer w = obfuscator.streamTo(sb)) {
-                w.flush();
-            }
-
-            exception = assertThrows(IOException.class, () -> {
-                @SuppressWarnings("resource")
-                Writer w = obfuscator.streamTo(sb);
-                w.close();
-                w.flush();
-            });
-            assertEquals(Messages.stream.closed.get(), exception.getMessage());
+        Arguments[] appendableArguments() {
+            return new Arguments[] {
+                    arguments(StringBuilder.class.getSimpleName(), (Supplier<Appendable>) StringBuilder::new),
+                    arguments(StringBuffer.class.getSimpleName(), (Supplier<Appendable>) StringBuffer::new),
+                    arguments(StringWriter.class.getSimpleName(), (Supplier<Appendable>) StringWriter::new),
+                    arguments(Appendable.class.getSimpleName(), (Supplier<Appendable>) TestAppendable::new),
+            };
         }
     }
 

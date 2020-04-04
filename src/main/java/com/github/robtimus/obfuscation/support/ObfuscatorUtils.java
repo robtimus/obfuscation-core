@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-package com.github.robtimus.obfuscation;
+package com.github.robtimus.obfuscation.support;
 
-import static com.github.robtimus.obfuscation.CaseSensitivity.CASE_SENSITIVE;
+import static com.github.robtimus.obfuscation.support.CaseSensitivity.CASE_SENSITIVE;
 import java.io.Closeable;
 import java.io.Flushable;
 import java.io.IOException;
@@ -41,6 +41,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
+import com.github.robtimus.obfuscation.Obfuscator;
 
 /**
  * Utility methods that can be used for implementing {@link Obfuscator Obfuscators}.
@@ -392,11 +393,96 @@ public final class ObfuscatorUtils {
     public static void copyAll(Reader input, Appendable destination) throws IOException {
         Objects.requireNonNull(input);
         Objects.requireNonNull(destination);
-        Writer writer = writer(destination);
+
         char[] buffer = new char[1024];
+        if (destination instanceof StringBuilder) {
+            copyAll(input, (StringBuilder) destination, buffer);
+        } else if (destination instanceof StringBuffer) {
+            copyAll(input, (StringBuffer) destination, buffer);
+        } else if (destination instanceof Writer) {
+            copyAll(input, (Writer) destination, buffer);
+        } else {
+            CharArraySequence csq = new CharArraySequence(buffer);
+            int len;
+            while ((len = input.read(buffer)) != -1) {
+                csq.resetWithStartAndEnd(0, len);
+                destination.append(csq);
+            }
+        }
+    }
+
+    private static void copyAll(Reader input, StringBuilder destination, char[] buffer) throws IOException {
         int len;
         while ((len = input.read(buffer)) != -1) {
-            writer.write(buffer, 0, len);
+            destination.append(buffer, 0, len);
+        }
+    }
+
+    private static void copyAll(Reader input, StringBuffer destination, char[] buffer) throws IOException {
+        int len;
+        while ((len = input.read(buffer)) != -1) {
+            destination.append(buffer, 0, len);
+        }
+    }
+
+    private static void copyAll(Reader input, Writer destination, char[] buffer) throws IOException {
+        int len;
+        while ((len = input.read(buffer)) != -1) {
+            destination.write(buffer, 0, len);
+        }
+    }
+
+    /**
+     * Copies the contents of a {@code Reader} to an {@code Appendable}, masking each character.
+     *
+     * @param input The {@code Reader} to copy the contents of.
+     * @param maskChar The character to replace with.
+     * @param destination The {@code Appendable} to copy the contents to.
+     * @throws NullPointerException If the given {@code Reader} or {@code Appendable} is {@code null}.
+     * @throws IOException If an I/O error occurs.
+     */
+    @SuppressWarnings("resource")
+    public static void maskAll(Reader input, char maskChar, Appendable destination) throws IOException {
+        Objects.requireNonNull(input);
+        Objects.requireNonNull(destination);
+
+        char[] buffer = new char[1024];
+        char[] mask = new char[1024];
+        Arrays.fill(mask, maskChar);
+        if (destination instanceof StringBuilder) {
+            maskAll(input, (StringBuilder) destination, buffer, mask);
+        } else if (destination instanceof StringBuffer) {
+            maskAll(input, (StringBuffer) destination, buffer, mask);
+        } else if (destination instanceof Writer) {
+            maskAll(input, (Writer) destination, buffer, mask);
+        } else {
+            CharArraySequence csq = new CharArraySequence(mask);
+            int len;
+            while ((len = input.read(buffer)) != -1) {
+                csq.resetWithStartAndEnd(0, len);
+                destination.append(csq);
+            }
+        }
+    }
+
+    private static void maskAll(Reader input, StringBuilder destination, char[] buffer, char[] mask) throws IOException {
+        int len;
+        while ((len = input.read(buffer)) != -1) {
+            destination.append(mask, 0, len);
+        }
+    }
+
+    private static void maskAll(Reader input, StringBuffer destination, char[] buffer, char[] mask) throws IOException {
+        int len;
+        while ((len = input.read(buffer)) != -1) {
+            destination.append(mask, 0, len);
+        }
+    }
+
+    private static void maskAll(Reader input, Writer destination, char[] buffer, char[] mask) throws IOException {
+        int len;
+        while ((len = input.read(buffer)) != -1) {
+            destination.write(mask, 0, len);
         }
     }
 
@@ -536,7 +622,7 @@ public final class ObfuscatorUtils {
      * Returns a builder for maps that support both case sensitive and case insensitive mappings.
      * <p>
      * This method can be used to create builders for objects that use values (like obfuscators) per keys, where each key can be treated individually
-     * as case sensitive or case insensitive. An example is {@link RequestParameterObfuscator.Builder}.
+     * as case sensitive or case insensitive.
      * <p>
      * Note that like a {@link TreeMap} created with {@link String#CASE_INSENSITIVE_ORDER}, maps built with this builder fail to obey the general
      * contract of {@link Map#equals(Object)} if they contain any case insensitive mappings. Two maps built with the same settings will be equal to
