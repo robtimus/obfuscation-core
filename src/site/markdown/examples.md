@@ -152,19 +152,12 @@ To provide separate obfuscation per entry:
     // map is just like any other Map, apart from toString;
     // that returns "{username=admin, password=***}"
 
-## Obfuscating request parameters
-
-    CharSequence obfuscated = RequestParameterObfuscator.builder()
-            .withParameter("password", Obfuscator.fixedLength(3))
-            .build()
-            .obfuscateText("username=admin&password=hello");
-    // obfuscated represents "username=admin&password=***"
-
 ## Streaming obfuscation
 
     // assume that writer is an existing Writer
-    Obfuscator obfuscator = RequestParameterObfuscator.builder()
-            .withParameter("password", Obfuscator.fixedLength(3))
+    Obfuscator obfuscator = Obfuscator.portion()
+            .keepAtStart(24)
+            .withFixedLength(3)
             .build();
     try (Writer obfuscatingWriter = obfuscator.streamTo(writer)) {
         obfuscatingWriter.write("username=admin");

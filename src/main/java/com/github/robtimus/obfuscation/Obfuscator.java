@@ -22,9 +22,9 @@ import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.checkStart
 import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.copyAll;
 import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.discardAll;
 import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.getChars;
+import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.maskAll;
 import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.readAll;
 import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.repeatChar;
-import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.maskAll;
 import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.wrapArray;
 import java.io.Closeable;
 import java.io.Flushable;
@@ -53,7 +53,7 @@ public abstract class Obfuscator {
     private static final char DEFAULT_MASK_CHAR = '*';
 
     /**
-     * Obfuscates the contents a {@code CharSequence}.
+     * Obfuscates the contents of a {@code CharSequence}.
      *
      * @param s The {@code CharSequence} with the contents to obfuscate.
      * @return The obfuscated contents.
@@ -64,7 +64,7 @@ public abstract class Obfuscator {
     }
 
     /**
-     * Obfuscates parts of the contents a {@code CharSequence}.
+     * Obfuscates parts of the contents of a {@code CharSequence}.
      *
      * @param s The {@code CharSequence} with the contents to obfuscate.
      * @param start The index in the {@code CharSequence} to start obfuscating, inclusive.
@@ -77,7 +77,7 @@ public abstract class Obfuscator {
     public abstract CharSequence obfuscateText(CharSequence s, int start, int end);
 
     /**
-     * Obfuscates the contents a {@code CharSequence}.
+     * Obfuscates the contents of a {@code CharSequence}.
      *
      * @param s The {@code CharSequence} with the contents to obfuscate.
      * @param destination The {@code StringBuilder} to append the obfuscated contents to.
@@ -88,7 +88,7 @@ public abstract class Obfuscator {
     }
 
     /**
-     * Obfuscates parts of the contents a {@code CharSequence}.
+     * Obfuscates parts of the contents of a {@code CharSequence}.
      *
      * @param s The {@code CharSequence} with the contents to obfuscate.
      * @param start The index in the {@code CharSequence} to start obfuscating, inclusive.
@@ -108,7 +108,7 @@ public abstract class Obfuscator {
     }
 
     /**
-     * Obfuscates the contents a {@code CharSequence}.
+     * Obfuscates the contents of a {@code CharSequence}.
      *
      * @param s The {@code CharSequence} with the contents to obfuscate.
      * @param destination The {@code StringBuffer} to append the obfuscated contents to.
@@ -119,7 +119,7 @@ public abstract class Obfuscator {
     }
 
     /**
-     * Obfuscates parts of the contents a {@code CharSequence}.
+     * Obfuscates parts of the contents of a {@code CharSequence}.
      *
      * @param s The {@code CharSequence} with the contents to obfuscate.
      * @param start The index in the {@code CharSequence} to start obfuscating, inclusive.
@@ -139,7 +139,7 @@ public abstract class Obfuscator {
     }
 
     /**
-     * Obfuscates the contents a {@code CharSequence}.
+     * Obfuscates the contents of a {@code CharSequence}.
      *
      * @param s The {@code CharSequence} with the contents to obfuscate.
      * @param destination The {@code Appendable} to append the obfuscated contents to.
@@ -151,7 +151,7 @@ public abstract class Obfuscator {
     }
 
     /**
-     * Obfuscates parts of the contents a {@code CharSequence}.
+     * Obfuscates parts of the contents of a {@code CharSequence}.
      *
      * @param s The {@code CharSequence} with the contents to obfuscate.
      * @param start The index in the {@code CharSequence} to start obfuscating, inclusive.

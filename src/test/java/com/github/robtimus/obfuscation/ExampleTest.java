@@ -33,7 +33,6 @@ import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import com.github.robtimus.obfuscation.http.RequestParameterObfuscator;
 
 /**
  * Verifies that the examples are correct.
@@ -242,22 +241,13 @@ public class ExampleTest {
     }
 
     @Test
-    @DisplayName("Obfuscating request parameters")
-    public void testRequestParameters() {
-        CharSequence obfuscated = RequestParameterObfuscator.builder()
-                .withParameter("password", Obfuscator.fixedLength(3))
-                .build()
-                .obfuscateText("username=admin&password=hello");
-        assertEquals("username=admin&password=***", obfuscated.toString());
-    }
-
-    @Test
     @DisplayName("Streaming obfuscation")
     public void testStreaming() throws IOException {
         StringWriter writer = new StringWriter();
 
-        Obfuscator obfuscator = RequestParameterObfuscator.builder()
-                .withParameter("password", Obfuscator.fixedLength(3))
+        Obfuscator obfuscator = Obfuscator.portion()
+                .keepAtStart(24)
+                .withFixedLength(3)
                 .build();
         try (Writer obfuscatingWriter = obfuscator.streamTo(writer)) {
             obfuscatingWriter.write("username=admin");
