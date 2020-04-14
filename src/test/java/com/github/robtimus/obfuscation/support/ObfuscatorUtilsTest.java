@@ -531,6 +531,24 @@ public class ObfuscatorUtilsTest {
         }
 
         @Test
+        @DisplayName("default case sensitivity")
+        public void testDefaultCaseSensitivity() {
+            MapBuilder<Integer> builder = ObfuscatorUtils.<Integer>map()
+                    .caseInsensitiveByDefault()
+                    .withEntry("a", 1)
+                    .caseSensitiveByDefault()
+                    .withEntry("b", 2);
+
+            Map<String, Integer> expectedCaseSensitiveMap = new HashMap<>();
+            expectedCaseSensitiveMap.put("b", 2);
+            Map<String, Integer> expectedCaseInsensitiveMap = new HashMap<>();
+            expectedCaseInsensitiveMap.put("a", 1);
+
+            assertEquals(expectedCaseSensitiveMap, builder.caseSensitiveMap());
+            assertEquals(expectedCaseInsensitiveMap, builder.caseInsensitiveMap());
+        }
+
+        @Test
         @DisplayName("transform")
         public void testTransform() {
             MapBuilder<Integer> builder = map();

@@ -17,6 +17,7 @@
 
 package com.github.robtimus.obfuscation.support;
 
+import static com.github.robtimus.obfuscation.support.CaseSensitivity.CASE_INSENSITIVE;
 import static com.github.robtimus.obfuscation.support.CaseSensitivity.CASE_SENSITIVE;
 import java.io.Closeable;
 import java.io.Flushable;
@@ -646,6 +647,8 @@ public final class ObfuscatorUtils {
         private final Map<String, V> caseSensitiveMap;
         private final Map<String, V> caseInsensitiveMap;
 
+        private CaseSensitivity defaultCaseSensitivity = CASE_SENSITIVE;
+
         private MapBuilder() {
             caseSensitiveMap = new HashMap<>();
             caseInsensitiveMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
@@ -653,7 +656,8 @@ public final class ObfuscatorUtils {
 
         /**
          * Adds an entry.
-         * This method is an alias for {@link #withEntry(String, Object, CaseSensitivity) withEntry(key, value, CASE_SENSITIVE)}.
+         * This method is an alias for {@link #withEntry(String, Object, CaseSensitivity)} with the last specified default case sensitivity using
+         * {@link #caseSensitiveByDefault()} or {@link #caseInsensitiveByDefault()}. The default is {@link CaseSensitivity#CASE_SENSITIVE}.
          *
          * @param key The key for the entry.
          * @param value The value for the entry.
@@ -662,7 +666,7 @@ public final class ObfuscatorUtils {
          * @throws IllegalArgumentException If an entry with the same key and the same case sensitivity was already added.
          */
         public MapBuilder<V> withEntry(String key, V value) {
-            return withEntry(key, value, CASE_SENSITIVE);
+            return withEntry(key, value, defaultCaseSensitivity);
         }
 
         /**
@@ -685,6 +689,30 @@ public final class ObfuscatorUtils {
                 throw new IllegalArgumentException(Messages.stringMap.duplicateKey.get(key, caseSensitivity));
             }
             map.put(key, value);
+            return this;
+        }
+
+        /**
+         * Sets the default case sensitivity for new entries to {@link CaseSensitivity#CASE_SENSITIVE}. This is the default setting.
+         * <p>
+         * Note that this will not change the case sensitivity of any entry that was already added.
+         *
+         * @return This object.
+         */
+        public MapBuilder<V> caseSensitiveByDefault() {
+            defaultCaseSensitivity = CASE_SENSITIVE;
+            return this;
+        }
+
+        /**
+         * Sets the default case sensitivity for new entries to {@link CaseSensitivity#CASE_INSENSITIVE}.
+         * <p>
+         * Note that this will not change the case sensitivity of any entry that was already added.
+         *
+         * @return This object.
+         */
+        public MapBuilder<V> caseInsensitiveByDefault() {
+            defaultCaseSensitivity = CASE_INSENSITIVE;
             return this;
         }
 
