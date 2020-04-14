@@ -114,6 +114,55 @@ public class MapBuilderTest {
     }
 
     @Test
+    @DisplayName("testEntry(String, K)")
+    public void testTestEntryCaseSensitive() {
+        MapBuilder<Integer> builder = new MapBuilder<Integer>()
+                .testEntry("a")
+                .testEntry("b");
+
+        Map<String, Integer> expectedCaseSensitiveMap = new HashMap<>();
+        Map<String, Integer> expectedCaseInsensitiveMap = new HashMap<>();
+
+        assertEquals(expectedCaseSensitiveMap, builder.caseSensitiveMap());
+        assertEquals(expectedCaseInsensitiveMap, builder.caseInsensitiveMap());
+    }
+
+    @Test
+    @DisplayName("testEntry(String, K, CaseSensitivity)")
+    public void testTestEntry() {
+        MapBuilder<Integer> builder = new MapBuilder<Integer>()
+                .withEntry("a", 1, CASE_SENSITIVE)
+                .withEntry("b", 2, CASE_INSENSITIVE);
+
+        Map<String, Integer> expectedCaseSensitiveMap = new HashMap<>();
+        expectedCaseSensitiveMap.put("a", 1);
+        Map<String, Integer> expectedCaseInsensitiveMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+        expectedCaseInsensitiveMap.put("b", 2);
+
+        assertEquals(expectedCaseSensitiveMap, builder.caseSensitiveMap());
+        assertEquals(expectedCaseInsensitiveMap, builder.caseInsensitiveMap());
+
+        builder.testEntry("a", CASE_INSENSITIVE);
+        builder.testEntry("b", CASE_SENSITIVE);
+
+        assertEquals(expectedCaseSensitiveMap, builder.caseSensitiveMap());
+        assertEquals(expectedCaseInsensitiveMap, builder.caseInsensitiveMap());
+
+        assertDuplicateKey(builder, "a", CaseSensitivity.CASE_SENSITIVE);
+        builder.testEntry("b", CaseSensitivity.CASE_SENSITIVE);
+        builder.testEntry("a", CaseSensitivity.CASE_INSENSITIVE);
+        assertDuplicateKey(builder, "b", CaseSensitivity.CASE_INSENSITIVE);
+
+        assertEquals(expectedCaseSensitiveMap, builder.caseSensitiveMap());
+        assertEquals(expectedCaseInsensitiveMap, builder.caseInsensitiveMap());
+    }
+
+    private void assertDuplicateKey(MapBuilder<Integer> builder, String key, CaseSensitivity caseSensitivity) {
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> builder.testEntry(key, caseSensitivity));
+        assertEquals(Messages.stringMap.duplicateKey.get(key, caseSensitivity), exception.getMessage());
+    }
+
+    @Test
     @DisplayName("default case sensitivity")
     public void testDefaultCaseSensitivity() {
         MapBuilder<Integer> builder = new MapBuilder<Integer>()

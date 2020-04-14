@@ -91,15 +91,47 @@ public final class MapBuilder<V> {
      * @throws IllegalArgumentException If an entry with the same key and the same case sensitivity was already added.
      */
     public MapBuilder<V> withEntry(String key, V value, CaseSensitivity caseSensitivity) {
-        Objects.requireNonNull(key);
+        testEntry(key, caseSensitivity);
         Objects.requireNonNull(value);
+
+        Map<String, V> map = caseSensitivity.isCaseSensitive() ? caseSensitiveMap : caseInsensitiveMap;
+        map.put(key, value);
+        return this;
+    }
+
+    /**
+     * Tests that an entry can be added.
+     * This method is like {@link #withEntry(String, Object)} except it doesn't actually add the entry.
+     * It can be used to validate entries first.
+     *
+     * @param key The key for the entry.
+     * @return This object.
+     * @throws NullPointerException If the key, value or case sensitivity is {@code null}.
+     * @throws IllegalArgumentException If an entry with the same key and the same case sensitivity was already added.
+     */
+    public MapBuilder<V> testEntry(String key) {
+        return testEntry(key, defaultCaseSensitivity);
+    }
+
+    /**
+     * Tests that an entry can be added.
+     * This method is like {@link #withEntry(String, Object, CaseSensitivity)} except it doesn't actually add the entry.
+     * It can be used to validate entries first.
+     *
+     * @param key The key for the entry.
+     * @param caseSensitivity The case sensitivity for the key.
+     * @return This object.
+     * @throws NullPointerException If the key or case sensitivity is {@code null}.
+     * @throws IllegalArgumentException If an entry with the same key and the same case sensitivity was already added.
+     */
+    public MapBuilder<V> testEntry(String key, CaseSensitivity caseSensitivity) {
+        Objects.requireNonNull(key);
         Objects.requireNonNull(caseSensitivity);
 
         Map<String, V> map = caseSensitivity.isCaseSensitive() ? caseSensitiveMap : caseInsensitiveMap;
         if (map.containsKey(key)) {
             throw new IllegalArgumentException(Messages.stringMap.duplicateKey.get(key, caseSensitivity));
         }
-        map.put(key, value);
         return this;
     }
 
