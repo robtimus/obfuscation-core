@@ -38,8 +38,8 @@ import com.github.robtimus.obfuscation.MapObfuscator.Builder;
 @SuppressWarnings({ "javadoc", "nls" })
 public class MapObfuscatorTest {
     @Nested
-    @DisplayName("obfuscate(Map<K, V>)")
-    public class Obfuscate {
+    @DisplayName("obfuscateMap(Map<K, V>)")
+    public class ObfuscateMap {
 
         @Test
         @DisplayName("without default obfuscator")
