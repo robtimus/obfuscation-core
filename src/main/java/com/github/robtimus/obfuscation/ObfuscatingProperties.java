@@ -44,14 +44,14 @@ final class ObfuscatingProperties extends Properties {
     private final Map<String, Obfuscator> obfuscators;
     private final Obfuscator defaultObfuscator;
 
+    private transient Collection<Object> values;
+    private transient Set<Map.Entry<Object, Object>> entrySet;
+
     ObfuscatingProperties(Properties properties, Map<String, Obfuscator> obfuscators, Obfuscator defaultObfuscator) {
         this.properties = properties;
         this.obfuscators = obfuscators;
         this.defaultObfuscator = defaultObfuscator;
     }
-
-    private Collection<Object> values;
-    private Set<Map.Entry<Object, Object>> entrySet;
 
     @Override
     public synchronized int size() {
