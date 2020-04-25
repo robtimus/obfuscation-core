@@ -30,14 +30,10 @@ class ObfuscatingCollection<E> implements Collection<E> {
 
     private final Collection<E> collection;
 
-    final Function<? super E, ? extends CharSequence> elementRepresentation;
-    final Function<CharSequence, CharSequence> elementObfuscator;
+    final Function<String, CharSequence> elementObfuscator;
 
-    ObfuscatingCollection(Collection<E> collection, Function<? super E, ? extends CharSequence> elementRepresentation,
-            Function<CharSequence, CharSequence> elementObfuscator) {
-
+    ObfuscatingCollection(Collection<E> collection, Function<String, CharSequence> elementObfuscator) {
         this.collection = Objects.requireNonNull(collection);
-        this.elementRepresentation = Objects.requireNonNull(elementRepresentation);
         this.elementObfuscator = Objects.requireNonNull(elementObfuscator);
     }
 
@@ -169,13 +165,13 @@ class ObfuscatingCollection<E> implements Collection<E> {
     }
 
     private void appendElement(E element, StringBuilder sb) {
-        CharSequence s;
+        String s;
         if (element == null) {
             s = null;
         } else if (unwrap(element) == unwrap(collection)) {
             s = "(this Collection)"; //$NON-NLS-1$
         } else {
-            s = elementRepresentation.apply(element);
+            s = element.toString();
         }
         CharSequence obfuscated = elementObfuscator.apply(s == null ? "null" : s); //$NON-NLS-1$
         sb.append(obfuscated);

@@ -22,9 +22,7 @@ import java.util.function.Function;
 
 class ObfuscatingSet<E> extends ObfuscatingCollection<E> implements Set<E> {
 
-    ObfuscatingSet(Set<E> set, Function<? super E, ? extends CharSequence> elementRepresentation,
-            Function<CharSequence, CharSequence> elementObfuscator) {
-
-        super(set, elementRepresentation, elementObfuscator);
+    ObfuscatingSet(Set<E> set, Function<String, CharSequence> elementObfuscator) {
+        super(set, elementObfuscator);
     }
 }

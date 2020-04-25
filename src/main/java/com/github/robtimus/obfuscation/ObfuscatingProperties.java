@@ -45,7 +45,6 @@ final class ObfuscatingProperties extends Properties {
     private final Obfuscator defaultObfuscator;
 
     ObfuscatingProperties(Properties properties, Map<String, Obfuscator> obfuscators, Obfuscator defaultObfuscator) {
-
         this.properties = properties;
         this.obfuscators = obfuscators;
         this.defaultObfuscator = defaultObfuscator;
@@ -357,7 +356,7 @@ final class ObfuscatingProperties extends Properties {
         private final Set<Map.Entry<Object, Object>> entrySet;
 
         private Values(ObfuscatingProperties properties) {
-            super(properties.properties.values(), unsupportedOperation(), unsupportedOperation());
+            super(properties.properties.values(), unsupportedOperation());
             this.properties = properties;
             entrySet = properties.properties.entrySet();
         }
@@ -390,7 +389,7 @@ final class ObfuscatingProperties extends Properties {
         private final Set<Entry<Object, Object>> entrySet;
 
         private EntrySet(ObfuscatingProperties properties) {
-            super(properties.properties.entrySet(), unsupportedOperation(), unsupportedOperation());
+            super(properties.properties.entrySet(), unsupportedOperation());
             this.properties = properties;
             entrySet = properties.properties.entrySet();
         }

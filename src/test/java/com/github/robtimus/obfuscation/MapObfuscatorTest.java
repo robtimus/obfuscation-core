@@ -48,10 +48,10 @@ public class MapObfuscatorTest {
                     .build();
             Map<Integer, String> map = createMap();
             Map<Integer, String> obfuscated = obfuscator.obfuscateMap(map);
-            assertEquals("{0=***, 1=null, 2=******, 3=VAL***, 4=value4, -1=null, null=<***>}", obfuscated.toString());
+            assertEquals("{0=***, 1=value1, 2=******, 3=val***, 4=value4, -1=null, null=<***>}", obfuscated.toString());
             assertEquals("[0, 1, 2, 3, 4, -1, null]", obfuscated.keySet().toString());
-            assertEquals("[***, null, ******, VAL***, value4, null, <***>]", obfuscated.values().toString());
-            assertEquals("[0=***, 1=null, 2=******, 3=VAL***, 4=value4, -1=null, null=<***>]", obfuscated.entrySet().toString());
+            assertEquals("[***, value1, ******, val***, value4, null, <***>]", obfuscated.values().toString());
+            assertEquals("[0=***, 1=value1, 2=******, 3=val***, 4=value4, -1=null, null=<***>]", obfuscated.entrySet().toString());
         }
 
         @Test
@@ -68,18 +68,18 @@ public class MapObfuscatorTest {
                     .build();
             Map<Integer, String> map = createMap();
             Map<Integer, String> obfuscated = obfuscator.obfuscateMap(map);
-            assertEquals("{0=***, 1=null, 2=******, 3=VAL***, 4=vxxx4, -1=nxxxl, null=<***>}", obfuscated.toString());
+            assertEquals("{0=***, 1=value1, 2=******, 3=val***, 4=vxxx4, -1=nxxxl, null=<***>}", obfuscated.toString());
             assertEquals("[0, 1, 2, 3, 4, -1, null]", obfuscated.keySet().toString());
-            assertEquals("[***, null, ******, VAL***, vxxx4, nxxxl, <***>]", obfuscated.values().toString());
-            assertEquals("[0=***, 1=null, 2=******, 3=VAL***, 4=vxxx4, -1=nxxxl, null=<***>]", obfuscated.entrySet().toString());
+            assertEquals("[***, value1, ******, val***, vxxx4, nxxxl, <***>]", obfuscated.values().toString());
+            assertEquals("[0=***, 1=value1, 2=******, 3=val***, 4=vxxx4, -1=nxxxl, null=<***>]", obfuscated.entrySet().toString());
         }
 
         private Builder<Integer, String> createBuilder() {
             return MapObfuscator.<Integer, String>builder()
                     .withKey(0, fixedLength(3))
-                    .withKey(1, none(), s -> null)
+                    .withKey(1, none())
                     .withKey(2, all())
-                    .withKey(3, portion().keepAtStart(3).withFixedLength(3).build(), String::toUpperCase)
+                    .withKey(3, portion().keepAtStart(3).withFixedLength(3).build())
                     .withKey(null, portion().keepAtStart(1).keepAtEnd(1).withFixedLength(3).build())
                     ;
         }

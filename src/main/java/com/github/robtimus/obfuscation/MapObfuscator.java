@@ -27,8 +27,8 @@ import java.util.function.Function;
  * An immutable object that can obfuscate maps so that some or all of their values are obfuscated when their {@link Object#toString() toString()}
  * method is called.
  * <p>
- * The end result is similar to {@link Obfuscator#obfuscateMap(Map)} and {@link Obfuscator#obfuscateMap(Map, Function)}, except this class gives a
- * more fine-grained control over which values to obfuscate and with which obfuscator.
+ * The end result is similar to {@link Obfuscator#obfuscateMap(Map)}, except this class gives a more fine-grained control over which values to
+ * obfuscate and with which obfuscator.
  *
  * @author Rob Spoor
  * @param <K> The map key type.
@@ -36,15 +36,12 @@ import java.util.function.Function;
  */
 public final class MapObfuscator<K, V> {
 
-    private final BiFunction<K, V, CharSequence> valueRepresentation;
-    private final BiFunction<K, CharSequence, CharSequence> valueObfuscator;
+    private final BiFunction<K, String, CharSequence> valueObfuscator;
 
     private MapObfuscator(Builder<K, V> builder) {
         Map<K, Obfuscator> obfuscators = new HashMap<>(builder.obfuscators);
         Obfuscator defaultObfuscator = builder.defaultObfuscator;
-        Map<K, Function<? super V, ? extends CharSequence>> valueRepresentations = new HashMap<>(builder.valueRepresentations);
 
-        valueRepresentation = (k, v) -> valueRepresentations.getOrDefault(k, Object::toString).apply(v);
         valueObfuscator = (k, v) -> {
             Obfuscator obfuscator = obfuscators.getOrDefault(k, defaultObfuscator);
             return obfuscator == null ? v : obfuscator.obfuscateText(v);
@@ -64,7 +61,7 @@ public final class MapObfuscator<K, V> {
      */
     public Map<K, V> obfuscateMap(Map<K, V> map) {
         Objects.requireNonNull(map);
-        return new ObfuscatingMap<>(map, valueRepresentation, valueObfuscator);
+        return new ObfuscatingMap<>(map, valueObfuscator);
     }
 
     /**
@@ -90,13 +87,9 @@ public final class MapObfuscator<K, V> {
         private final Map<K, Obfuscator> obfuscators;
         private Obfuscator defaultObfuscator;
 
-        private final Map<K, Function<? super V, ? extends CharSequence>> valueRepresentations;
-
         private Builder() {
             obfuscators = new HashMap<>();
             defaultObfuscator = null;
-
-            valueRepresentations = new HashMap<>();
         }
 
         /**
@@ -110,24 +103,6 @@ public final class MapObfuscator<K, V> {
         public Builder<K, V> withKey(K key, Obfuscator obfuscator) {
             Objects.requireNonNull(obfuscator);
             obfuscators.put(key, obfuscator);
-            valueRepresentations.remove(key);
-            return this;
-        }
-
-        /**
-         * Adds a key to obfuscate the value for. The value's {@link Object#toString() string representation} will be used to obfuscate the value.
-         *
-         * @param key The key to obfuscate the value for.
-         * @param obfuscator The obfuscator to use for obfuscating the value.
-         * @param valueRepresentation A function to provide the string representation that will be used to obfuscate the value.
-         * @return This object.
-         * @throws NullPointerException If the given obfuscator or function is {@code null}.
-         */
-        public Builder<K, V> withKey(K key, Obfuscator obfuscator, Function<? super V, ? extends CharSequence> valueRepresentation) {
-            Objects.requireNonNull(obfuscator);
-            Objects.requireNonNull(valueRepresentation);
-            obfuscators.put(key, obfuscator);
-            valueRepresentations.put(key, valueRepresentation);
             return this;
         }
 

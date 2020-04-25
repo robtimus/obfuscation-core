@@ -206,6 +206,7 @@ public abstract class Obfuscator {
      * @param <T> The type of value to obfuscate.
      * @param value The value to obfuscate.
      * @param representation A supplier for the string representation that will be used to obfuscate the value.
+     *                           This can be used for values that don't have a sensible {@link Object#toString() string representation} of their own.
      * @return An {@code Obfuscated} wrapper around the given value.
      * @throws NullPointerException If the given value is or supplier is {@code null}.
      */
@@ -226,26 +227,8 @@ public abstract class Obfuscator {
      * @throws NullPointerException If the given list is {@code null}.
      */
     public final <E> List<E> obfuscateList(List<E> list) {
-        return obfuscateList(list, Object::toString);
-    }
-
-    /**
-     * Obfuscates a list.
-     * <p>
-     * The result will be a list that will behave exactly the same as the given list, except it will obfuscate each element when its
-     * {@link Object#toString() toString()} method is called. This is different from {@link #obfuscateObject(Object, Supplier)} because it will not
-     * obfuscate the list structure or the number of elements.
-     *
-     * @param <E> The list's element type.
-     * @param list The list to obfuscate.
-     * @param elementRepresentation A function to provide the string representation that will be used to obfuscate each element.
-     * @return An obfuscating list wrapper around the given list.
-     * @throws NullPointerException If the given list or function is {@code null}.
-     */
-    public final <E> List<E> obfuscateList(List<E> list, Function<? super E, ? extends CharSequence> elementRepresentation) {
         Objects.requireNonNull(list);
-        Objects.requireNonNull(elementRepresentation);
-        return ObfuscatingList.of(list, elementRepresentation, this::obfuscateText);
+        return ObfuscatingList.of(list, this::obfuscateText);
     }
 
     /**
@@ -261,26 +244,8 @@ public abstract class Obfuscator {
      * @throws NullPointerException If the given set is {@code null}.
      */
     public final <E> Set<E> obfuscateSet(Set<E> set) {
-        return obfuscateSet(set, Object::toString);
-    }
-
-    /**
-     * Obfuscates a set.
-     * <p>
-     * The result will be a set that will behave exactly the same as the given set, except it will obfuscate each element when its
-     * {@link Object#toString() toString()} method is called. This is different from {@link #obfuscateObject(Object, Supplier)} because it will not
-     * obfuscate the set structure or the number of elements.
-     *
-     * @param <E> The set's element type.
-     * @param set The set to obfuscate.
-     * @param elementRepresentation A function to provide the string representation that will be used to obfuscate each element.
-     * @return An obfuscating set wrapper around the given set.
-     * @throws NullPointerException If the given set or function is {@code null}.
-     */
-    public final <E> Set<E> obfuscateSet(Set<E> set, Function<? super E, ? extends CharSequence> elementRepresentation) {
         Objects.requireNonNull(set);
-        Objects.requireNonNull(elementRepresentation);
-        return new ObfuscatingSet<>(set, elementRepresentation, this::obfuscateText);
+        return new ObfuscatingSet<>(set, this::obfuscateText);
     }
 
     /**
@@ -296,26 +261,8 @@ public abstract class Obfuscator {
      * @throws NullPointerException If the given collection is {@code null}.
      */
     public final <E> Collection<E> obfuscateCollection(Collection<E> collection) {
-        return obfuscateCollection(collection, Object::toString);
-    }
-
-    /**
-     * Obfuscates a collection.
-     * <p>
-     * The result will be a collection that will behave exactly the same as the given collection, except it will obfuscate each element when its
-     * {@link Object#toString() toString()} method is called. This is different from {@link #obfuscateObject(Object, Supplier)} because it will not
-     * obfuscate the collection structure or the number of elements.
-     *
-     * @param <E> The collection's element type.
-     * @param collection The collection to obfuscate.
-     * @param elementRepresentation A function to provide the string representation that will be used to obfuscate each element.
-     * @return An obfuscating collection wrapper around the given collection.
-     * @throws NullPointerException If the given collection or function is {@code null}.
-     */
-    public final <E> Collection<E> obfuscateCollection(Collection<E> collection, Function<? super E, ? extends CharSequence> elementRepresentation) {
         Objects.requireNonNull(collection);
-        Objects.requireNonNull(elementRepresentation);
-        return new ObfuscatingCollection<>(collection, elementRepresentation, this::obfuscateText);
+        return new ObfuscatingCollection<>(collection, this::obfuscateText);
     }
 
     /**
@@ -332,27 +279,8 @@ public abstract class Obfuscator {
      * @throws NullPointerException If the given map is {@code null}.
      */
     public final <K, V> Map<K, V> obfuscateMap(Map<K, V> map) {
-        return obfuscateMap(map, Object::toString);
-    }
-
-    /**
-     * Obfuscates a map.
-     * <p>
-     * The result will be a map that will behave exactly the same as the given map, except it will obfuscate each value when its
-     * {@link Object#toString() toString()} method is called. This is different from {@link #obfuscateObject(Object)} because it will not obfuscate
-     * the map structure or the number of entries.
-     *
-     * @param <K> The map's key type.
-     * @param <V> The map's value type.
-     * @param map The map to obfuscate.
-     * @param valueRepresentation A function to provide the string representation that will be used to obfuscate each value.
-     * @return An obfuscating map wrapper around the given map.
-     * @throws NullPointerException If the given map or function is {@code null}.
-     */
-    public final <K, V> Map<K, V> obfuscateMap(Map<K, V> map, Function<? super V, ? extends CharSequence> valueRepresentation) {
         Objects.requireNonNull(map);
-        Objects.requireNonNull(valueRepresentation);
-        return new ObfuscatingMap<>(map, (k, v) -> valueRepresentation.apply(v), (k, v) -> obfuscateText(v));
+        return new ObfuscatingMap<>(map, (k, v) -> obfuscateText(v));
     }
 
     /**

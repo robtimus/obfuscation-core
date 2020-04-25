@@ -30,17 +30,13 @@ class ObfuscatingMap<K, V> implements Map<K, V> {
 
     private final Map<K, V> map;
 
-    private final BiFunction<K, ? super V, CharSequence> valueRepresentation;
-    private final BiFunction<K, CharSequence, CharSequence> valueObfuscator;
+    private final BiFunction<K, String, CharSequence> valueObfuscator;
 
     private Collection<V> values;
     private Set<Map.Entry<K, V>> entrySet;
 
-    ObfuscatingMap(Map<K, V> map, BiFunction<K, ? super V, CharSequence> valueRepresentation,
-            BiFunction<K, CharSequence, CharSequence> valueObfuscator) {
-
+    ObfuscatingMap(Map<K, V> map, BiFunction<K, String, CharSequence> valueObfuscator) {
         this.map = Objects.requireNonNull(map);
-        this.valueRepresentation = Objects.requireNonNull(valueRepresentation);
         this.valueObfuscator = Objects.requireNonNull(valueObfuscator);
     }
 
@@ -207,13 +203,13 @@ class ObfuscatingMap<K, V> implements Map<K, V> {
     }
 
     void appendValue(K key, V value, StringBuilder sb, Object unlessSame, String ifSame, Function<Object, Object> unwrapper) {
-        CharSequence s;
+        String s;
         if (value == null) {
             s = null;
         } else if (unwrapper.apply(value) == unwrapper.apply(unlessSame)) {
             s = ifSame;
         } else {
-            s = valueRepresentation.apply(key, value);
+            s = value.toString();
         }
         CharSequence obfuscated = valueObfuscator.apply(key, s == null ? "null" : s); //$NON-NLS-1$
         sb.append(obfuscated);
@@ -225,7 +221,7 @@ class ObfuscatingMap<K, V> implements Map<K, V> {
         private final Set<Entry<K, V>> entrySet;
 
         private Values(ObfuscatingMap<K, V> map) {
-            super(map.map.values(), unsupportedOperation(), unsupportedOperation());
+            super(map.map.values(), unsupportedOperation());
             this.map = map;
             entrySet = map.map.entrySet();
         }
@@ -258,7 +254,7 @@ class ObfuscatingMap<K, V> implements Map<K, V> {
         private final Set<Entry<K, V>> entrySet;
 
         private EntrySet(ObfuscatingMap<K, V> map) {
-            super(map.map.entrySet(), unsupportedOperation(), unsupportedOperation());
+            super(map.map.entrySet(), unsupportedOperation());
             this.map = map;
             entrySet = map.map.entrySet();
         }

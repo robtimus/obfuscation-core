@@ -29,19 +29,16 @@ class ObfuscatingList<E> extends ObfuscatingCollection<E> implements List<E> {
 
     private final List<E> list;
 
-    private ObfuscatingList(List<E> list, Function<? super E, ? extends CharSequence> elementRepresentation,
-            Function<CharSequence, CharSequence> elementObfuscator) {
-
-        super(list, elementRepresentation, elementObfuscator);
+    private ObfuscatingList(List<E> list, Function<String, CharSequence> elementObfuscator) {
+        super(list, elementObfuscator);
         this.list = list;
     }
 
-    static <E> List<E> of(List<E> list, Function<? super E, ? extends CharSequence> elementRepresentation,
-            Function<CharSequence, CharSequence> elementObfuscator) {
+    static <E> List<E> of(List<E> list, Function<String, CharSequence> elementObfuscator) {
 
         return list instanceof RandomAccess
-                ? new RandomAccessList<>(list, elementRepresentation, elementObfuscator)
-                : new ObfuscatingList<>(list, elementRepresentation, elementObfuscator);
+                ? new RandomAccessList<>(list, elementObfuscator)
+                : new ObfuscatingList<>(list, elementObfuscator);
     }
 
     @Override
@@ -101,15 +98,13 @@ class ObfuscatingList<E> extends ObfuscatingCollection<E> implements List<E> {
 
     @Override
     public List<E> subList(int fromIndex, int toIndex) {
-        return of(list.subList(fromIndex, toIndex), elementRepresentation, elementObfuscator);
+        return of(list.subList(fromIndex, toIndex), elementObfuscator);
     }
 
     private static final class RandomAccessList<E> extends ObfuscatingList<E> implements RandomAccess {
 
-        RandomAccessList(List<E> list, Function<? super E, ? extends CharSequence> elementRepresentation,
-                Function<CharSequence, CharSequence> elementObfuscator) {
-
-            super(list, elementRepresentation, elementObfuscator);
+        RandomAccessList(List<E> list, Function<String, CharSequence> elementObfuscator) {
+            super(list, elementObfuscator);
         }
     }
 }
