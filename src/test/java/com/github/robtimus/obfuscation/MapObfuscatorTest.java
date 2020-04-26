@@ -23,6 +23,7 @@ import static com.github.robtimus.obfuscation.Obfuscator.fixedLength;
 import static com.github.robtimus.obfuscation.Obfuscator.none;
 import static com.github.robtimus.obfuscation.Obfuscator.portion;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -33,9 +34,15 @@ import java.util.function.Function;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import com.github.robtimus.obfuscation.MapObfuscator.Builder;
 
 @SuppressWarnings({ "javadoc", "nls" })
+@TestInstance(Lifecycle.PER_CLASS)
 public class MapObfuscatorTest {
     @Nested
     @DisplayName("obfuscateMap(Map<K, V>)")
@@ -74,16 +81,6 @@ public class MapObfuscatorTest {
             assertEquals("[0=***, 1=value1, 2=******, 3=val***, 4=vxxx4, -1=nxxxl, null=<***>]", obfuscated.entrySet().toString());
         }
 
-        private Builder<Integer, String> createBuilder() {
-            return MapObfuscator.<Integer, String>builder()
-                    .withKey(0, fixedLength(3))
-                    .withKey(1, none())
-                    .withKey(2, all())
-                    .withKey(3, portion().keepAtStart(3).withFixedLength(3).build())
-                    .withKey(null, portion().keepAtStart(1).keepAtEnd(1).withFixedLength(3).build())
-                    ;
-        }
-
         private Map<Integer, String> createMap() {
             Map<Integer, String> map = new LinkedHashMap<>();
             for (int i = 0; i < 5; i++) {
@@ -95,16 +92,57 @@ public class MapObfuscatorTest {
         }
     }
 
-    @Test
-    @DisplayName("transform")
-    public void testTransform() {
-        Builder<Integer, String> builder = builder();
-        @SuppressWarnings("unchecked")
-        Function<Builder<Integer, String>, String> f = mock(Function.class);
-        when(f.apply(builder)).thenReturn("result");
+    @ParameterizedTest(name = "{1}")
+    @MethodSource
+    @DisplayName("equals(Object)")
+    public void testEquals(MapObfuscator<?, ?> obfuscator, Object object, boolean expected) {
+        assertEquals(expected, obfuscator.equals(object));
+    }
 
-        assertEquals("result", builder.transform(f));
-        verify(f).apply(builder);
-        verifyNoMoreInteractions(f);
+    Arguments[] testEquals() {
+        MapObfuscator<?, ?> obfuscator = createBuilder().build();
+        return new Arguments[] {
+                arguments(obfuscator, obfuscator, true),
+                arguments(obfuscator, null, false),
+                arguments(obfuscator, createBuilder().build(), true),
+                arguments(obfuscator, builder().build(), false),
+                arguments(obfuscator, createBuilder().withDefaultObfuscator(all()).build(), false),
+                arguments(obfuscator, "foo", false),
+        };
+    }
+
+    @Test
+    @DisplayName("hashCode()")
+    public void testHashCode() {
+        MapObfuscator<?, ?> obfuscator = createBuilder().build();
+        assertEquals(obfuscator.hashCode(), obfuscator.hashCode());
+        assertEquals(obfuscator.hashCode(), createBuilder().build().hashCode());
+    }
+
+    @Nested
+    @DisplayName("Builder")
+    public class BuilderTest {
+        @Test
+        @DisplayName("transform")
+        public void testTransform() {
+            Builder<Integer, String> builder = builder();
+            @SuppressWarnings("unchecked")
+            Function<Builder<Integer, String>, String> f = mock(Function.class);
+            when(f.apply(builder)).thenReturn("result");
+
+            assertEquals("result", builder.transform(f));
+            verify(f).apply(builder);
+            verifyNoMoreInteractions(f);
+        }
+    }
+
+    private Builder<Integer, String> createBuilder() {
+        return MapObfuscator.<Integer, String>builder()
+                .withKey(0, fixedLength(3))
+                .withKey(1, none())
+                .withKey(2, all())
+                .withKey(3, portion().keepAtStart(3).withFixedLength(3).build())
+                .withKey(null, portion().keepAtStart(1).keepAtEnd(1).withFixedLength(3).build())
+                ;
     }
 }

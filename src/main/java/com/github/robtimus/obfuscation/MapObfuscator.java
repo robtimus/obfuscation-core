@@ -17,6 +17,7 @@
 
 package com.github.robtimus.obfuscation;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -36,11 +37,14 @@ import java.util.function.Function;
  */
 public final class MapObfuscator<K, V> {
 
+    private final Map<K, Obfuscator> obfuscators;
+    private final Obfuscator defaultObfuscator;
+
     private final BiFunction<K, String, CharSequence> valueObfuscator;
 
     private MapObfuscator(Builder<K, V> builder) {
-        Map<K, Obfuscator> obfuscators = new HashMap<>(builder.obfuscators);
-        Obfuscator defaultObfuscator = builder.defaultObfuscator;
+        obfuscators = builder.obfuscators();
+        defaultObfuscator = builder.defaultObfuscator;
 
         valueObfuscator = (k, v) -> {
             Obfuscator obfuscator = obfuscators.getOrDefault(k, defaultObfuscator);
@@ -73,6 +77,33 @@ public final class MapObfuscator<K, V> {
      */
     public static <K, V> Builder<K, V> builder() {
         return new Builder<>();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || o.getClass() != getClass()) {
+            return false;
+        }
+        MapObfuscator<?, ?> other = (MapObfuscator<?, ?>) o;
+        return obfuscators.equals(other.obfuscators)
+                && Objects.equals(defaultObfuscator, other.defaultObfuscator);
+    }
+
+    @Override
+    public int hashCode() {
+        return obfuscators.hashCode() ^ Objects.hashCode(defaultObfuscator);
+    }
+
+    @Override
+    @SuppressWarnings("nls")
+    public String toString() {
+        return getClass().getName()
+                + "[obfuscators=" + obfuscators
+                + ",defaultObfuscator=" + defaultObfuscator
+                + "]";
     }
 
     /**
@@ -128,6 +159,10 @@ public final class MapObfuscator<K, V> {
          */
         public <R> R transform(Function<? super Builder<K, V>, ? extends R> f) {
             return f.apply(this);
+        }
+
+        private Map<K, Obfuscator> obfuscators() {
+            return Collections.unmodifiableMap(new HashMap<>(obfuscators));
         }
 
         /**
