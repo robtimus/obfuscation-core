@@ -18,10 +18,13 @@
 package com.github.robtimus.obfuscation;
 
 import static com.github.robtimus.obfuscation.MapObfuscator.builder;
+import static com.github.robtimus.obfuscation.MapObfuscator.stringKeyedBuilder;
 import static com.github.robtimus.obfuscation.Obfuscator.all;
 import static com.github.robtimus.obfuscation.Obfuscator.fixedLength;
 import static com.github.robtimus.obfuscation.Obfuscator.none;
 import static com.github.robtimus.obfuscation.Obfuscator.portion;
+import static com.github.robtimus.obfuscation.support.CaseSensitivity.CASE_INSENSITIVE;
+import static com.github.robtimus.obfuscation.support.CaseSensitivity.CASE_SENSITIVE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.mock;
@@ -31,6 +34,7 @@ import static org.mockito.Mockito.when;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -40,6 +44,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import com.github.robtimus.obfuscation.MapObfuscator.Builder;
+import com.github.robtimus.obfuscation.MapObfuscator.StringKeyedBuilder;
 
 @SuppressWarnings({ "javadoc", "nls" })
 @TestInstance(Lifecycle.PER_CLASS)
@@ -81,12 +86,98 @@ public class MapObfuscatorTest {
             assertEquals("[0=***, 1=value1, 2=******, 3=val***, 4=vxxx4, -1=nxxxl, null=<***>]", obfuscated.entrySet().toString());
         }
 
+        @Nested
+        @DisplayName("caseSensitiveByDefault()")
+        public class CaseSensitiveByDefault {
+
+            @Test
+            @DisplayName("without default obfuscator")
+            public void testObfuscateWithoutDefaultObfuscator() {
+                MapObfuscator<String, String> obfuscator = createStringKeyedBuilder(StringKeyedBuilder::caseSensitiveByDefault)
+                        .build();
+
+                Map<String, String> map = createStringKeyedMap();
+                Map<String, String> obfuscated = obfuscator.obfuscateMap(map);
+                // all but d are case sensitive
+                assertEquals("{a=***, A=value1, b=value2, B=value2, c=******, C=value3, d=val***, D=val***, null=<null>}", obfuscated.toString());
+            }
+
+            @Test
+            @DisplayName("with default obfuscator")
+            public void testObfuscateWithDefaultObfuscator() {
+                Obfuscator defaultObfuscator = portion()
+                        .keepAtStart(1)
+                        .keepAtEnd(1)
+                        .withFixedLength(3)
+                        .withMaskChar('x')
+                        .build();
+                MapObfuscator<String, String> obfuscator = createStringKeyedBuilder(StringKeyedBuilder::caseSensitiveByDefault)
+                        .withDefaultObfuscator(defaultObfuscator)
+                        .build();
+
+                Map<String, String> map = createStringKeyedMap();
+                Map<String, String> obfuscated = obfuscator.obfuscateMap(map);
+                // all but d are case sensitive
+                assertEquals("{a=***, A=vxxx1, b=value2, B=vxxx2, c=******, C=vxxx3, d=val***, D=val***, null=<xxx>}", obfuscated.toString());
+            }
+        }
+
+        @Nested
+        @DisplayName("caseInsensitiveByDefault()")
+        public class CaseInsensitiveByDefault {
+
+            @Test
+            @DisplayName("without default obfuscator")
+            public void testObfuscateWithoutDefaultObfuscator() {
+                MapObfuscator<String, String> obfuscator = createStringKeyedBuilder(StringKeyedBuilder::caseInsensitiveByDefault)
+                        .build();
+
+                Map<String, String> map = createStringKeyedMap();
+                Map<String, String> obfuscated = obfuscator.obfuscateMap(map);
+                // all but c are case insensitive
+                assertEquals("{a=***, A=***, b=value2, B=value2, c=******, C=value3, d=val***, D=val***, null=<null>}", obfuscated.toString());
+            }
+
+            @Test
+            @DisplayName("with default obfuscator")
+            public void testObfuscateWithDefaultObfuscator() {
+                Obfuscator defaultObfuscator = portion()
+                        .keepAtStart(1)
+                        .keepAtEnd(1)
+                        .withFixedLength(3)
+                        .withMaskChar('x')
+                        .build();
+                MapObfuscator<String, String> obfuscator = createStringKeyedBuilder(StringKeyedBuilder::caseInsensitiveByDefault)
+                        .withDefaultObfuscator(defaultObfuscator)
+                        .build();
+
+                Map<String, String> map = createStringKeyedMap();
+                Map<String, String> obfuscated = obfuscator.obfuscateMap(map);
+                // all but c are case insensitive
+                assertEquals("{a=***, A=***, b=value2, B=value2, c=******, C=vxxx3, d=val***, D=val***, null=<xxx>}", obfuscated.toString());
+            }
+        }
+
         private Map<Integer, String> createMap() {
             Map<Integer, String> map = new LinkedHashMap<>();
             for (int i = 0; i < 5; i++) {
                 map.put(i, "value" + i);
             }
             map.put(-1, null);
+            map.put(null, "<null>");
+            return map;
+        }
+
+        private Map<String, String> createStringKeyedMap() {
+            Map<String, String> map = new LinkedHashMap<>();
+            map.put("a", "value1");
+            map.put("A", "value1");
+            map.put("b", "value2");
+            map.put("B", "value2");
+            map.put("c", "value3");
+            map.put("C", "value3");
+            map.put("d", "value4");
+            map.put("D", "value4");
             map.put(null, "<null>");
             return map;
         }
@@ -136,6 +227,23 @@ public class MapObfuscatorTest {
         }
     }
 
+    @Nested
+    @DisplayName("StringKeyedBuilder")
+    public class StringKeyeedBuilderTest {
+        @Test
+        @DisplayName("transform")
+        public void testTransform() {
+            StringKeyedBuilder<String> builder = stringKeyedBuilder();
+            @SuppressWarnings("unchecked")
+            Function<StringKeyedBuilder<String>, String> f = mock(Function.class);
+            when(f.apply(builder)).thenReturn("result");
+
+            assertEquals("result", builder.transform(f));
+            verify(f).apply(builder);
+            verifyNoMoreInteractions(f);
+        }
+    }
+
     private Builder<Integer, String> createBuilder() {
         return MapObfuscator.<Integer, String>builder()
                 .withKey(0, fixedLength(3))
@@ -143,6 +251,16 @@ public class MapObfuscatorTest {
                 .withKey(2, all())
                 .withKey(3, portion().keepAtStart(3).withFixedLength(3).build())
                 .withKey(null, portion().keepAtStart(1).keepAtEnd(1).withFixedLength(3).build())
+                ;
+    }
+
+    private StringKeyedBuilder<String> createStringKeyedBuilder(UnaryOperator<StringKeyedBuilder<String>> transformation) {
+        return MapObfuscator.<String>stringKeyedBuilder()
+                .transform(transformation)
+                .withKey("a", fixedLength(3))
+                .withKey("b", none())
+                .withKey("c", all(), CASE_SENSITIVE)
+                .withKey("d", portion().keepAtStart(3).withFixedLength(3).build(), CASE_INSENSITIVE)
                 ;
     }
 }
