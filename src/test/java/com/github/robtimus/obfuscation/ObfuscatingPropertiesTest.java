@@ -81,17 +81,22 @@ public class ObfuscatingPropertiesTest {
     private Properties properties;
     private Properties obfuscating;
 
-    static Properties newProperties(String... keysAndValues) {
-        Properties newProperties = new Properties();
+    static Properties newProperties(Properties defaults, String... keysAndValues) {
+        Properties newProperties = new Properties(defaults);
         for (int i = 0; i < keysAndValues.length; i += 2) {
             newProperties.put(keysAndValues[i], keysAndValues[i + 1]);
         }
         return newProperties;
     }
 
+    static Properties newProperties(String... keysAndValues) {
+        return newProperties(null, keysAndValues);
+    }
+
     @BeforeEach
     public void init() {
-        properties = spy(newProperties("foo", "FOO", "bar", "BAR"));
+        Properties defaults = newProperties("default", "DEFAULT");
+        properties = spy(newProperties(defaults, "foo", "FOO", "bar", "BAR"));
         obfuscating = OBFUSCATOR.obfuscateProperties(properties);
     }
 
@@ -509,14 +514,14 @@ public class ObfuscatingPropertiesTest {
         while (enumeration.hasMoreElements()) {
             propertyNames.add(enumeration.nextElement());
         }
-        assertThat(propertyNames, containsInAnyOrder("foo", "bar"));
+        assertThat(propertyNames, containsInAnyOrder("default", "foo", "bar"));
     }
 
     @Test
     @DisplayName("stringPropertyNames()")
     public void testStringPropertyNames() {
         Set<String> propertyNames = obfuscating.stringPropertyNames();
-        assertThat(propertyNames, containsInAnyOrder("foo", "bar"));
+        assertThat(propertyNames, containsInAnyOrder("default", "foo", "bar"));
     }
 
     @Test
@@ -620,6 +625,7 @@ public class ObfuscatingPropertiesTest {
         }
 
         String contents = outputStream.toString("UTF-8");
+        assertThat(contents, containsString("default=D***T" + System.lineSeparator()));
         assertThat(contents, containsString("foo=1***E" + System.lineSeparator()));
         assertThat(contents, containsString("bar=B***R" + System.lineSeparator()));
         assertThat(contents, containsString("not-obfuscated=123456789A123456789B123456789C1234567..." + System.lineSeparator()));
@@ -637,6 +643,7 @@ public class ObfuscatingPropertiesTest {
         }
 
         String contents = writer.toString();
+        assertThat(contents, containsString("default=D***T" + System.lineSeparator()));
         assertThat(contents, containsString("foo=1***E" + System.lineSeparator()));
         assertThat(contents, containsString("bar=B***R" + System.lineSeparator()));
         assertThat(contents, containsString("not-obfuscated=123456789A123456789B123456789C1234567..." + System.lineSeparator()));

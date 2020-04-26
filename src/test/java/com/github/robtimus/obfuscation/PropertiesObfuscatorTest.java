@@ -19,6 +19,7 @@ package com.github.robtimus.obfuscation;
 
 import static com.github.robtimus.obfuscation.ObfuscatingPropertiesTest.assertHasToString;
 import static com.github.robtimus.obfuscation.ObfuscatingPropertiesTest.newProperties;
+import static com.github.robtimus.obfuscation.Obfuscator.all;
 import static com.github.robtimus.obfuscation.Obfuscator.portion;
 import static com.github.robtimus.obfuscation.PropertiesObfuscator.builder;
 import static com.github.robtimus.obfuscation.support.CaseSensitivity.CASE_INSENSITIVE;
@@ -26,6 +27,7 @@ import static com.github.robtimus.obfuscation.support.CaseSensitivity.CASE_SENSI
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -42,6 +44,9 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import com.github.robtimus.obfuscation.PropertiesObfuscator.Builder;
 
 @SuppressWarnings({ "javadoc", "nls" })
@@ -171,6 +176,33 @@ public class PropertiesObfuscatorTest {
                 assertThat(contents, containsString("BAZ=B***Z" + System.lineSeparator()));
             }
         }
+    }
+
+    @ParameterizedTest(name = "{1}")
+    @MethodSource
+    @DisplayName("equals(Object)")
+    public void testEquals(PropertiesObfuscator obfuscator, Object object, boolean expected) {
+        assertEquals(expected, obfuscator.equals(object));
+    }
+
+    Arguments[] testEquals() {
+        PropertiesObfuscator obfuscator = createObfuscator(builder());
+        return new Arguments[] {
+                arguments(obfuscator, obfuscator, true),
+                arguments(obfuscator, null, false),
+                arguments(obfuscator, createObfuscator(builder()), true),
+                arguments(obfuscator, builder().build(), false),
+                arguments(obfuscator, createObfuscator(builder().withDefaultObfuscator(all())), false),
+                arguments(obfuscator, "foo", false),
+        };
+    }
+
+    @Test
+    @DisplayName("hashCode()")
+    public void testHashCode() {
+        PropertiesObfuscator obfuscator = createObfuscator(builder());
+        assertEquals(obfuscator.hashCode(), obfuscator.hashCode());
+        assertEquals(obfuscator.hashCode(), createObfuscator(builder()).hashCode());
     }
 
     @Nested

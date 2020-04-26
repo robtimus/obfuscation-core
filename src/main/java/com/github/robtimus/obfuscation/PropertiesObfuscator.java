@@ -61,6 +61,33 @@ public final class PropertiesObfuscator {
         return new ObfuscatingProperties(properties, obfuscators, defaultObfuscator);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || o.getClass() != getClass()) {
+            return false;
+        }
+        PropertiesObfuscator other = (PropertiesObfuscator) o;
+        return obfuscators.equals(other.obfuscators)
+                && Objects.equals(defaultObfuscator, other.defaultObfuscator);
+    }
+
+    @Override
+    public int hashCode() {
+        return obfuscators.hashCode() ^ Objects.hashCode(defaultObfuscator);
+    }
+
+    @Override
+    @SuppressWarnings("nls")
+    public String toString() {
+        return getClass().getName()
+                + "[obfuscators=" + obfuscators
+                + ",defaultObfuscator=" + defaultObfuscator
+                + "]";
+    }
+
     /**
      * Returns a builder that will create {@code PropertiesObfuscators}.
      *
