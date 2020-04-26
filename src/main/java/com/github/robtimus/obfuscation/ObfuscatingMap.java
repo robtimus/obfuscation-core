@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 class ObfuscatingMap<K, V> implements Map<K, V> {
 
@@ -202,7 +203,7 @@ class ObfuscatingMap<K, V> implements Map<K, V> {
         return sb.append('}').toString();
     }
 
-    void appendValue(K key, V value, StringBuilder sb, Object unlessSame, String ifSame, Function<Object, Object> unwrapper) {
+    void appendValue(K key, V value, StringBuilder sb, Object unlessSame, String ifSame, UnaryOperator<Object> unwrapper) {
         String s;
         if (value == null) {
             s = null;

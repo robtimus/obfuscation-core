@@ -26,7 +26,6 @@ import java.io.Reader;
 import java.io.Writer;
 import java.util.Collection;
 import java.util.Enumeration;
-import java.util.InvalidPropertiesFormatException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -35,6 +34,7 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 @SuppressWarnings("serial")
 final class ObfuscatingProperties extends Properties {
@@ -215,7 +215,7 @@ final class ObfuscatingProperties extends Properties {
         return sb.append('}').toString();
     }
 
-    void appendValue(Object key, Object value, StringBuilder sb, Object unlessSame, String ifSame, Function<Object, Object> unwrapper) {
+    void appendValue(Object key, Object value, StringBuilder sb, Object unlessSame, String ifSame, UnaryOperator<Object> unwrapper) {
         CharSequence s;
         Obfuscator obfuscator = defaultObfuscator;
         if (unwrapper.apply(value) == unwrapper.apply(unlessSame)) {
@@ -304,7 +304,7 @@ final class ObfuscatingProperties extends Properties {
     }
 
     @Override
-    public synchronized void loadFromXML(InputStream in) throws IOException, InvalidPropertiesFormatException {
+    public synchronized void loadFromXML(InputStream in) throws IOException {
         properties.loadFromXML(in);
     }
 

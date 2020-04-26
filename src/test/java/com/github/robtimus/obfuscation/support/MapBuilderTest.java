@@ -21,6 +21,7 @@ import static com.github.robtimus.obfuscation.support.CaseSensitivity.CASE_INSEN
 import static com.github.robtimus.obfuscation.support.CaseSensitivity.CASE_SENSITIVE;
 import static java.util.stream.Collectors.toConcurrentMap;
 import static java.util.stream.Collectors.toMap;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
@@ -768,6 +769,123 @@ public class MapBuilderTest {
                     assertEquals(map, deserialized);
                     assertNotSame(map, deserialized);
                 }
+            }
+        }
+
+        @Nested
+        @DisplayName("serialization")
+        public class SerializationTest {
+
+            @Test
+            @DisplayName("empty")
+            public void testEmpty() {
+                Map<String, Integer> map = new MapBuilder<Integer>().build();
+                map = serializeAndDeserialize(map);
+                assertSame(Collections.emptyMap(), map);
+            }
+
+            @Test
+            @DisplayName("only case sensitive entries")
+            public void testOnlyCaseSensitiveEntries() {
+                Map<String, Integer> map = new MapBuilder<Integer>()
+                        .withEntry("a", 1, CASE_SENSITIVE)
+                        .withEntry("b", 2, CASE_SENSITIVE)
+                        .withEntry("c", 3, CASE_SENSITIVE)
+                        .build();
+                map = serializeAndDeserialize(map);
+
+                Map<String, Integer> expectedMap = new HashMap<>();
+                expectedMap.put("a", 1);
+                expectedMap.put("b", 2);
+                expectedMap.put("c", 3);
+                expectedMap = Collections.unmodifiableMap(expectedMap);
+
+                assertNotSame(expectedMap, map);
+                assertEquals(expectedMap, map);
+                assertEquals(expectedMap.getClass(), map.getClass());
+
+                assertEquals(1, map.get("a"));
+                assertEquals(2, map.get("b"));
+                assertEquals(3, map.get("c"));
+
+                assertEquals(null, map.get("A"));
+                assertEquals(null, map.get("B"));
+                assertEquals(null, map.get("C"));
+            }
+
+            @Test
+            @DisplayName("only case insensitive entries")
+            public void testOnlyCaseInsensitiveEntries() {
+                Map<String, Integer> map = new MapBuilder<Integer>()
+                        .withEntry("a", 1, CASE_INSENSITIVE)
+                        .withEntry("b", 2, CASE_INSENSITIVE)
+                        .withEntry("c", 3, CASE_INSENSITIVE)
+                        .build();
+                map = serializeAndDeserialize(map);
+
+                Map<String, Integer> expectedMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+                expectedMap.put("A", 1);
+                expectedMap.put("B", 2);
+                expectedMap.put("C", 3);
+                expectedMap = Collections.unmodifiableMap(expectedMap);
+
+                assertNotSame(expectedMap, map);
+                assertEquals(expectedMap, map);
+                assertEquals(expectedMap.getClass(), map.getClass());
+
+                assertEquals(1, map.get("a"));
+                assertEquals(2, map.get("b"));
+                assertEquals(3, map.get("c"));
+
+                assertEquals(1, map.get("A"));
+                assertEquals(2, map.get("B"));
+                assertEquals(3, map.get("C"));
+            }
+
+            @Test
+            @DisplayName("both case sensitive and case insensitive entries")
+            public void testMixedCaseEntries() {
+                Map<String, Integer> map = new MapBuilder<Integer>()
+                        .withEntry("a", 1, CASE_SENSITIVE)
+                        .withEntry("b", 2, CASE_INSENSITIVE)
+                        .withEntry("c", 3, CASE_SENSITIVE)
+                        .withEntry("d", 4, CASE_INSENSITIVE)
+                        .build();
+                map = serializeAndDeserialize(map);
+
+                Map<String, Integer> expectedMap = new MapBuilder<Integer>()
+                        .withEntry("a", 1, CASE_SENSITIVE)
+                        .withEntry("b", 2, CASE_INSENSITIVE)
+                        .withEntry("c", 3, CASE_SENSITIVE)
+                        .withEntry("d", 4, CASE_INSENSITIVE)
+                        .build();
+
+                assertNotSame(expectedMap, map);
+                assertEquals(expectedMap, map);
+                assertEquals(expectedMap.getClass(), map.getClass());
+
+                assertEquals(1, map.get("a"));
+                assertEquals(2, map.get("b"));
+                assertEquals(3, map.get("c"));
+                assertEquals(4, map.get("d"));
+
+                assertEquals(null, map.get("A"));
+                assertEquals(2, map.get("B"));
+                assertEquals(null, map.get("C"));
+                assertEquals(4, map.get("D"));
+            }
+
+            @SuppressWarnings("unchecked")
+            private <T> T serializeAndDeserialize(T object) {
+                return assertDoesNotThrow(() -> {
+                    ByteArrayOutputStream output = new ByteArrayOutputStream();
+                    try (ObjectOutputStream objectOutput = new ObjectOutputStream(output)) {
+                        objectOutput.writeObject(object);
+                    }
+                    try (ObjectInputStream objectInput = new ObjectInputStream(new ByteArrayInputStream(output.toByteArray()))) {
+                        return (T) objectInput.readObject();
+                    }
+                });
             }
         }
     }
