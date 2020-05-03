@@ -17,9 +17,14 @@
 
 package com.github.robtimus.obfuscation;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.either;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.time.LocalDate;
@@ -29,6 +34,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -237,6 +243,42 @@ public class ExampleTest {
                     .build()
                     .obfuscateMap(map);
             assertEquals("{username=admin, password=***}", map.toString());
+        }
+    }
+
+    @Nested
+    @DisplayName("Obfuscating Properties objects")
+    public class PropertiesObjects {
+
+        @Test
+        @DisplayName("toString")
+        public void testToString() {
+            Properties properties = new Properties();
+            properties.put("username", "admin");
+            properties.put("password", "hello");
+            properties = PropertiesObfuscator.builder()
+                    .withProperty("password", Obfuscator.fixedLength(3))
+                    .build()
+                    .obfuscateProperties(properties);
+            assertThat(properties.toString(), either(is("{username=admin, password=***}")).or(is("{password=***, username=admin}")));
+        }
+
+        @Test
+        @DisplayName("list")
+        public void testList() {
+            Properties properties = new Properties();
+            properties.put("username", "admin");
+            properties.put("password", "hello");
+            properties = PropertiesObfuscator.builder()
+                    .withProperty("password", Obfuscator.fixedLength(3))
+                    .build()
+                    .obfuscateProperties(properties);
+            StringWriter writer = new StringWriter();
+            try (PrintWriter printWriter = new PrintWriter(writer)) {
+                properties.list(printWriter);
+            }
+            assertThat(writer.toString(), containsString("username=admin"));
+            assertThat(writer.toString(), containsString("password=***"));
         }
     }
 

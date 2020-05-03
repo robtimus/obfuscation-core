@@ -152,6 +152,20 @@ To provide separate obfuscation per entry:
     // map is just like any other Map, apart from toString;
     // that returns "{username=admin, password=***}"
 
+## Obfuscating Properties objects:
+
+    Properties properties = new Properties();
+    properties.put("username", "admin");
+    properties.put("password", "hello");
+    properties = PropertiesObfuscator.builder()
+            .withProperty("password", Obfuscator.fixedLength(3))
+            .build()
+            .obfuscateProperties(properties);
+    // properties is just like any other Properties, apart from:
+    // - toString; that returns "{username=admin, password=***}"
+    //   or "{password=***, username=admin}"
+    // - list; that prints "username=admin" and "password=***"
+
 ## Streaming obfuscation
 
     // assume that writer is an existing Writer

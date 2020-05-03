@@ -23,7 +23,12 @@ The following methods of `Obfuscator` can be used to help prevent accidentally l
 Besides obfuscating simple text, it's possible to obfuscate complex structures using the following classes and libraries:
 
 * [MapObfuscator](https://robtimus.github.io/obfuscation-core/apidocs/com/github/robtimus/obfuscation/MapObfuscator.html) can obfuscate maps by providing a separate `Obfuscator` for each entry. Entries can even have no obfuscation at all.
+* [PropertiesObfuscator](https://robtimus.github.io/obfuscation-core/apidocs/com/github/robtimus/obfuscation/PropertiesObfuscator.html) can obfuscate `Properties` objects by providing a separate `Obfuscator` for each property. Properties can even have no obfuscation at all.
 * [obfuscation-commons-lang](https://robtimus.github.io/obfuscation-commons-lang/) provides extensions to [Apache Commons Lang](https://commons.apache.org/proper/commons-lang/) for obfuscating objects.
 * [obfuscation-http](https://robtimus.github.io/obfuscation-http/) provides support for obfuscating HTTP requests and responses.
 * [obfuscation-jackson](https://robtimus.github.io/obfuscation-jackson/) and [obfuscation-json](https://robtimus.github.io/obfuscation-json/) provide support for obfuscating properties in JSON documents.
 * [obfuscation-yaml](https://robtimus.github.io/obfuscation-yaml/) provides support for obfuscating properties in YAML documents.
+
+## Writing custom obfucators
+
+Package [com.github.robtimus.obfuscation.support](https://robtimus.github.io/obfuscation-core/apidocs/com/github/robtimus/obfuscation/support/package-summary.html) provides several classes that can be used to create custom obfuscators.
