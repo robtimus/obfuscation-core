@@ -18,6 +18,7 @@
 package com.github.robtimus.obfuscation;
 
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -30,13 +31,16 @@ import java.util.function.Supplier;
 public abstract class Obfuscated<T> {
 
     private final T value;
+    private final Obfuscator obfuscator;
 
-    private Obfuscated(T value) {
+    private Obfuscated(T value, Obfuscator obfuscator) {
         this.value = Objects.requireNonNull(value);
+        this.obfuscator = Objects.requireNonNull(obfuscator);
     }
 
     private Obfuscated(Obfuscated<T> other) {
         this.value = other.value;
+        this.obfuscator = other.obfuscator;
     }
 
     static <T> Obfuscated<T> of(T value, Obfuscator obfuscator, Supplier<? extends CharSequence> representation) {
@@ -50,6 +54,10 @@ public abstract class Obfuscated<T> {
      */
     public final T value() {
         return value;
+    }
+
+    final Obfuscator obfuscator() {
+        return obfuscator;
     }
 
     @Override
@@ -73,6 +81,56 @@ public abstract class Obfuscated<T> {
     public abstract String toString();
 
     /**
+     * Applies a mapping function to the obfuscated value.
+     * The result is similar to calling {@link Obfuscator#obfuscateObject(Object)} on the obfuscator that created this object, passing the result of
+     * applying the given mapping function to the obfuscated value.
+     *
+     * @param <U> The result type of the mapping function.
+     * @param mapper The mapping function to apply.
+     * @return An {@code Obfuscated} object wrapping the result of applying the given mapping function to this object's value.
+     * @throws NullPointerException If the mapping function is {@code null},
+     *                                  or if the mapping function returns a {@code null} value when applied to this object's value.
+     * @since 1.1
+     */
+    public final <U> Obfuscated<U> map(Function<? super T, ? extends U> mapper) {
+        U mapped = mapper.apply(value);
+        return obfuscator().obfuscateObject(mapped);
+    }
+
+    /**
+     * Applies a mapping function to the obfuscated value.
+     * The result is similar to calling {@link Obfuscator#obfuscateObject(Object, Supplier)} on the obfuscator that created this object, passing the
+     * result of applying the given mapping function to the obfuscated value.
+     *
+     * @param <U> The result type of the mapping function.
+     * @param mapper The mapping function to apply.
+     * @param representation A supplier for the string representation that will be used to obfuscate the value.
+     *                           This can be used for values that don't have a sensible {@link Object#toString() string representation} of their own.
+     * @return An {@code Obfuscated} object wrapping the result of applying the given mapping function to this object's value.
+     * @throws NullPointerException If the mapping function or supplier is {@code null},
+     *                                  or if the mapping function returns a {@code null} value when applied to this object's value.
+     * @since 1.1
+     */
+    public final <U> Obfuscated<U> map(Function<? super T, ? extends U> mapper, Supplier<? extends CharSequence> representation) {
+        U mapped = mapper.apply(value);
+        return obfuscator().obfuscateObject(mapped, representation);
+    }
+
+    /**
+     * Applies a mapping function to the obfuscating value.
+     * Unlike {@link #map(Function)} and {@link #map(Function, Supplier)}, the result will use the same representation to obfuscate as this object.
+     * If this object {@link #cached() caches} the results of obfuscating, so will the result.
+     *
+     * @param <U> The result type of the mapping function.
+     * @param mapper The mapping function to apply.
+     * @return An {@code Obfuscated} object wrapping the result of applying the given mapping function to this object's value.
+     * @throws NullPointerException If the mapping function is {@code null},
+     *                                  or if the mapping function returns a {@code null} value when applied to this object's value.
+     * @since 1.1
+     */
+    public abstract <U> Obfuscated<U> mapWithSameRepresentation(Function<? super T, ? extends U> mapper);
+
+    /**
      * Returns an obfuscated object that caches the results of obfuscating.
      * This can be used when the result of obfuscation never changes, for example when obfuscating immutable objects.
      *
@@ -82,18 +140,22 @@ public abstract class Obfuscated<T> {
 
     private static final class Obfuscating<T> extends Obfuscated<T> {
 
-        private final Obfuscator obfuscator;
         private final Supplier<? extends CharSequence> representation;
 
-        Obfuscating(T obfuscated, Obfuscator obfuscator, Supplier<? extends CharSequence> representation) {
-            super(obfuscated);
-            this.obfuscator = Objects.requireNonNull(obfuscator);
+        private Obfuscating(T obfuscated, Obfuscator obfuscator, Supplier<? extends CharSequence> representation) {
+            super(obfuscated, obfuscator);
             this.representation = Objects.requireNonNull(representation);
         }
 
         @Override
         public String toString() {
-            return obfuscator.obfuscateText(representation.get()).toString();
+            return obfuscator().obfuscateText(representation.get()).toString();
+        }
+
+        @Override
+        public <U> Obfuscated<U> mapWithSameRepresentation(Function<? super T, ? extends U> mapper) {
+            U mapped = mapper.apply(value());
+            return new Obfuscating<>(mapped, obfuscator(), representation);
         }
 
         @Override
@@ -111,9 +173,20 @@ public abstract class Obfuscated<T> {
             this.stringValue = Objects.requireNonNull(stringValue);
         }
 
+        private Cached(T obfuscated, Obfuscator obfuscator, String stringValue) {
+            super(obfuscated, obfuscator);
+            this.stringValue = Objects.requireNonNull(stringValue);
+        }
+
         @Override
         public String toString() {
             return stringValue;
+        }
+
+        @Override
+        public <U> Obfuscated<U> mapWithSameRepresentation(Function<? super T, ? extends U> mapper) {
+            U mapped = mapper.apply(value());
+            return new Cached<>(mapped, obfuscator(), stringValue);
         }
 
         @Override

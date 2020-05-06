@@ -19,10 +19,12 @@ package com.github.robtimus.obfuscation;
 
 import static com.github.robtimus.obfuscation.Obfuscator.all;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -57,6 +59,57 @@ public class ObfuscatedTest {
         Obfuscated<?> obfuscated = all('x').obfuscateObject("foo");
         assertEquals(obfuscated.hashCode(), obfuscated.hashCode());
         assertEquals(obfuscated.hashCode(), all().obfuscateObject("foo").hashCode());
+    }
+
+    @Test
+    @DisplayName("map(Function<? super T, ? extends U>)")
+    public void testMap() {
+        Obfuscated<String> obfuscated = all('x').obfuscateObject("foo");
+        Obfuscated<?> mapped = obfuscated.map(s -> s + s.toUpperCase());
+        assertNotEquals(obfuscated, mapped);
+        assertEquals("fooFOO", mapped.value());
+        assertEquals("xxxxxx", mapped.toString());
+    }
+
+    @Test
+    @DisplayName("map(Function<? super T, ? extends U>, Supplier<? extends CharSequence>)")
+    public void testMapWithRepresentation() {
+        Obfuscated<String> obfuscated = all('x').obfuscateObject("foo");
+        Obfuscated<?> mapped = obfuscated.map(s -> s + s.toUpperCase(), () -> "different representation");
+        assertNotEquals(obfuscated, mapped);
+        assertEquals("fooFOO", mapped.value());
+        assertEquals("xxxxxxxxxxxxxxxxxxxxxxxx", mapped.toString());
+    }
+
+    @Nested
+    @DisplayName("mapWithSameRepresentation(Function<? super T, ? extends U>)")
+    public class MapWithSameRepresentation {
+
+        @Test
+        @DisplayName("non-cached")
+        public void testNonCached() {
+            Obfuscated<String> obfuscated = all('x').obfuscateObject("foo");
+            Obfuscated<?> mapped = obfuscated.mapWithSameRepresentation(s -> s + s.toUpperCase());
+            assertNotEquals(obfuscated, mapped);
+            assertEquals(obfuscated.getClass(), mapped.getClass());
+            assertEquals("fooFOO", mapped.value());
+            assertEquals("xxx", mapped.toString());
+        }
+
+        @Test
+        @DisplayName("cached")
+        public void testCached() {
+            Obfuscated<String> obfuscated = all('x').obfuscateObject("foo");
+            Obfuscated<String> cached = obfuscated.cached();
+            Obfuscated<?> mapped = cached.mapWithSameRepresentation(s -> s + s.toUpperCase());
+            assertNotEquals(cached, mapped);
+            assertEquals(cached.getClass(), mapped.getClass());
+            assertEquals("fooFOO", mapped.value());
+            assertEquals("xxx", mapped.toString());
+            assertSame(mapped.toString(), mapped.toString());
+            assertSame(cached.toString(), mapped.toString());
+            assertSame(mapped, mapped.cached());
+        }
     }
 
     @Test
