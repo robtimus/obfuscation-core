@@ -32,3 +32,8 @@ Besides obfuscating simple text, it's possible to obfuscate complex structures u
 ## Writing custom obfucators
 
 Package [com.github.robtimus.obfuscation.support](https://robtimus.github.io/obfuscation-core/apidocs/com/github/robtimus/obfuscation/support/package-summary.html) provides several classes that can be used to create custom obfuscators.
+
+## Extensions
+
+* [obfuscation-annotations](https://robtimus.github.io/obfuscation-annotations/) provides general purpose `Obfuscator` annotations.
+* [obfuscation-jackson-databind](https://robtimus.github.io/obfuscation-jackson-databind/) provides integration with [jackson-databind](https://github.com/FasterXML/jackson-databind).
