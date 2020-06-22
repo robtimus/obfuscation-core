@@ -29,10 +29,10 @@ public class CachingObfuscatingWriterTest {
 
     @ParameterizedTest(name = "{0}")
     @CsvSource({
-        "0, true",
-        "1, true",
-        "100, true",
-        "-1, false"
+            "0, true",
+            "1, true",
+            "100, true",
+            "-1, false"
     })
     @DisplayName("capacity")
     @SuppressWarnings("resource")
