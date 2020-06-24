@@ -24,8 +24,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-@SuppressWarnings("javadoc")
-public class CachingObfuscatingWriterTest {
+class CachingObfuscatingWriterTest {
 
     @ParameterizedTest(name = "{0}")
     @CsvSource({
@@ -36,7 +35,7 @@ public class CachingObfuscatingWriterTest {
     })
     @DisplayName("capacity")
     @SuppressWarnings("resource")
-    public void testNegativeCapacity(int capacity, boolean expectSuccess) {
+    void testNegativeCapacity(int capacity, boolean expectSuccess) {
         if (expectSuccess) {
             assertDoesNotThrow(() -> new CachingObfuscatingWriter(all(), new StringBuilder(), capacity));
         } else {

@@ -25,12 +25,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-@SuppressWarnings({ "javadoc", "nls" })
-public class CharArraySequenceTest {
+@SuppressWarnings("nls")
+class CharArraySequenceTest {
 
     @Test
     @DisplayName("charAt(int) and length()")
-    public void testCharAtAndLength() {
+    void testCharAtAndLength() {
         String string = "hello world";
         CharArraySequence sequence = new CharArraySequence(string.toCharArray());
 
@@ -48,7 +48,7 @@ public class CharArraySequenceTest {
 
     @Test
     @DisplayName("toString()")
-    public void testToString() {
+    void testToString() {
         String string = "hello world";
         CharArraySequence sequence = new CharArraySequence(string.toCharArray());
 
@@ -59,11 +59,11 @@ public class CharArraySequenceTest {
 
     @Nested
     @DisplayName("subSequence(int, int)")
-    public class SubSequence {
+    class SubSequence {
 
         @Test
         @DisplayName("charAt(int) and length()")
-        public void testCharAtAndLength() {
+        void testCharAtAndLength() {
             String source = "hello world";
             testCharAtAndLength(source, 0, source.length());
             testCharAtAndLength(source, 3, source.length());
@@ -80,7 +80,7 @@ public class CharArraySequenceTest {
 
         @Test
         @DisplayName("toString()")
-        public void testToString() {
+        void testToString() {
             String source = "hello world";
             String string = source.substring(3, 8);
             CharArraySequence sequence = new CharArraySequence(source.toCharArray()).subSequence(3, 8);
@@ -90,11 +90,11 @@ public class CharArraySequenceTest {
 
         @Nested
         @DisplayName("subSequence(int, int)")
-        public class SubSubSequence {
+        class SubSubSequence {
 
             @Test
             @DisplayName("charAt(int) and length()")
-            public void testCharAtAndLength() {
+            void testCharAtAndLength() {
                 String source = "hello world";
                 testCharAtAndLength(source, 0, String::length);
                 testCharAtAndLength(source, 1, String::length);
@@ -113,7 +113,7 @@ public class CharArraySequenceTest {
 
             @Test
             @DisplayName("toString()")
-            public void testToString() {
+            void testToString() {
                 String source = "hello world";
                 String string = source.substring(3, 8).substring(1, 4);
                 CharArraySequence sequence = new CharArraySequence(source.toCharArray()).subSequence(3, 8).subSequence(1, 4);

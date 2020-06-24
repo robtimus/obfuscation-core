@@ -91,7 +91,7 @@ final class CharSequenceReader extends Reader {
             return 0;
         }
         int newIndex = (int) Math.min(end, index + Math.min(n, Integer.MAX_VALUE));
-        long skipped = newIndex - index;
+        long skipped = (long) newIndex - index;
         index = newIndex;
         return skipped;
     }

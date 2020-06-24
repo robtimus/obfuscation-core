@@ -37,8 +37,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-@SuppressWarnings({ "javadoc", "nls" })
-public class ObfuscatingListTest {
+@SuppressWarnings("nls")
+class ObfuscatingListTest {
 
     private static final Obfuscator OBFUSCATOR = portion()
             .keepAtStart(1)
@@ -50,14 +50,14 @@ public class ObfuscatingListTest {
     private List<String> obfuscating;
 
     @BeforeEach
-    public void init() {
+    void init() {
         list = spy(new ArrayList<>(Arrays.asList("foo", null, "bar")));
         obfuscating = OBFUSCATOR.obfuscateList(list);
     }
 
     @Test
     @DisplayName("RandomAccess")
-    public void testRandomAccess() {
+    void testRandomAccess() {
         assertThat(obfuscating, instanceOf(RandomAccess.class));
         assertThat(obfuscating.subList(0, 1), instanceOf(RandomAccess.class));
 
@@ -68,21 +68,21 @@ public class ObfuscatingListTest {
 
     @Test
     @DisplayName("add(E)")
-    public void testAddAll() {
+    void testAddAll() {
         assertTrue(obfuscating.addAll(1, Arrays.asList("baz")));
         assertEquals(Arrays.asList("foo", "baz", null, "bar"), list);
     }
 
     @Test
     @DisplayName("replaceAll(UnaryOperator<E>)")
-    public void testReplaceAll() {
+    void testReplaceAll() {
         obfuscating.replaceAll(s -> String.valueOf(s).substring(1));
         assertEquals(Arrays.asList("oo", "ull", "ar"), list);
     }
 
     @Test
     @DisplayName("sort(Comparator<? super E>)")
-    public void testSort() {
+    void testSort() {
         obfuscating.remove(null);
 
         obfuscating.sort(null);
@@ -94,7 +94,7 @@ public class ObfuscatingListTest {
 
     @Test
     @DisplayName("get(int)")
-    public void testGet() {
+    void testGet() {
         assertEquals("foo", obfuscating.get(0));
         assertNull(obfuscating.get(1));
         assertEquals("bar", obfuscating.get(2));
@@ -102,7 +102,7 @@ public class ObfuscatingListTest {
 
     @Test
     @DisplayName("set(int, E)")
-    public void testSet() {
+    void testSet() {
         assertEquals("foo", obfuscating.set(0, "FOO"));
         assertNull(obfuscating.set(1, "NULL"));
         assertEquals("bar", obfuscating.set(2, "BAR"));
@@ -111,14 +111,14 @@ public class ObfuscatingListTest {
 
     @Test
     @DisplayName("add(int, E)")
-    public void testAdd() {
+    void testAdd() {
         obfuscating.add(1, "baz");
         assertEquals(Arrays.asList("foo", "baz", null, "bar"), list);
     }
 
     @Test
     @DisplayName("remove(int)")
-    public void testRemove() {
+    void testRemove() {
         assertEquals("foo", obfuscating.remove(0));
         assertEquals("bar", obfuscating.remove(1));
         assertEquals(Arrays.asList((Object) null), list);
@@ -126,7 +126,7 @@ public class ObfuscatingListTest {
 
     @Test
     @DisplayName("indexOf(Object)")
-    public void testIndexOf() {
+    void testIndexOf() {
         list.add("foo");
         assertEquals(0, obfuscating.indexOf("foo"));
         assertEquals(1, obfuscating.indexOf(null));
@@ -136,7 +136,7 @@ public class ObfuscatingListTest {
 
     @Test
     @DisplayName("lastIndexOf(Object)")
-    public void testLastIndexOf() {
+    void testLastIndexOf() {
         list.add("foo");
         assertEquals(3, obfuscating.lastIndexOf("foo"));
         assertEquals(2, obfuscating.lastIndexOf("bar"));
@@ -146,7 +146,7 @@ public class ObfuscatingListTest {
 
     @Test
     @DisplayName("listIterator()")
-    public void testIterator() {
+    void testIterator() {
         ListIterator<String> iterator = obfuscating.listIterator();
 
         assertTrue(iterator.hasNext());
@@ -191,7 +191,7 @@ public class ObfuscatingListTest {
 
     @Test
     @DisplayName("listIterator(int)")
-    public void testIteratorWithIndex() {
+    void testIteratorWithIndex() {
         ListIterator<String> iterator = obfuscating.listIterator(2);
 
         assertTrue(iterator.hasNext());
@@ -224,7 +224,7 @@ public class ObfuscatingListTest {
 
     @Test
     @DisplayName("subList(int, int)")
-    public void testSubList() {
+    void testSubList() {
         assertEquals("[f***o, n***l, b***r]", obfuscating.toString());
 
         assertEquals("[f***o]", obfuscating.subList(0, 1).toString());

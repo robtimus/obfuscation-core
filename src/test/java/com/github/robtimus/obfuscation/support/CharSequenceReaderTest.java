@@ -33,12 +33,12 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-@SuppressWarnings({ "javadoc", "nls" })
-public class CharSequenceReaderTest extends StreamTestBase {
+@SuppressWarnings("nls")
+class CharSequenceReaderTest extends StreamTestBase {
 
     @Test
     @DisplayName("read()")
-    public void testRead() throws IOException {
+    void testRead() throws IOException {
         Writer writer = new StringWriter();
         try (Reader reader = new CharSequenceReader(SOURCE, 1, SOURCE.length() - 1)) {
             int c;
@@ -52,7 +52,7 @@ public class CharSequenceReaderTest extends StreamTestBase {
     @ParameterizedTest(name = "{0}")
     @MethodSource
     @DisplayName("read(char[], int, int)")
-    public void testReadBulk(@SuppressWarnings("unused") String displayName, CharSequence source, String expected) throws IOException {
+    void testReadBulk(@SuppressWarnings("unused") String displayName, CharSequence source, String expected) throws IOException {
         Writer writer = new StringWriter();
         try (Reader reader = new CharSequenceReader(source, 1, source.length() - 1)) {
             assertEquals(0, reader.read(new char[5], 0, 0));
@@ -74,7 +74,7 @@ public class CharSequenceReaderTest extends StreamTestBase {
 
     @Test
     @DisplayName("skip(long)")
-    public void testSkip() throws IOException {
+    void testSkip() throws IOException {
         Writer writer = new StringWriter();
         try (Reader reader = new CharSequenceReader(SOURCE, 1, SOURCE.length() - 1)) {
             char[] data = new char[10];
@@ -92,7 +92,7 @@ public class CharSequenceReaderTest extends StreamTestBase {
 
     @Test
     @DisplayName("ready()")
-    public void testReady() throws IOException {
+    void testReady() throws IOException {
         try (Reader reader = new CharSequenceReader(SOURCE, 1, SOURCE.length() - 1)) {
             for (int i = 1; i < SOURCE.length() - 1; i++) {
                 assertTrue(reader.ready());
@@ -105,7 +105,7 @@ public class CharSequenceReaderTest extends StreamTestBase {
 
     @Test
     @DisplayName("mark(int) and reset()")
-    public void testMarkReset() throws IOException {
+    void testMarkReset() throws IOException {
         Writer writer = new StringWriter();
         try (Reader reader = new CharSequenceReader(SOURCE, 1, SOURCE.length() - 1)) {
             assertTrue(reader.markSupported());
@@ -120,7 +120,7 @@ public class CharSequenceReaderTest extends StreamTestBase {
 
     @Test
     @DisplayName("operations on closed stream")
-    public void testOperationsOnClosedStream() throws IOException {
+    void testOperationsOnClosedStream() throws IOException {
         @SuppressWarnings("resource")
         Reader reader = new CharSequenceReader(SOURCE);
         reader.close();

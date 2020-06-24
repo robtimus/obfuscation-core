@@ -34,7 +34,7 @@ import com.github.robtimus.obfuscation.Obfuscator;
 public final class ObfuscatorUtils {
 
     private ObfuscatorUtils() {
-        throw new Error("cannot create instances of " + getClass().getName()); //$NON-NLS-1$
+        throw new IllegalStateException("cannot create instances of " + getClass().getName()); //$NON-NLS-1$
     }
 
     // CharSequence indexes

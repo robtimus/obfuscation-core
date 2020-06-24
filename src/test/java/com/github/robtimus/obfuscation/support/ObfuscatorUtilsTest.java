@@ -62,18 +62,14 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-@SuppressWarnings({ "javadoc", "nls" })
+@SuppressWarnings("nls")
 @TestInstance(Lifecycle.PER_CLASS)
-public class ObfuscatorUtilsTest {
-
-    public static void assertClosedException(IOException exception) {
-        assertEquals(Messages.stream.closed.get(), exception.getMessage());
-    }
+class ObfuscatorUtilsTest {
 
     @ParameterizedTest(name = "{1} in {0}[{2}, {3})")
     @MethodSource
     @DisplayName("indexOf(CharSequence, int, int, int)")
-    public void testIndexOf(String s, int ch, int fromIndex, int toIndex, int expected) {
+    void testIndexOf(String s, int ch, int fromIndex, int toIndex, int expected) {
         assertEquals(expected, indexOf(s, ch, fromIndex, toIndex));
         assertEquals(expected, indexOf(new StringBuilder(s), ch, fromIndex, toIndex));
     }
@@ -96,7 +92,7 @@ public class ObfuscatorUtilsTest {
     @ParameterizedTest(name = "{0}[{1}, {2})")
     @MethodSource
     @DisplayName("skipLeadingWhitespace(CharSequence, int, int)")
-    public void testSkipLeadingWhitespace(CharSequence s, int fromIndex, int toIndex, int expected) {
+    void testSkipLeadingWhitespace(CharSequence s, int fromIndex, int toIndex, int expected) {
         assertEquals(expected, skipLeadingWhitespace(s, fromIndex, toIndex));
     }
 
@@ -112,7 +108,7 @@ public class ObfuscatorUtilsTest {
     @ParameterizedTest(name = "{0}[{1}, {2})")
     @MethodSource
     @DisplayName("skipTrailingWhitespace(CharSequence, int, int)")
-    public void testSkipTrailingWhitespace(CharSequence s, int fromIndex, int toIndex, int expected) {
+    void testSkipTrailingWhitespace(CharSequence s, int fromIndex, int toIndex, int expected) {
         assertEquals(expected, skipTrailingWhitespace(s, fromIndex, toIndex));
     }
 
@@ -127,7 +123,7 @@ public class ObfuscatorUtilsTest {
 
     @TestFactory
     @DisplayName("getChars(CharSequence, int, int, char, int)")
-    public DynamicNode[] testGetChars() {
+    DynamicNode[] testGetChars() {
         return new DynamicNode[] {
                 testGetChars("String", s -> s),
                 testGetChars("StringBuilder", StringBuilder::new),
@@ -167,7 +163,7 @@ public class ObfuscatorUtilsTest {
 
     @Test
     @DisplayName("checkIndex(char[], int)")
-    public void testCheckIndexForCharArray() {
+    void testCheckIndexForCharArray() {
         char[] array = "hello world".toCharArray();
         checkIndex(array, 0);
         assertThrows(IndexOutOfBoundsException.class, () -> checkIndex(array, -1));
@@ -177,7 +173,7 @@ public class ObfuscatorUtilsTest {
 
     @Test
     @DisplayName("checkOffsetAndLength(char[], int, int)")
-    public void testCheckOffsetAndLengthForCharArray() {
+    void testCheckOffsetAndLengthForCharArray() {
         char[] array = "hello world".toCharArray();
         checkOffsetAndLength(array, 0, array.length);
         assertThrows(IndexOutOfBoundsException.class, () -> checkOffsetAndLength(array, -1, array.length));
@@ -189,7 +185,7 @@ public class ObfuscatorUtilsTest {
 
     @Test
     @DisplayName("checkStartAndEnd(char[], int, int)")
-    public void testCheckStartAndEndForCharArray() {
+    void testCheckStartAndEndForCharArray() {
         char[] array = "hello world".toCharArray();
         checkStartAndEnd(array, 0, array.length);
         assertThrows(IndexOutOfBoundsException.class, () -> checkStartAndEnd(array, -1, array.length));
@@ -201,7 +197,7 @@ public class ObfuscatorUtilsTest {
 
     @Test
     @DisplayName("checkIndex(CharSequence, int)")
-    public void testCheckIndexForCharSequence() {
+    void testCheckIndexForCharSequence() {
         CharSequence sequence = "hello world";
         checkIndex(sequence, 0);
         assertThrows(IndexOutOfBoundsException.class, () -> checkIndex(sequence, -1));
@@ -211,7 +207,7 @@ public class ObfuscatorUtilsTest {
 
     @Test
     @DisplayName("checkOffsetAndLength(CharSequence, int, int)")
-    public void testCheckOffsetAndLengthForCharSequence() {
+    void testCheckOffsetAndLengthForCharSequence() {
         CharSequence sequence = "hello world";
         checkOffsetAndLength(sequence, 0, sequence.length());
         assertThrows(IndexOutOfBoundsException.class, () -> checkOffsetAndLength(sequence, -1, sequence.length()));
@@ -223,7 +219,7 @@ public class ObfuscatorUtilsTest {
 
     @Test
     @DisplayName("checkStartAndEnd(CharSequence, int, int)")
-    public void testCheckStartAndEndForCharSequence() {
+    void testCheckStartAndEndForCharSequence() {
         CharSequence sequence = "hello world";
         checkStartAndEnd(sequence, 0, sequence.length());
         assertThrows(IndexOutOfBoundsException.class, () -> checkStartAndEnd(sequence, -1, sequence.length()));
@@ -235,14 +231,14 @@ public class ObfuscatorUtilsTest {
 
     @Test
     @DisplayName("wrapArray(char[])")
-    public void testWrapArray() {
+    void testWrapArray() {
         assertThat(wrapArray(new char[0]), instanceOf(CharArraySequence.class));
         assertThrows(NullPointerException.class, () -> wrapArray(null));
     }
 
     @Test
     @DisplayName("repeatChar(char, int)")
-    public void testRepeatChar() {
+    void testRepeatChar() {
         assertThat(repeatChar('*', 1), instanceOf(RepeatingCharSequence.class));
         assertThrows(IllegalArgumentException.class, () -> repeatChar('*', -1));
     }
@@ -250,7 +246,7 @@ public class ObfuscatorUtilsTest {
     @Test
     @DisplayName("reader(CharSequence)")
     @SuppressWarnings("resource")
-    public void testReader() {
+    void testReader() {
         assertThat(reader(""), instanceOf(CharSequenceReader.class));
         assertThrows(NullPointerException.class, () -> reader(null));
     }
@@ -258,7 +254,7 @@ public class ObfuscatorUtilsTest {
     @Test
     @DisplayName("reader(CharSequence, int, int)")
     @SuppressWarnings("resource")
-    public void testReaderWithRange() {
+    void testReaderWithRange() {
         CharSequence sequence = "hello world";
         assertThat(reader(sequence, 0, sequence.length()), instanceOf(CharSequenceReader.class));
         assertThrows(NullPointerException.class, () -> reader(null, 0, 0));
@@ -271,7 +267,7 @@ public class ObfuscatorUtilsTest {
     @Test
     @DisplayName("writer(Appendable)")
     @SuppressWarnings("resource")
-    public void testWriter() {
+    void testWriter() {
         Writer writer = new StringWriter();
         assertSame(writer, writer(writer));
 
@@ -285,7 +281,7 @@ public class ObfuscatorUtilsTest {
     @Test
     @DisplayName("copyTo(Reader, Appendable) with nulls")
     @SuppressWarnings("resource")
-    public void testCopyTo() {
+    void testCopyTo() {
         assertThat(copyTo(new StringReader(""), new StringBuilder()), instanceOf(CopyingReader.class));
         assertThrows(NullPointerException.class, () -> copyTo(null, new StringBuilder()));
         assertThrows(NullPointerException.class, () -> copyTo(new StringReader(""), null));
@@ -293,7 +289,7 @@ public class ObfuscatorUtilsTest {
 
     @Test
     @DisplayName("readAll(Reader)")
-    public void testReadAll() throws IOException {
+    void testReadAll() throws IOException {
         String string = "hello world";
         StringReader input = new StringReader(string);
         assertEquals(string, readAll(input).toString());
@@ -302,7 +298,7 @@ public class ObfuscatorUtilsTest {
 
     @Test
     @DisplayName("discardAll(Reader)")
-    public void testDiscardAll() throws IOException {
+    void testDiscardAll() throws IOException {
         String string = "hello world";
         StringReader input = new StringReader(string);
         discardAll(input);
@@ -312,7 +308,7 @@ public class ObfuscatorUtilsTest {
     @ParameterizedTest(name = "{0}")
     @MethodSource("appendableArguments")
     @DisplayName("copyAll(Reader, Appendable)")
-    public void testCopyAll(@SuppressWarnings("unused") String appendableType, Supplier<Appendable> destinationSupplier) throws IOException {
+    void testCopyAll(@SuppressWarnings("unused") String appendableType, Supplier<Appendable> destinationSupplier) throws IOException {
         String string = "hello world";
         StringReader input = new StringReader(string);
         Appendable destination = destinationSupplier.get();
@@ -324,7 +320,7 @@ public class ObfuscatorUtilsTest {
     @ParameterizedTest(name = "{0}")
     @MethodSource("appendableArguments")
     @DisplayName("maskAll(Reader, char, Appendable)")
-    public void testMaskAll(@SuppressWarnings("unused") String appendableType, Supplier<Appendable> destinationSupplier) throws IOException {
+    void testMaskAll(@SuppressWarnings("unused") String appendableType, Supplier<Appendable> destinationSupplier) throws IOException {
         String string = "hello world";
         String expected = string.replaceAll(".", "*");
         StringReader input = new StringReader(string);
@@ -337,7 +333,7 @@ public class ObfuscatorUtilsTest {
     @ParameterizedTest(name = "{0}")
     @MethodSource("appendableArguments")
     @DisplayName("append(int)")
-    public void testAppendInt(@SuppressWarnings("unused") String appendableType, Supplier<Appendable> destinationSupplier) throws IOException {
+    void testAppendInt(@SuppressWarnings("unused") String appendableType, Supplier<Appendable> destinationSupplier) throws IOException {
         int c = 1 << 16 | 'a';
 
         Appendable destination = destinationSupplier.get();
@@ -348,7 +344,7 @@ public class ObfuscatorUtilsTest {
     @ParameterizedTest(name = "{0}")
     @MethodSource("appendableArguments")
     @DisplayName("append(char, int)")
-    public void testAppendRepeated(@SuppressWarnings("unused") String appendableType, Supplier<Appendable> destinationSupplier) throws IOException {
+    void testAppendRepeated(@SuppressWarnings("unused") String appendableType, Supplier<Appendable> destinationSupplier) throws IOException {
         char c = '*';
         int count = 2048 + 32;
 
@@ -368,7 +364,7 @@ public class ObfuscatorUtilsTest {
     @ParameterizedTest(name = "{0}")
     @MethodSource("appendableArguments")
     @DisplayName("append(char[])")
-    public void testAppendCharArray(@SuppressWarnings("unused") String appendableType, Supplier<Appendable> destinationSupplier) throws IOException {
+    void testAppendCharArray(@SuppressWarnings("unused") String appendableType, Supplier<Appendable> destinationSupplier) throws IOException {
         String input = "hello world";
         char[] array = input.toCharArray();
 
@@ -382,7 +378,7 @@ public class ObfuscatorUtilsTest {
     @ParameterizedTest(name = "{0}")
     @MethodSource("appendableArguments")
     @DisplayName("append(char[], int, int)")
-    public void testAppendCharArrayRange(@SuppressWarnings("unused") String appendableType, Supplier<Appendable> destinationSupplier)
+    void testAppendCharArrayRange(@SuppressWarnings("unused") String appendableType, Supplier<Appendable> destinationSupplier)
             throws IOException {
 
         String input = "hello world";
@@ -405,7 +401,7 @@ public class ObfuscatorUtilsTest {
     @ParameterizedTest(name = "{0}")
     @MethodSource("appendableArguments")
     @DisplayName("append(String)")
-    public void testAppendString(@SuppressWarnings("unused") String appendableType, Supplier<Appendable> destinationSupplier) throws IOException {
+    void testAppendString(@SuppressWarnings("unused") String appendableType, Supplier<Appendable> destinationSupplier) throws IOException {
         String input = "hello world";
 
         Appendable destination = destinationSupplier.get();
@@ -418,7 +414,7 @@ public class ObfuscatorUtilsTest {
     @ParameterizedTest(name = "{0}")
     @MethodSource("appendableArguments")
     @DisplayName("append(String, int, int)")
-    public void testAppendStringRange(@SuppressWarnings("unused") String appendableType, Supplier<Appendable> destinationSupplier)
+    void testAppendStringRange(@SuppressWarnings("unused") String appendableType, Supplier<Appendable> destinationSupplier)
             throws IOException {
 
         String input = "hello world";

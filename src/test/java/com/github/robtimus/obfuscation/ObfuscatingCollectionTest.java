@@ -47,8 +47,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-@SuppressWarnings({ "javadoc", "nls" })
-public class ObfuscatingCollectionTest {
+@SuppressWarnings("nls")
+class ObfuscatingCollectionTest {
 
     private static final Obfuscator OBFUSCATOR = portion()
             .keepAtStart(1)
@@ -60,14 +60,14 @@ public class ObfuscatingCollectionTest {
     private Collection<String> obfuscating;
 
     @BeforeEach
-    public void init() {
+    void init() {
         collection = spy(new ArrayList<>(Arrays.asList("foo", null, "bar")));
         obfuscating = OBFUSCATOR.obfuscateCollection(collection);
     }
 
     @Test
     @DisplayName("size()")
-    public void testSize() {
+    void testSize() {
         assertEquals(3, obfuscating.size());
 
         collection.clear();
@@ -77,7 +77,7 @@ public class ObfuscatingCollectionTest {
 
     @Test
     @DisplayName("isEmpty()")
-    public void testisEmpty() {
+    void testisEmpty() {
         assertFalse(obfuscating.isEmpty());
 
         collection.clear();
@@ -87,7 +87,7 @@ public class ObfuscatingCollectionTest {
 
     @Test
     @DisplayName("contains(Object)")
-    public void testContains() {
+    void testContains() {
         assertTrue(obfuscating.contains("foo"));
         assertTrue(obfuscating.contains(null));
         assertTrue(obfuscating.contains("bar"));
@@ -96,7 +96,7 @@ public class ObfuscatingCollectionTest {
 
     @Test
     @DisplayName("iterator()")
-    public void testIterator() {
+    void testIterator() {
         Iterator<String> iterator = obfuscating.iterator();
 
         assertTrue(iterator.hasNext());
@@ -116,7 +116,7 @@ public class ObfuscatingCollectionTest {
 
     @Test
     @DisplayName("toArray()")
-    public void testToArray() {
+    void testToArray() {
         Object[] array = obfuscating.toArray();
         Object[] expected = { "foo", null, "bar" };
         assertArrayEquals(expected, array);
@@ -124,11 +124,11 @@ public class ObfuscatingCollectionTest {
 
     @Nested
     @DisplayName("toArray(T[]")
-    public class ToArrayTest {
+    class ToArrayTest {
 
         @Test
         @DisplayName("equal size array")
-        public void testEqualSizeArray() {
+        void testEqualSizeArray() {
             Object[] expected = { "foo", null, "bar" };
             String[] input = new String[3];
             String[] array = obfuscating.toArray(input);
@@ -138,7 +138,7 @@ public class ObfuscatingCollectionTest {
 
         @Test
         @DisplayName("smaller array")
-        public void testSmallerArray() {
+        void testSmallerArray() {
             Object[] expected = { "foo", null, "bar" };
             String[] input = new String[1];
             String[] array = obfuscating.toArray(input);
@@ -148,7 +148,7 @@ public class ObfuscatingCollectionTest {
 
         @Test
         @DisplayName("larger array")
-        public void testLargerArray() {
+        void testLargerArray() {
             Object[] expected = { "foo", null, "bar", null, null };
             String[] input = new String[5];
             String[] array = obfuscating.toArray(input);
@@ -159,14 +159,14 @@ public class ObfuscatingCollectionTest {
 
     @Test
     @DisplayName("add(E)")
-    public void testAdd() {
+    void testAdd() {
         assertTrue(obfuscating.add("baz"));
         assertEquals(Arrays.asList("foo", null, "bar", "baz"), collection);
     }
 
     @Test
     @DisplayName("remove(Object)")
-    public void testRemove() {
+    void testRemove() {
         assertTrue(obfuscating.remove("foo"));
         assertTrue(obfuscating.remove(null));
         assertFalse(obfuscating.remove("baz"));
@@ -175,7 +175,7 @@ public class ObfuscatingCollectionTest {
 
     @Test
     @DisplayName("containsAll(Collection<?>)")
-    public void testContainsAll() {
+    void testContainsAll() {
         assertTrue(obfuscating.containsAll(Arrays.asList("foo")));
         assertTrue(obfuscating.containsAll(Arrays.asList("foo", null)));
         assertTrue(obfuscating.containsAll(Arrays.asList((Object) null)));
@@ -188,14 +188,14 @@ public class ObfuscatingCollectionTest {
 
     @Test
     @DisplayName("addAll(Collection<? extends E>)")
-    public void testAddAll() {
+    void testAddAll() {
         assertTrue(obfuscating.addAll(Arrays.asList("baz")));
         assertEquals(Arrays.asList("foo", null, "bar", "baz"), collection);
     }
 
     @Test
     @DisplayName("removeAll(Collection<?>)")
-    public void testRemoveAll() {
+    void testRemoveAll() {
         assertTrue(obfuscating.removeAll(Arrays.asList("foo")));
         assertTrue(obfuscating.removeAll(Arrays.asList((Object) null)));
         assertFalse(obfuscating.removeAll(Arrays.asList("baz")));
@@ -204,7 +204,7 @@ public class ObfuscatingCollectionTest {
 
     @Test
     @DisplayName("removeIf(Predicate<? super E>)")
-    public void testRemoveIf() {
+    void testRemoveIf() {
         assertTrue(obfuscating.removeIf(Objects::isNull));
         assertTrue(obfuscating.removeIf(e -> e.startsWith("f")));
         assertFalse(obfuscating.removeIf(e -> e.startsWith("f")));
@@ -213,7 +213,7 @@ public class ObfuscatingCollectionTest {
 
     @Test
     @DisplayName("retainAll(Collection<?>)")
-    public void testRetainAll() {
+    void testRetainAll() {
         assertTrue(obfuscating.retainAll(Arrays.asList("foo")));
         assertFalse(obfuscating.retainAll(Arrays.asList("foo", "baz")));
         assertEquals(Arrays.asList("foo"), collection);
@@ -221,14 +221,14 @@ public class ObfuscatingCollectionTest {
 
     @Test
     @DisplayName("clear()")
-    public void testClear() {
+    void testClear() {
         obfuscating.clear();
         assertTrue(collection.isEmpty());
     }
 
     @Test
     @DisplayName("spliterator()")
-    public void testSpliterator() {
+    void testSpliterator() {
         Spliterator<String> spliterator = obfuscating.spliterator();
         assertTrue(spliterator.tryAdvance(e -> assertEquals("foo", e)));
         assertTrue(spliterator.tryAdvance(e -> assertNull(e)));
@@ -238,7 +238,7 @@ public class ObfuscatingCollectionTest {
 
     @Test
     @DisplayName("stream()")
-    public void testStream() {
+    void testStream() {
         List<String> list = obfuscating.stream()
                 .filter(Objects::nonNull)
                 .filter(e -> e.startsWith("f"))
@@ -251,7 +251,7 @@ public class ObfuscatingCollectionTest {
 
     @Test
     @DisplayName("parallelStream()")
-    public void testParallelStream() {
+    void testParallelStream() {
         List<String> list = obfuscating.parallelStream()
                 .filter(Objects::nonNull)
                 .filter(e -> e.startsWith("f"))
@@ -264,7 +264,7 @@ public class ObfuscatingCollectionTest {
 
     @Test
     @DisplayName("forEach(Consumer<? super E>)")
-    public void testForEach() {
+    void testForEach() {
         List<String> result = new ArrayList<>();
         obfuscating.forEach(result::add);
         assertEquals(Arrays.asList("foo", null, "bar"), result);
@@ -273,7 +273,7 @@ public class ObfuscatingCollectionTest {
     @ParameterizedTest(name = "{1}")
     @MethodSource
     @DisplayName("equals(Object)")
-    public void testEquals(Collection<String> c, Object object, boolean expected) {
+    void testEquals(Collection<String> c, Object object, boolean expected) {
         assertEquals(expected, c.equals(object));
     }
 
@@ -292,14 +292,14 @@ public class ObfuscatingCollectionTest {
 
     @Test
     @DisplayName("hashCode()")
-    public void testHashCode() {
+    void testHashCode() {
         assertEquals(obfuscating.hashCode(), obfuscating.hashCode());
         assertEquals(obfuscating.hashCode(), collection.hashCode());
     }
 
     @Test
     @DisplayName("toString()")
-    public void testToString() {
+    void testToString() {
         assertEquals("[f***o, n***l, b***r]", obfuscating.toString());
 
         collection.remove("foo");

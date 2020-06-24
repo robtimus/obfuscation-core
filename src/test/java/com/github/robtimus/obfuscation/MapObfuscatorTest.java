@@ -46,16 +46,16 @@ import org.junit.jupiter.params.provider.MethodSource;
 import com.github.robtimus.obfuscation.MapObfuscator.Builder;
 import com.github.robtimus.obfuscation.MapObfuscator.StringKeyedBuilder;
 
-@SuppressWarnings({ "javadoc", "nls" })
+@SuppressWarnings("nls")
 @TestInstance(Lifecycle.PER_CLASS)
-public class MapObfuscatorTest {
+class MapObfuscatorTest {
     @Nested
     @DisplayName("obfuscateMap(Map<K, V>)")
-    public class ObfuscateMap {
+    class ObfuscateMap {
 
         @Test
         @DisplayName("without default obfuscator")
-        public void testObfuscateWithoutDefaultObfuscator() {
+        void testObfuscateWithoutDefaultObfuscator() {
             MapObfuscator<Integer, String> obfuscator = createBuilder()
                     .build();
             Map<Integer, String> map = createMap();
@@ -68,7 +68,7 @@ public class MapObfuscatorTest {
 
         @Test
         @DisplayName("with default obfuscator")
-        public void testObfuscateWithDefaultObfuscator() {
+        void testObfuscateWithDefaultObfuscator() {
             Obfuscator defaultObfuscator = portion()
                     .keepAtStart(1)
                     .keepAtEnd(1)
@@ -88,11 +88,11 @@ public class MapObfuscatorTest {
 
         @Nested
         @DisplayName("caseSensitiveByDefault()")
-        public class CaseSensitiveByDefault {
+        class CaseSensitiveByDefault {
 
             @Test
             @DisplayName("without default obfuscator")
-            public void testObfuscateWithoutDefaultObfuscator() {
+            void testObfuscateWithoutDefaultObfuscator() {
                 MapObfuscator<String, String> obfuscator = createStringKeyedBuilder(StringKeyedBuilder::caseSensitiveByDefault)
                         .build();
 
@@ -104,7 +104,7 @@ public class MapObfuscatorTest {
 
             @Test
             @DisplayName("with default obfuscator")
-            public void testObfuscateWithDefaultObfuscator() {
+            void testObfuscateWithDefaultObfuscator() {
                 Obfuscator defaultObfuscator = portion()
                         .keepAtStart(1)
                         .keepAtEnd(1)
@@ -124,11 +124,11 @@ public class MapObfuscatorTest {
 
         @Nested
         @DisplayName("caseInsensitiveByDefault()")
-        public class CaseInsensitiveByDefault {
+        class CaseInsensitiveByDefault {
 
             @Test
             @DisplayName("without default obfuscator")
-            public void testObfuscateWithoutDefaultObfuscator() {
+            void testObfuscateWithoutDefaultObfuscator() {
                 MapObfuscator<String, String> obfuscator = createStringKeyedBuilder(StringKeyedBuilder::caseInsensitiveByDefault)
                         .build();
 
@@ -140,7 +140,7 @@ public class MapObfuscatorTest {
 
             @Test
             @DisplayName("with default obfuscator")
-            public void testObfuscateWithDefaultObfuscator() {
+            void testObfuscateWithDefaultObfuscator() {
                 Obfuscator defaultObfuscator = portion()
                         .keepAtStart(1)
                         .keepAtEnd(1)
@@ -186,7 +186,7 @@ public class MapObfuscatorTest {
     @ParameterizedTest(name = "{1}")
     @MethodSource
     @DisplayName("equals(Object)")
-    public void testEquals(MapObfuscator<?, ?> obfuscator, Object object, boolean expected) {
+    void testEquals(MapObfuscator<?, ?> obfuscator, Object object, boolean expected) {
         assertEquals(expected, obfuscator.equals(object));
     }
 
@@ -204,7 +204,7 @@ public class MapObfuscatorTest {
 
     @Test
     @DisplayName("hashCode()")
-    public void testHashCode() {
+    void testHashCode() {
         MapObfuscator<?, ?> obfuscator = createBuilder().build();
         assertEquals(obfuscator.hashCode(), obfuscator.hashCode());
         assertEquals(obfuscator.hashCode(), createBuilder().build().hashCode());
@@ -212,10 +212,10 @@ public class MapObfuscatorTest {
 
     @Nested
     @DisplayName("Builder")
-    public class BuilderTest {
+    class BuilderTest {
         @Test
         @DisplayName("transform")
-        public void testTransform() {
+        void testTransform() {
             Builder<Integer, String> builder = builder();
             @SuppressWarnings("unchecked")
             Function<Builder<Integer, String>, String> f = mock(Function.class);
@@ -229,10 +229,10 @@ public class MapObfuscatorTest {
 
     @Nested
     @DisplayName("StringKeyedBuilder")
-    public class StringKeyeedBuilderTest {
+    class StringKeyeedBuilderTest {
         @Test
         @DisplayName("transform")
-        public void testTransform() {
+        void testTransform() {
             StringKeyedBuilder<String> builder = stringKeyedBuilder();
             @SuppressWarnings("unchecked")
             Function<StringKeyedBuilder<String>, String> f = mock(Function.class);

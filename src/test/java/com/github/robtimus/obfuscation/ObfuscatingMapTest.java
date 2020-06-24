@@ -40,8 +40,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-@SuppressWarnings({ "javadoc", "nls" })
-public class ObfuscatingMapTest {
+@SuppressWarnings("nls")
+class ObfuscatingMapTest {
 
     private static final Obfuscator OBFUSCATOR = portion()
             .keepAtStart(1)
@@ -61,14 +61,14 @@ public class ObfuscatingMapTest {
     }
 
     @BeforeEach
-    public void init() {
+    void init() {
         map = spy(newMap("foo", "FOO", "bar", "BAR", null, "<null>"));
         obfuscating = OBFUSCATOR.obfuscateMap(map);
     }
 
     @Test
     @DisplayName("size()")
-    public void testSize() {
+    void testSize() {
         assertEquals(3, obfuscating.size());
 
         map.clear();
@@ -78,7 +78,7 @@ public class ObfuscatingMapTest {
 
     @Test
     @DisplayName("isEmpty()")
-    public void testisEmpty() {
+    void testisEmpty() {
         assertFalse(obfuscating.isEmpty());
 
         map.clear();
@@ -88,7 +88,7 @@ public class ObfuscatingMapTest {
 
     @Test
     @DisplayName("containsKey(Object)")
-    public void testContainsKey() {
+    void testContainsKey() {
         assertTrue(obfuscating.containsKey("foo"));
         assertTrue(obfuscating.containsKey("bar"));
         assertTrue(obfuscating.containsKey(null));
@@ -99,7 +99,7 @@ public class ObfuscatingMapTest {
 
     @Test
     @DisplayName("containsValue(Object)")
-    public void testContainsValue() {
+    void testContainsValue() {
         assertTrue(obfuscating.containsValue("FOO"));
         assertTrue(obfuscating.containsValue("BAR"));
         assertTrue(obfuscating.containsValue("<null>"));
@@ -110,7 +110,7 @@ public class ObfuscatingMapTest {
 
     @Test
     @DisplayName("get(Object)")
-    public void testGet() {
+    void testGet() {
         assertEquals("FOO", obfuscating.get("foo"));
         assertEquals("BAR", obfuscating.get("bar"));
         assertEquals("<null>", obfuscating.get(null));
@@ -119,7 +119,7 @@ public class ObfuscatingMapTest {
 
     @Test
     @DisplayName("put(String, V)")
-    public void testPut() {
+    void testPut() {
         assertEquals("FOO", obfuscating.put("foo", "foo"));
         assertEquals("BAR", obfuscating.put("bar", "bar"));
         assertEquals("<null>", obfuscating.put(null, null));
@@ -128,7 +128,7 @@ public class ObfuscatingMapTest {
 
     @Test
     @DisplayName("remove(Object)")
-    public void testRemove() {
+    void testRemove() {
         assertEquals("FOO", obfuscating.remove("foo"));
         assertEquals("<null>", obfuscating.remove(null));
         assertNull(obfuscating.remove("baz"));
@@ -137,31 +137,31 @@ public class ObfuscatingMapTest {
 
     @Test
     @DisplayName("putAll(Map<? extends String, ? extends V>)")
-    public void testAddAll() {
+    void testAddAll() {
         obfuscating.putAll(newMap("baz", "BAZ", "foo", "foo"));
         assertEquals(newMap("foo", "foo", "bar", "BAR", null, "<null>", "baz", "BAZ"), map);
     }
 
     @Test
     @DisplayName("clear()")
-    public void testClear() {
+    void testClear() {
         obfuscating.clear();
         assertTrue(map.isEmpty());
     }
 
     @Nested
     @DisplayName("keySet()")
-    public class KeySet {
+    class KeySet {
 
         @Test
         @DisplayName("caching")
-        public void testCaching() {
+        void testCaching() {
             assertSame(obfuscating.entrySet(), obfuscating.entrySet());
         }
 
         @Test
         @DisplayName("toString()")
-        public void testToString() {
+        void testToString() {
             assertEquals("[foo, bar, null]", obfuscating.keySet().toString());
 
             map.remove("foo");
@@ -191,17 +191,17 @@ public class ObfuscatingMapTest {
 
     @Nested
     @DisplayName("values()")
-    public class Values {
+    class Values {
 
         @Test
         @DisplayName("caching")
-        public void testCaching() {
+        void testCaching() {
             assertSame(obfuscating.values(), obfuscating.values());
         }
 
         @Test
         @DisplayName("toString()")
-        public void testToString() {
+        void testToString() {
             assertEquals("[F***O, B***R, <***>]", obfuscating.values().toString());
 
             map.remove("foo");
@@ -228,17 +228,17 @@ public class ObfuscatingMapTest {
 
     @Nested
     @DisplayName("entrySet()")
-    public class EntrySet {
+    class EntrySet {
 
         @Test
         @DisplayName("caching")
-        public void testCaching() {
+        void testCaching() {
             assertSame(obfuscating.entrySet(), obfuscating.entrySet());
         }
 
         @Test
         @DisplayName("toString()")
-        public void testToString() {
+        void testToString() {
             assertEquals("[foo=F***O, bar=B***R, null=<***>]", obfuscating.entrySet().toString());
 
             map.remove("foo");
@@ -266,7 +266,7 @@ public class ObfuscatingMapTest {
 
     @Test
     @DisplayName("getOrDefault(Object, V)")
-    public void testGetOrDefault() {
+    void testGetOrDefault() {
         assertEquals("FOO", obfuscating.getOrDefault("foo", "bar"));
         assertEquals("BAR", obfuscating.getOrDefault("bar", "foo"));
         assertEquals("<null>", obfuscating.getOrDefault(null, "null"));
@@ -275,7 +275,7 @@ public class ObfuscatingMapTest {
 
     @Test
     @DisplayName("forEach(BiConsumer<? super String, ? super V>)")
-    public void testForEach() {
+    void testForEach() {
         List<String> result = new ArrayList<>();
         obfuscating.forEach((k, v) -> {
             result.add(k);
@@ -286,14 +286,14 @@ public class ObfuscatingMapTest {
 
     @Test
     @DisplayName("replaceAll(BiFunction<? super String, ? super V, ? extends V>)")
-    public void testReplaceAll() {
+    void testReplaceAll() {
         obfuscating.replaceAll((k, v) -> k + v);
         assertEquals(newMap("foo", "fooFOO", "bar", "barBAR", null, "null<null>"), map);
     }
 
     @Test
     @DisplayName("putIfAbsent(String, V)")
-    public void testPutIfAbsent() {
+    void testPutIfAbsent() {
         assertEquals("FOO", obfuscating.putIfAbsent("foo", "foo"));
         assertEquals("BAR", obfuscating.putIfAbsent("bar", "bar"));
         assertEquals("<null>", obfuscating.putIfAbsent(null, "null"));
@@ -303,7 +303,7 @@ public class ObfuscatingMapTest {
 
     @Test
     @DisplayName("remove(Object, Object)")
-    public void testRemoveWithValue() {
+    void testRemoveWithValue() {
         assertFalse(obfuscating.remove("foo", "foo"));
         assertTrue(obfuscating.remove("bar", "BAR"));
         assertFalse(obfuscating.remove(null, "null"));
@@ -314,7 +314,7 @@ public class ObfuscatingMapTest {
 
     @Test
     @DisplayName("replace(String, V, V)")
-    public void testReplaceWithValue() {
+    void testReplaceWithValue() {
         assertFalse(obfuscating.replace("foo", "foo", "bar"));
         assertTrue(obfuscating.replace("bar", "BAR", "foo"));
         assertFalse(obfuscating.replace(null, "null", null));
@@ -325,7 +325,7 @@ public class ObfuscatingMapTest {
 
     @Test
     @DisplayName("replace(String, V)")
-    public void testReplace() {
+    void testReplace() {
         assertEquals("FOO", obfuscating.replace("foo", "foo"));
         assertEquals("BAR", obfuscating.replace("bar", "bar"));
         assertEquals("<null>", obfuscating.replace(null, "null"));
@@ -335,7 +335,7 @@ public class ObfuscatingMapTest {
 
     @Test
     @DisplayName("computeIfAbsent(String, Function<? super String, ? extends V>)")
-    public void testComputeIfAbsent() {
+    void testComputeIfAbsent() {
         assertEquals("FOO", obfuscating.computeIfAbsent("foo", Function.identity()));
         assertEquals("BAR", obfuscating.computeIfAbsent("bar", Function.identity()));
         assertEquals("<null>", obfuscating.computeIfAbsent(null, Function.identity()));
@@ -346,7 +346,7 @@ public class ObfuscatingMapTest {
 
     @Test
     @DisplayName("computeIfPresent(String, BiFunction<? super String, ? super V, ? extends V>)")
-    public void testComputeIfPresent() {
+    void testComputeIfPresent() {
         assertEquals("fooFOO", obfuscating.computeIfPresent("foo", (k, v) -> k + v));
         assertEquals(null, obfuscating.computeIfPresent("bar", (k, v) -> null));
         assertEquals("null<null>", obfuscating.computeIfPresent(null, (k, v) -> k + v));
@@ -356,7 +356,7 @@ public class ObfuscatingMapTest {
 
     @Test
     @DisplayName("compute(String, BiFunction<? super String, ? super V, ? extends V>)")
-    public void testCompute() {
+    void testCompute() {
         assertEquals("fooFOO", obfuscating.compute("foo", (k, v) -> k + v));
         assertEquals(null, obfuscating.compute("bar", (k, v) -> null));
         assertEquals("null<null>", obfuscating.compute(null, (k, v) -> k + v));
@@ -366,7 +366,7 @@ public class ObfuscatingMapTest {
 
     @Test
     @DisplayName("merge(String, V, BiFunction<? super V, ? super V, ? extends V>)")
-    public void testMerge() {
+    void testMerge() {
         assertEquals("FOObar", obfuscating.merge("foo", "bar", (v1, v2) -> v1 + v2));
         assertNull(obfuscating.merge("bar", "foo", (v1, v2) -> null));
         assertEquals("<null>null", obfuscating.merge(null, "null", (v1, v2) -> v1 + v2));
@@ -377,7 +377,7 @@ public class ObfuscatingMapTest {
     @ParameterizedTest(name = "{1}")
     @MethodSource
     @DisplayName("equals(Object)")
-    public void testEquals(Map<String, String> m, Object object, boolean expected) {
+    void testEquals(Map<String, String> m, Object object, boolean expected) {
         assertEquals(expected, m.equals(object));
     }
 
@@ -396,14 +396,14 @@ public class ObfuscatingMapTest {
 
     @Test
     @DisplayName("hashCode()")
-    public void testHashCode() {
+    void testHashCode() {
         assertEquals(obfuscating.hashCode(), obfuscating.hashCode());
         assertEquals(obfuscating.hashCode(), map.hashCode());
     }
 
     @Test
     @DisplayName("toString()")
-    public void testToString() {
+    void testToString() {
         assertEquals("{foo=F***O, bar=B***R, null=<***>}", obfuscating.toString());
 
         map.remove("foo");

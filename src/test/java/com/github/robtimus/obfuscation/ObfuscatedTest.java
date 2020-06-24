@@ -30,13 +30,13 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-@SuppressWarnings({ "javadoc", "nls" })
-public class ObfuscatedTest {
+@SuppressWarnings("nls")
+class ObfuscatedTest {
 
     @ParameterizedTest(name = "{1}")
     @MethodSource
     @DisplayName("equals(Object)")
-    public void testEquals(Obfuscated<?> obfuscated, Object object, boolean expected) {
+    void testEquals(Obfuscated<?> obfuscated, Object object, boolean expected) {
         assertEquals(expected, obfuscated.equals(object));
     }
 
@@ -55,7 +55,7 @@ public class ObfuscatedTest {
 
     @Test
     @DisplayName("hashCode()")
-    public void testHashCode() {
+    void testHashCode() {
         Obfuscated<?> obfuscated = all('x').obfuscateObject("foo");
         assertEquals(obfuscated.hashCode(), obfuscated.hashCode());
         assertEquals(obfuscated.hashCode(), all().obfuscateObject("foo").hashCode());
@@ -63,7 +63,7 @@ public class ObfuscatedTest {
 
     @Test
     @DisplayName("map(Function<? super T, ? extends U>)")
-    public void testMap() {
+    void testMap() {
         Obfuscated<String> obfuscated = all('x').obfuscateObject("foo");
         Obfuscated<?> mapped = obfuscated.map(s -> s + s.toUpperCase());
         assertNotEquals(obfuscated, mapped);
@@ -73,7 +73,7 @@ public class ObfuscatedTest {
 
     @Test
     @DisplayName("map(Function<? super T, ? extends U>, Supplier<? extends CharSequence>)")
-    public void testMapWithRepresentation() {
+    void testMapWithRepresentation() {
         Obfuscated<String> obfuscated = all('x').obfuscateObject("foo");
         Obfuscated<?> mapped = obfuscated.map(s -> s + s.toUpperCase(), () -> "different representation");
         assertNotEquals(obfuscated, mapped);
@@ -83,11 +83,11 @@ public class ObfuscatedTest {
 
     @Nested
     @DisplayName("mapWithSameRepresentation(Function<? super T, ? extends U>)")
-    public class MapWithSameRepresentation {
+    class MapWithSameRepresentation {
 
         @Test
         @DisplayName("non-cached")
-        public void testNonCached() {
+        void testNonCached() {
             Obfuscated<String> obfuscated = all('x').obfuscateObject("foo");
             Obfuscated<?> mapped = obfuscated.mapWithSameRepresentation(s -> s + s.toUpperCase());
             assertNotEquals(obfuscated, mapped);
@@ -98,7 +98,7 @@ public class ObfuscatedTest {
 
         @Test
         @DisplayName("cached")
-        public void testCached() {
+        void testCached() {
             Obfuscated<String> obfuscated = all('x').obfuscateObject("foo");
             Obfuscated<String> cached = obfuscated.cached();
             Obfuscated<?> mapped = cached.mapWithSameRepresentation(s -> s + s.toUpperCase());
@@ -114,7 +114,7 @@ public class ObfuscatedTest {
 
     @Test
     @DisplayName("cached()")
-    public void testCached() {
+    void testCached() {
         Obfuscated<?> obfuscated = all('x').obfuscateObject("foo");
         Obfuscated<?> cached = obfuscated.cached();
         assertNotSame(obfuscated, cached);

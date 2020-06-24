@@ -23,7 +23,7 @@ import static com.github.robtimus.obfuscation.Obfuscator.fixedValue;
 import static com.github.robtimus.obfuscation.Obfuscator.fromFunction;
 import static com.github.robtimus.obfuscation.Obfuscator.none;
 import static com.github.robtimus.obfuscation.Obfuscator.portion;
-import static com.github.robtimus.obfuscation.support.ObfuscatorUtilsTest.assertClosedException;
+import static com.github.robtimus.obfuscation.support.MessagesUtils.assertClosedException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -52,13 +52,13 @@ import org.junit.jupiter.params.provider.MethodSource;
 import com.github.robtimus.obfuscation.Obfuscator.PortionBuilder;
 import com.github.robtimus.obfuscation.support.TestAppendable;
 
-@SuppressWarnings({ "javadoc", "nls" })
-public class ObfuscatorTest {
+@SuppressWarnings("nls")
+class ObfuscatorTest {
 
     @Nested
     @DisplayName("all()")
     @TestInstance(Lifecycle.PER_CLASS)
-    public class All extends NestedObfuscatorTest {
+    class All extends NestedObfuscatorTest {
 
         All() {
             super(maskChar -> all(maskChar), new Arguments[] {
@@ -72,7 +72,7 @@ public class ObfuscatorTest {
         @ParameterizedTest(name = "{1}")
         @MethodSource
         @DisplayName("equals(Object)")
-        public void testEquals(Obfuscator obfuscator, Object object, boolean expected) {
+        void testEquals(Obfuscator obfuscator, Object object, boolean expected) {
             assertEquals(expected, obfuscator.equals(object));
         }
 
@@ -89,7 +89,7 @@ public class ObfuscatorTest {
 
         @Test
         @DisplayName("hashCode()")
-        public void testHashCode() {
+        void testHashCode() {
             Obfuscator obfuscator = all('x');
             assertEquals(obfuscator.hashCode(), obfuscator.hashCode());
             assertEquals(obfuscator.hashCode(), all('x').hashCode());
@@ -99,7 +99,7 @@ public class ObfuscatorTest {
     @Nested
     @DisplayName("none()")
     @TestInstance(Lifecycle.PER_CLASS)
-    public class None extends NestedObfuscatorTest {
+    class None extends NestedObfuscatorTest {
 
         None() {
             super(maskChar -> none(), new Arguments[] {
@@ -111,7 +111,7 @@ public class ObfuscatorTest {
         @ParameterizedTest(name = "{1}")
         @MethodSource
         @DisplayName("equals(Object)")
-        public void testEquals(Obfuscator obfuscator, Object object, boolean expected) {
+        void testEquals(Obfuscator obfuscator, Object object, boolean expected) {
             assertEquals(expected, obfuscator.equals(object));
         }
 
@@ -127,7 +127,7 @@ public class ObfuscatorTest {
 
         @Test
         @DisplayName("hashCode()")
-        public void testHashCode() {
+        void testHashCode() {
             Obfuscator obfuscator = none();
             assertEquals(obfuscator.hashCode(), obfuscator.hashCode());
             assertEquals(obfuscator.hashCode(), none().hashCode());
@@ -137,7 +137,7 @@ public class ObfuscatorTest {
     @Nested
     @DisplayName("fixedLength(8)")
     @TestInstance(Lifecycle.PER_CLASS)
-    public class FixedLength extends NestedObfuscatorTest {
+    class FixedLength extends NestedObfuscatorTest {
 
         FixedLength() {
             super(maskChar -> fixedLength(8, maskChar), new Arguments[] {
@@ -150,7 +150,7 @@ public class ObfuscatorTest {
 
         @Test
         @DisplayName("negative length")
-        public void testNegativeLength() {
+        void testNegativeLength() {
             assertThrows(IllegalArgumentException.class, () -> fixedLength(-1));
             assertThrows(IllegalArgumentException.class, () -> fixedLength(-1, 'x'));
         }
@@ -158,7 +158,7 @@ public class ObfuscatorTest {
         @ParameterizedTest(name = "{1}")
         @MethodSource
         @DisplayName("equals(Object)")
-        public void testEquals(Obfuscator obfuscator, Object object, boolean expected) {
+        void testEquals(Obfuscator obfuscator, Object object, boolean expected) {
             assertEquals(expected, obfuscator.equals(object));
         }
 
@@ -176,7 +176,7 @@ public class ObfuscatorTest {
 
         @Test
         @DisplayName("hashCode()")
-        public void testHashCode() {
+        void testHashCode() {
             Obfuscator obfuscator = fixedLength(8, 'x');
             assertEquals(obfuscator.hashCode(), obfuscator.hashCode());
             assertEquals(obfuscator.hashCode(), fixedLength(8, 'x').hashCode());
@@ -186,7 +186,7 @@ public class ObfuscatorTest {
     @Nested
     @DisplayName("fixedLength(0)")
     @TestInstance(Lifecycle.PER_CLASS)
-    public class ZeroFixedLength extends NestedObfuscatorTest {
+    class ZeroFixedLength extends NestedObfuscatorTest {
 
         ZeroFixedLength() {
             super(maskChar -> fixedLength(0, maskChar), new Arguments[] {
@@ -199,7 +199,7 @@ public class ObfuscatorTest {
     @Nested
     @DisplayName("fixedValue(\"obfuscated\")")
     @TestInstance(Lifecycle.PER_CLASS)
-    public class FixedValue extends NestedObfuscatorTest {
+    class FixedValue extends NestedObfuscatorTest {
 
         FixedValue() {
             super(maskChar -> fixedValue("obfuscated"), new Arguments[] {
@@ -212,14 +212,14 @@ public class ObfuscatorTest {
 
         @Test
         @DisplayName("null fixed value")
-        public void testNullFixedValue() {
+        void testNullFixedValue() {
             assertThrows(NullPointerException.class, () -> fixedValue(null));
         }
 
         @ParameterizedTest(name = "{1}")
         @MethodSource
         @DisplayName("equals(Object)")
-        public void testEquals(Obfuscator obfuscator, Object object, boolean expected) {
+        void testEquals(Obfuscator obfuscator, Object object, boolean expected) {
             assertEquals(expected, obfuscator.equals(object));
         }
 
@@ -236,7 +236,7 @@ public class ObfuscatorTest {
 
         @Test
         @DisplayName("hashCode()")
-        public void testHashCode() {
+        void testHashCode() {
             Obfuscator obfuscator = fixedValue("obfuscated");
             assertEquals(obfuscator.hashCode(), obfuscator.hashCode());
             assertEquals(obfuscator.hashCode(), fixedValue("obfuscated").hashCode());
@@ -246,7 +246,7 @@ public class ObfuscatorTest {
     @Nested
     @DisplayName("fixedValue(\"\")")
     @TestInstance(Lifecycle.PER_CLASS)
-    public class EmptyFixedValue extends NestedObfuscatorTest {
+    class EmptyFixedValue extends NestedObfuscatorTest {
 
         EmptyFixedValue() {
             super(maskChar -> fixedValue(""), new Arguments[] {
@@ -258,12 +258,12 @@ public class ObfuscatorTest {
 
     @Nested
     @DisplayName("portion()")
-    public class Portion {
+    class Portion {
 
         @Nested
         @DisplayName("keepAtStart(4)")
         @TestInstance(Lifecycle.PER_CLASS)
-        public class KeepAtStart extends NestedObfuscatorTest {
+        class KeepAtStart extends NestedObfuscatorTest {
 
             KeepAtStart() {
                 super(maskChar -> portion().keepAtStart(4).withMaskChar(maskChar).build(), new Arguments[] {
@@ -278,7 +278,7 @@ public class ObfuscatorTest {
             @ParameterizedTest(name = "{1}")
             @MethodSource
             @DisplayName("equals(Object)")
-            public void testEquals(Obfuscator obfuscator, Object object, boolean expected) {
+            void testEquals(Obfuscator obfuscator, Object object, boolean expected) {
                 assertEquals(expected, obfuscator.equals(object));
             }
 
@@ -296,7 +296,7 @@ public class ObfuscatorTest {
 
             @Test
             @DisplayName("hashCode()")
-            public void testHashCode() {
+            void testHashCode() {
                 Obfuscator obfuscator = portion().keepAtStart(4).withMaskChar('x').build();
                 assertEquals(obfuscator.hashCode(), obfuscator.hashCode());
                 assertEquals(obfuscator.hashCode(), portion().keepAtStart(4).withMaskChar('x').build().hashCode());
@@ -306,7 +306,7 @@ public class ObfuscatorTest {
         @Nested
         @DisplayName("keepAtEnd(4)")
         @TestInstance(Lifecycle.PER_CLASS)
-        public class KeepAtEnd extends NestedObfuscatorTest {
+        class KeepAtEnd extends NestedObfuscatorTest {
 
             KeepAtEnd() {
                 super(maskChar -> portion().keepAtEnd(4).withMaskChar(maskChar).build(), new Arguments[] {
@@ -321,7 +321,7 @@ public class ObfuscatorTest {
             @ParameterizedTest(name = "{1}")
             @MethodSource
             @DisplayName("equals(Object)")
-            public void testEquals(Obfuscator obfuscator, Object object, boolean expected) {
+            void testEquals(Obfuscator obfuscator, Object object, boolean expected) {
                 assertEquals(expected, obfuscator.equals(object));
             }
 
@@ -339,7 +339,7 @@ public class ObfuscatorTest {
 
             @Test
             @DisplayName("hashCode()")
-            public void testHashCode() {
+            void testHashCode() {
                 Obfuscator obfuscator = portion().keepAtEnd(4).withMaskChar('x').build();
                 assertEquals(obfuscator.hashCode(), obfuscator.hashCode());
                 assertEquals(obfuscator.hashCode(), portion().keepAtEnd(4).withMaskChar('x').build().hashCode());
@@ -349,7 +349,7 @@ public class ObfuscatorTest {
         @Nested
         @DisplayName("keepAtStart(4).keepAtEnd(4)")
         @TestInstance(Lifecycle.PER_CLASS)
-        public class KeepAtStartAndEnd extends NestedObfuscatorTest {
+        class KeepAtStartAndEnd extends NestedObfuscatorTest {
 
             KeepAtStartAndEnd() {
                 super(maskChar -> portion().keepAtStart(4).keepAtEnd(4).withMaskChar(maskChar).build(), new Arguments[] {
@@ -366,7 +366,7 @@ public class ObfuscatorTest {
             @ParameterizedTest(name = "{1}")
             @MethodSource
             @DisplayName("equals(Object)")
-            public void testEquals(Obfuscator obfuscator, Object object, boolean expected) {
+            void testEquals(Obfuscator obfuscator, Object object, boolean expected) {
                 assertEquals(expected, obfuscator.equals(object));
             }
 
@@ -385,7 +385,7 @@ public class ObfuscatorTest {
 
             @Test
             @DisplayName("hashCode()")
-            public void testHashCode() {
+            void testHashCode() {
                 Obfuscator obfuscator = portion().keepAtStart(4).keepAtEnd(4).withMaskChar('x').build();
                 assertEquals(obfuscator.hashCode(), obfuscator.hashCode());
                 assertEquals(obfuscator.hashCode(), portion().keepAtStart(4).keepAtEnd(4).withMaskChar('x').build().hashCode());
@@ -395,9 +395,9 @@ public class ObfuscatorTest {
         @Nested
         @DisplayName("keepAtStart(4).atLeastFromEnd(4)")
         @TestInstance(Lifecycle.PER_CLASS)
-        public class KeepAtStartAtLeastFromEnd extends NestedObfuscatorTest {
+        class KeepAtStartAtLeastFromEnd extends NestedObfuscatorTest {
 
-            public KeepAtStartAtLeastFromEnd() {
+            KeepAtStartAtLeastFromEnd() {
                 super(maskChar -> portion().keepAtStart(4).atLeastFromEnd(4).withMaskChar(maskChar).build(), new Arguments[] {
                         arguments("foo", '*', "***"),
                         arguments("hello", '*', "h****"),
@@ -413,7 +413,7 @@ public class ObfuscatorTest {
             @ParameterizedTest(name = "{1}")
             @MethodSource
             @DisplayName("equals(Object)")
-            public void testEquals(Obfuscator obfuscator, Object object, boolean expected) {
+            void testEquals(Obfuscator obfuscator, Object object, boolean expected) {
                 assertEquals(expected, obfuscator.equals(object));
             }
 
@@ -432,7 +432,7 @@ public class ObfuscatorTest {
 
             @Test
             @DisplayName("hashCode()")
-            public void testHashCode() {
+            void testHashCode() {
                 Obfuscator obfuscator = portion().keepAtStart(4).atLeastFromEnd(4).withMaskChar('x').build();
                 assertEquals(obfuscator.hashCode(), obfuscator.hashCode());
                 assertEquals(obfuscator.hashCode(), portion().keepAtStart(4).atLeastFromEnd(4).withMaskChar('x').build().hashCode());
@@ -442,7 +442,7 @@ public class ObfuscatorTest {
         @Nested
         @DisplayName("keepAtEnd(4).atLeastFromStart(4)")
         @TestInstance(Lifecycle.PER_CLASS)
-        public class KeepAtEndAtLeastFromStart extends NestedObfuscatorTest {
+        class KeepAtEndAtLeastFromStart extends NestedObfuscatorTest {
 
             KeepAtEndAtLeastFromStart() {
                 super(maskChar -> portion().keepAtEnd(4).atLeastFromStart(4).withMaskChar(maskChar).build(), new Arguments[] {
@@ -460,7 +460,7 @@ public class ObfuscatorTest {
             @ParameterizedTest(name = "{1}")
             @MethodSource
             @DisplayName("equals(Object)")
-            public void testEquals(Obfuscator obfuscator, Object object, boolean expected) {
+            void testEquals(Obfuscator obfuscator, Object object, boolean expected) {
                 assertEquals(expected, obfuscator.equals(object));
             }
 
@@ -479,7 +479,7 @@ public class ObfuscatorTest {
 
             @Test
             @DisplayName("hashCode()")
-            public void testHashCode() {
+            void testHashCode() {
                 Obfuscator obfuscator = portion().keepAtEnd(4).atLeastFromStart(4).withMaskChar('x').build();
                 assertEquals(obfuscator.hashCode(), obfuscator.hashCode());
                 assertEquals(obfuscator.hashCode(), portion().keepAtEnd(4).atLeastFromStart(4).withMaskChar('x').build().hashCode());
@@ -489,7 +489,7 @@ public class ObfuscatorTest {
         @Nested
         @DisplayName("keepAtStart(4).withFixedLength(3)")
         @TestInstance(Lifecycle.PER_CLASS)
-        public class KeepAtStartWithFixedLength extends NestedObfuscatorTest {
+        class KeepAtStartWithFixedLength extends NestedObfuscatorTest {
 
             KeepAtStartWithFixedLength() {
                 super(maskChar -> portion().keepAtStart(4).withFixedLength(3).withMaskChar(maskChar).build(), new Arguments[] {
@@ -504,7 +504,7 @@ public class ObfuscatorTest {
             @ParameterizedTest(name = "{1}")
             @MethodSource
             @DisplayName("equals(Object)")
-            public void testEquals(Obfuscator obfuscator, Object object, boolean expected) {
+            void testEquals(Obfuscator obfuscator, Object object, boolean expected) {
                 assertEquals(expected, obfuscator.equals(object));
             }
 
@@ -523,7 +523,7 @@ public class ObfuscatorTest {
 
             @Test
             @DisplayName("hashCode()")
-            public void testHashCode() {
+            void testHashCode() {
                 Obfuscator obfuscator = portion().keepAtStart(4).withFixedLength(3).withMaskChar('x').build();
                 assertEquals(obfuscator.hashCode(), obfuscator.hashCode());
                 assertEquals(obfuscator.hashCode(), portion().keepAtStart(4).withFixedLength(3).withMaskChar('x').build().hashCode());
@@ -533,7 +533,7 @@ public class ObfuscatorTest {
         @Nested
         @DisplayName("keepAtEnd(4).withFixedLength(3)")
         @TestInstance(Lifecycle.PER_CLASS)
-        public class KeepAtEndWithFixedLength extends NestedObfuscatorTest {
+        class KeepAtEndWithFixedLength extends NestedObfuscatorTest {
 
             KeepAtEndWithFixedLength() {
                 super(maskChar -> portion().keepAtEnd(4).withFixedLength(3).withMaskChar(maskChar).build(), new Arguments[] {
@@ -548,7 +548,7 @@ public class ObfuscatorTest {
             @ParameterizedTest(name = "{1}")
             @MethodSource
             @DisplayName("equals(Object)")
-            public void testEquals(Obfuscator obfuscator, Object object, boolean expected) {
+            void testEquals(Obfuscator obfuscator, Object object, boolean expected) {
                 assertEquals(expected, obfuscator.equals(object));
             }
 
@@ -567,7 +567,7 @@ public class ObfuscatorTest {
 
             @Test
             @DisplayName("hashCode()")
-            public void testHashCode() {
+            void testHashCode() {
                 Obfuscator obfuscator = portion().keepAtEnd(4).withFixedLength(3).withMaskChar('x').build();
                 assertEquals(obfuscator.hashCode(), obfuscator.hashCode());
                 assertEquals(obfuscator.hashCode(), portion().keepAtEnd(4).withFixedLength(3).withMaskChar('x').build().hashCode());
@@ -577,7 +577,7 @@ public class ObfuscatorTest {
         @Nested
         @DisplayName("keepAtStart(4).keepAtEnd(4).withFixedLength(3)")
         @TestInstance(Lifecycle.PER_CLASS)
-        public class KeepAtStartAndEndWithFixedLength extends NestedObfuscatorTest {
+        class KeepAtStartAndEndWithFixedLength extends NestedObfuscatorTest {
 
             KeepAtStartAndEndWithFixedLength() {
                 super(maskChar -> portion().keepAtStart(4).keepAtEnd(4).withFixedLength(3).withMaskChar(maskChar).build(), new Arguments[] {
@@ -594,7 +594,7 @@ public class ObfuscatorTest {
             @ParameterizedTest(name = "{1}")
             @MethodSource
             @DisplayName("equals(Object)")
-            public void testEquals(Obfuscator obfuscator, Object object, boolean expected) {
+            void testEquals(Obfuscator obfuscator, Object object, boolean expected) {
                 assertEquals(expected, obfuscator.equals(object));
             }
 
@@ -614,7 +614,7 @@ public class ObfuscatorTest {
 
             @Test
             @DisplayName("hashCode()")
-            public void testHashCode() {
+            void testHashCode() {
                 Obfuscator obfuscator = portion().keepAtStart(4).keepAtEnd(4).withFixedLength(3).withMaskChar('x').build();
                 assertEquals(obfuscator.hashCode(), obfuscator.hashCode());
                 assertEquals(obfuscator.hashCode(), portion().keepAtStart(4).keepAtEnd(4).withFixedLength(3).withMaskChar('x').build().hashCode());
@@ -624,9 +624,9 @@ public class ObfuscatorTest {
         @Nested
         @DisplayName("keepAtStart(4).atLeastFromEnd(4).withFixedLength(3)")
         @TestInstance(Lifecycle.PER_CLASS)
-        public class KeepAtStartAtLeastFromEndWithFixedLength extends NestedObfuscatorTest {
+        class KeepAtStartAtLeastFromEndWithFixedLength extends NestedObfuscatorTest {
 
-            public KeepAtStartAtLeastFromEndWithFixedLength() {
+            KeepAtStartAtLeastFromEndWithFixedLength() {
                 super(maskChar -> portion().keepAtStart(4).atLeastFromEnd(4).withFixedLength(3).withMaskChar(maskChar).build(), new Arguments[] {
                         arguments("foo", '*', "***"),
                         arguments("hello", '*', "h***"),
@@ -642,7 +642,7 @@ public class ObfuscatorTest {
             @ParameterizedTest(name = "{1}")
             @MethodSource
             @DisplayName("equals(Object)")
-            public void testEquals(Obfuscator obfuscator, Object object, boolean expected) {
+            void testEquals(Obfuscator obfuscator, Object object, boolean expected) {
                 assertEquals(expected, obfuscator.equals(object));
             }
 
@@ -662,7 +662,7 @@ public class ObfuscatorTest {
 
             @Test
             @DisplayName("hashCode()")
-            public void testHashCode() {
+            void testHashCode() {
                 Obfuscator obfuscator = portion().keepAtStart(4).atLeastFromEnd(4).withFixedLength(3).withMaskChar('x').build();
                 assertEquals(obfuscator.hashCode(), obfuscator.hashCode());
                 assertEquals(obfuscator.hashCode(),
@@ -673,7 +673,7 @@ public class ObfuscatorTest {
         @Nested
         @DisplayName("keepAtEnd(4).atLeastFromStart(4).withFixedLength(3)")
         @TestInstance(Lifecycle.PER_CLASS)
-        public class KeepAtEndAtLeastFromStartWithFixedLength extends NestedObfuscatorTest {
+        class KeepAtEndAtLeastFromStartWithFixedLength extends NestedObfuscatorTest {
 
             KeepAtEndAtLeastFromStartWithFixedLength() {
                 super(maskChar -> portion().keepAtEnd(4).atLeastFromStart(4).withFixedLength(3).withMaskChar(maskChar).build(), new Arguments[] {
@@ -691,7 +691,7 @@ public class ObfuscatorTest {
             @ParameterizedTest(name = "{1}")
             @MethodSource
             @DisplayName("equals(Object)")
-            public void testEquals(Obfuscator obfuscator, Object object, boolean expected) {
+            void testEquals(Obfuscator obfuscator, Object object, boolean expected) {
                 assertEquals(expected, obfuscator.equals(object));
             }
 
@@ -711,7 +711,7 @@ public class ObfuscatorTest {
 
             @Test
             @DisplayName("hashCode()")
-            public void testHashCode() {
+            void testHashCode() {
                 Obfuscator obfuscator = portion().keepAtEnd(4).atLeastFromStart(4).withFixedLength(3).withMaskChar('x').build();
                 assertEquals(obfuscator.hashCode(), obfuscator.hashCode());
                 assertEquals(obfuscator.hashCode(),
@@ -722,7 +722,7 @@ public class ObfuscatorTest {
         @Nested
         @DisplayName("keepAtStart(4).withFixedLength(0)")
         @TestInstance(Lifecycle.PER_CLASS)
-        public class KeepAtStartWithZeroFixedLength extends NestedObfuscatorTest {
+        class KeepAtStartWithZeroFixedLength extends NestedObfuscatorTest {
 
             KeepAtStartWithZeroFixedLength() {
                 super(maskChar -> portion().keepAtStart(4).withFixedLength(0).withMaskChar(maskChar).build(), new Arguments[] {
@@ -738,7 +738,7 @@ public class ObfuscatorTest {
         @Nested
         @DisplayName("keepAtEnd(4).withFixedLength(0)")
         @TestInstance(Lifecycle.PER_CLASS)
-        public class KeepAtEndWithZeroFixedLength extends NestedObfuscatorTest {
+        class KeepAtEndWithZeroFixedLength extends NestedObfuscatorTest {
 
             KeepAtEndWithZeroFixedLength() {
                 super(maskChar -> portion().keepAtEnd(4).withFixedLength(0).withMaskChar(maskChar).build(), new Arguments[] {
@@ -754,7 +754,7 @@ public class ObfuscatorTest {
         @Nested
         @DisplayName("keepAtStart(4).keepAtEnd(4).withFixedLength(0)")
         @TestInstance(Lifecycle.PER_CLASS)
-        public class KeepAtStartAndEndWithZeroFixedLength extends NestedObfuscatorTest {
+        class KeepAtStartAndEndWithZeroFixedLength extends NestedObfuscatorTest {
 
             KeepAtStartAndEndWithZeroFixedLength() {
                 super(maskChar -> portion().keepAtStart(4).keepAtEnd(4).withFixedLength(0).withMaskChar(maskChar).build(), new Arguments[] {
@@ -772,9 +772,9 @@ public class ObfuscatorTest {
         @Nested
         @DisplayName("keepAtStart(4).atLeastFromEnd(4).withFixedLength(0)")
         @TestInstance(Lifecycle.PER_CLASS)
-        public class KeepAtStartAtLeastFromEndWithZeroFixedLength extends NestedObfuscatorTest {
+        class KeepAtStartAtLeastFromEndWithZeroFixedLength extends NestedObfuscatorTest {
 
-            public KeepAtStartAtLeastFromEndWithZeroFixedLength() {
+            KeepAtStartAtLeastFromEndWithZeroFixedLength() {
                 super(maskChar -> portion().keepAtStart(4).atLeastFromEnd(4).withFixedLength(0).withMaskChar(maskChar).build(), new Arguments[] {
                         arguments("foo", '*', ""),
                         arguments("hello", '*', "h"),
@@ -791,7 +791,7 @@ public class ObfuscatorTest {
         @Nested
         @DisplayName("keepAtEnd(4).atLeastFromStart(4).withFixedLength(0)")
         @TestInstance(Lifecycle.PER_CLASS)
-        public class KeepAtEndAtLeastFromStartWithZeroFixedLength extends NestedObfuscatorTest {
+        class KeepAtEndAtLeastFromStartWithZeroFixedLength extends NestedObfuscatorTest {
 
             KeepAtEndAtLeastFromStartWithZeroFixedLength() {
                 super(maskChar -> portion().keepAtEnd(4).atLeastFromStart(4).withFixedLength(0).withMaskChar(maskChar).build(), new Arguments[] {
@@ -810,7 +810,7 @@ public class ObfuscatorTest {
         @Nested
         @DisplayName("obfuscate last 2 chars")
         @TestInstance(Lifecycle.PER_CLASS)
-        public class LastTwoChars extends NestedObfuscatorTest {
+        class LastTwoChars extends NestedObfuscatorTest {
 
             LastTwoChars() {
                 super(maskChar -> portion().keepAtStart(Integer.MAX_VALUE).atLeastFromEnd(2).withMaskChar(maskChar).build(), new Arguments[] {
@@ -829,7 +829,7 @@ public class ObfuscatorTest {
         @Nested
         @DisplayName("obfuscate first 2 chars")
         @TestInstance(Lifecycle.PER_CLASS)
-        public class FirstTwoChars extends NestedObfuscatorTest {
+        class FirstTwoChars extends NestedObfuscatorTest {
 
             FirstTwoChars() {
                 super(maskChar -> portion().keepAtEnd(Integer.MAX_VALUE).atLeastFromStart(2).withMaskChar(maskChar).build(), new Arguments[] {
@@ -847,31 +847,31 @@ public class ObfuscatorTest {
 
         @Test
         @DisplayName("negative keepAtStart")
-        public void testNegativeKeepAtStart() {
+        void testNegativeKeepAtStart() {
             assertThrows(IllegalArgumentException.class, () -> portion().keepAtStart(-1));
         }
 
         @Test
         @DisplayName("negative keepAtEnd")
-        public void testNegativeKeepAtEnd() {
+        void testNegativeKeepAtEnd() {
             assertThrows(IllegalArgumentException.class, () -> portion().keepAtEnd(-1));
         }
 
         @Test
         @DisplayName("negative atLeastFomStart")
-        public void testNegativeAtLeastFromStart() {
+        void testNegativeAtLeastFromStart() {
             assertThrows(IllegalArgumentException.class, () -> portion().atLeastFromStart(-1));
         }
 
         @Test
         @DisplayName("negative AtLeastFromEnd")
-        public void testNegativeAtLeastFromEnd() {
+        void testNegativeAtLeastFromEnd() {
             assertThrows(IllegalArgumentException.class, () -> portion().atLeastFromEnd(-1));
         }
 
         @Test
         @DisplayName("transform")
-        public void testTransform() {
+        void testTransform() {
             PortionBuilder builder = portion();
             @SuppressWarnings("unchecked")
             Function<PortionBuilder, String> f = mock(Function.class);
@@ -886,7 +886,7 @@ public class ObfuscatorTest {
     @Nested
     @DisplayName("fromFunction(s -> s.toString().toUpperCase())")
     @TestInstance(Lifecycle.PER_CLASS)
-    public class FromFunction extends NestedObfuscatorTest {
+    class FromFunction extends NestedObfuscatorTest {
 
         FromFunction() {
             super(maskChar -> fromFunction(s -> s.toString().toUpperCase()), new Arguments[] {
@@ -899,14 +899,14 @@ public class ObfuscatorTest {
 
         @Test
         @DisplayName("null function")
-        public void testNullFunction() {
+        void testNullFunction() {
             assertThrows(NullPointerException.class, () -> fromFunction(null));
         }
 
         @ParameterizedTest(name = "{1}")
         @MethodSource
         @DisplayName("equals(Object)")
-        public void testEquals(Obfuscator obfuscator, Object object, boolean expected) {
+        void testEquals(Obfuscator obfuscator, Object object, boolean expected) {
             assertEquals(expected, obfuscator.equals(object));
         }
 
@@ -924,7 +924,7 @@ public class ObfuscatorTest {
 
         @Test
         @DisplayName("hashCode()")
-        public void testHashCode() {
+        void testHashCode() {
             Function<CharSequence, String> function = s -> s.toString().toUpperCase();
             Obfuscator obfuscator = fromFunction(function);
             assertEquals(obfuscator.hashCode(), obfuscator.hashCode());
@@ -933,7 +933,7 @@ public class ObfuscatorTest {
 
         @Nested
         @DisplayName("Function returns null")
-        public class FunctionReturnsNull {
+        class FunctionReturnsNull {
 
             private final Obfuscator obfuscator = fromFunction(s -> null);
 
@@ -944,19 +944,19 @@ public class ObfuscatorTest {
 
             @Test
             @DisplayName("obfuscateText(CharSequence)")
-            public void testObfuscateTextCharSequence() {
+            void testObfuscateTextCharSequence() {
                 testThrowsNullPointerException("Hello World", () -> obfuscator.obfuscateText("Hello World"));
             }
 
             @Test
             @DisplayName("obfuscateText(CharSequence, int, int)")
-            public void testObfuscateTextCharSequenceRange() {
+            void testObfuscateTextCharSequenceRange() {
                 testThrowsNullPointerException("lo", () -> obfuscator.obfuscateText("Hello World", 3, 5));
             }
 
             @Test
             @DisplayName("obfuscateText(CharSequence, StringBuilder)")
-            public void testObfuscateTextCharSequenceToStringBuilder() {
+            void testObfuscateTextCharSequenceToStringBuilder() {
                 StringBuilder destination = new StringBuilder();
                 testThrowsNullPointerException("Hello World", () -> obfuscator.obfuscateText("Hello World", destination));
                 assertEquals("", destination.toString());
@@ -964,7 +964,7 @@ public class ObfuscatorTest {
 
             @Test
             @DisplayName("obfuscateText(CharSequence, int, int, StringBuilder)")
-            public void testObfuscateTextCharSequenceRangeToStringBuilder() {
+            void testObfuscateTextCharSequenceRangeToStringBuilder() {
                 StringBuilder destination = new StringBuilder();
                 testThrowsNullPointerException("lo", () -> obfuscator.obfuscateText("Hello World", 3, 5, destination));
                 assertEquals("", destination.toString());
@@ -972,7 +972,7 @@ public class ObfuscatorTest {
 
             @Test
             @DisplayName("obfuscateText(CharSequence, StringBuffer)")
-            public void testObfuscateTextCharSequenceToStringBuffer() {
+            void testObfuscateTextCharSequenceToStringBuffer() {
                 StringBuffer destination = new StringBuffer();
                 testThrowsNullPointerException("Hello World", () -> obfuscator.obfuscateText("Hello World", destination));
                 assertEquals("", destination.toString());
@@ -980,7 +980,7 @@ public class ObfuscatorTest {
 
             @Test
             @DisplayName("obfuscateText(CharSequence, int, int, StringBuffer)")
-            public void testObfuscateTextCharSequenceRangeToStringBuffer() {
+            void testObfuscateTextCharSequenceRangeToStringBuffer() {
                 StringBuffer destination = new StringBuffer();
                 testThrowsNullPointerException("lo", () -> obfuscator.obfuscateText("Hello World", 3, 5, destination));
                 assertEquals("", destination.toString());
@@ -988,7 +988,7 @@ public class ObfuscatorTest {
 
             @Test
             @DisplayName("obfuscateText(CharSequence, Appendable)")
-            public void testObfuscateTextCharSequenceToAppendable() {
+            void testObfuscateTextCharSequenceToAppendable() {
                 Writer destination = new StringWriter();
                 testThrowsNullPointerException("Hello World", () -> obfuscator.obfuscateText("Hello World", destination));
                 assertEquals("", destination.toString());
@@ -996,7 +996,7 @@ public class ObfuscatorTest {
 
             @Test
             @DisplayName("obfuscateText(CharSequence, int, int, Appendable)")
-            public void testObfuscateTextCharSequenceRangeToAppendable() {
+            void testObfuscateTextCharSequenceRangeToAppendable() {
                 Writer destination = new StringWriter();
                 testThrowsNullPointerException("lo", () -> obfuscator.obfuscateText("Hello World", 3, 5, destination));
                 assertEquals("", destination.toString());
@@ -1004,13 +1004,13 @@ public class ObfuscatorTest {
 
             @Test
             @DisplayName("obfuscateText(Reader)")
-            public void testObfuscateTextReader() {
+            void testObfuscateTextReader() {
                 testThrowsNullPointerException("Hello World", () -> obfuscator.obfuscateText(new StringReader("Hello World")));
             }
 
             @Test
             @DisplayName("obfuscateText(Reader, Appendable)")
-            public void testObfuscateTextReaderToAppendable() {
+            void testObfuscateTextReaderToAppendable() {
                 StringBuilder destination = new StringBuilder();
                 testThrowsNullPointerException("Hello World", () -> obfuscator.obfuscateText(new StringReader("Hello World"), destination));
                 assertEquals("", destination.toString());
@@ -1018,7 +1018,7 @@ public class ObfuscatorTest {
         }
     }
 
-    private static class NestedObfuscatorTest {
+    static class NestedObfuscatorTest {
 
         private final Function<Character, Obfuscator> obfuscatorProvider;
         private final Arguments[] testData;
@@ -1037,7 +1037,7 @@ public class ObfuscatorTest {
         @ParameterizedTest(name = "{0} with {1} -> {2}")
         @MethodSource("testData")
         @DisplayName("obfuscateText(CharSequence)")
-        public void testObfuscateTextCharSequence(String input, char maskChar, String expected) {
+        void testObfuscateTextCharSequence(String input, char maskChar, String expected) {
             Obfuscator obfuscator = obfuscatorProvider.apply(maskChar);
             assertEquals(expected, obfuscator.obfuscateText(input).toString());
         }
@@ -1045,7 +1045,7 @@ public class ObfuscatorTest {
         @ParameterizedTest(name = "{0} with {1} -> {2}")
         @MethodSource("testData")
         @DisplayName("obfuscateText(CharSequence, int, int)")
-        public void testObfuscateTextCharSequenceRange(String input, char maskChar, String expected) {
+        void testObfuscateTextCharSequenceRange(String input, char maskChar, String expected) {
             final String prefix = "foo";
             final String postfix = "bar";
 
@@ -1065,7 +1065,7 @@ public class ObfuscatorTest {
         @ParameterizedTest(name = "{0} with {1} -> {2}")
         @MethodSource("testData")
         @DisplayName("obfuscateText(CharSequence, StringBuilder)")
-        public void testObfuscateTextCharSequenceToStringBuilder(String input, char maskChar, String expected) {
+        void testObfuscateTextCharSequenceToStringBuilder(String input, char maskChar, String expected) {
             Obfuscator obfuscator = obfuscatorProvider.apply(maskChar);
 
             StringBuilder sb = new StringBuilder();
@@ -1080,7 +1080,7 @@ public class ObfuscatorTest {
         @ParameterizedTest(name = "{0} with {1} -> {2}")
         @MethodSource("testData")
         @DisplayName("obfuscateText(CharSequence, int, int, StringBuilder)")
-        public void testObfuscateTextCharSequenceRangeToStringBuilder(String input, char maskChar, String expected) {
+        void testObfuscateTextCharSequenceRangeToStringBuilder(String input, char maskChar, String expected) {
             final String prefix = "foo";
             final String postfix = "bar";
 
@@ -1098,7 +1098,7 @@ public class ObfuscatorTest {
         @ParameterizedTest(name = "{0} with {1} -> {2}")
         @MethodSource("testData")
         @DisplayName("obfuscateText(CharSequence, StringBuffer)")
-        public void testObfuscateTextCharSequenceToStringBuffer(String input, char maskChar, String expected) {
+        void testObfuscateTextCharSequenceToStringBuffer(String input, char maskChar, String expected) {
             Obfuscator obfuscator = obfuscatorProvider.apply(maskChar);
 
             StringBuffer sb = new StringBuffer();
@@ -1113,7 +1113,7 @@ public class ObfuscatorTest {
         @ParameterizedTest(name = "{0} with {1} -> {2}")
         @MethodSource("testData")
         @DisplayName("obfuscateText(CharSequence, int, int, StringBuffer)")
-        public void testObfuscateTextCharSequenceRangeToStringBuffer(String input, char maskChar, String expected) {
+        void testObfuscateTextCharSequenceRangeToStringBuffer(String input, char maskChar, String expected) {
             final String prefix = "foo";
             final String postfix = "bar";
 
@@ -1131,7 +1131,7 @@ public class ObfuscatorTest {
         @ParameterizedTest(name = "{0} with {1} -> {2}")
         @MethodSource("testData")
         @DisplayName("obfuscateText(CharSequence, Appendable)")
-        public void testObfuscateTextCharSequenceToAppendable(String input, char maskChar, String expected) throws IOException {
+        void testObfuscateTextCharSequenceToAppendable(String input, char maskChar, String expected) throws IOException {
             Obfuscator obfuscator = obfuscatorProvider.apply(maskChar);
 
             Writer writer = new StringWriter();
@@ -1162,7 +1162,7 @@ public class ObfuscatorTest {
         @ParameterizedTest(name = "{0} with {1} -> {2}")
         @MethodSource("testData")
         @DisplayName("obfuscateText(CharSequence, int, int, Appendable)")
-        public void testObfuscateTextCharSequenceRangeToAppendable(String input, char maskChar, String expected) throws IOException {
+        void testObfuscateTextCharSequenceRangeToAppendable(String input, char maskChar, String expected) throws IOException {
             final String prefix = "foo";
             final String postfix = "bar";
 
@@ -1198,7 +1198,7 @@ public class ObfuscatorTest {
         @ParameterizedTest(name = "{0} with {1} -> {2}")
         @MethodSource("testData")
         @DisplayName("obfuscateText(Reader)")
-        public void testObfuscateTextReader(String input, char maskChar, String expected) throws IOException {
+        void testObfuscateTextReader(String input, char maskChar, String expected) throws IOException {
             Obfuscator obfuscator = obfuscatorProvider.apply(maskChar);
 
             assertEquals(expected, obfuscator.obfuscateText(new StringReader(input)).toString());
@@ -1207,7 +1207,7 @@ public class ObfuscatorTest {
         @ParameterizedTest(name = "{0} with {1} -> {2}")
         @MethodSource("testData")
         @DisplayName("obfuscateText(Reader, Appendable)")
-        public void testObfuscateTextReaderToAppendable(String input, char maskChar, String expected) throws IOException {
+        void testObfuscateTextReaderToAppendable(String input, char maskChar, String expected) throws IOException {
             Obfuscator obfuscator = obfuscatorProvider.apply(maskChar);
 
             Writer writer = new StringWriter();
@@ -1226,7 +1226,7 @@ public class ObfuscatorTest {
         @ParameterizedTest(name = "{0} with {1} -> {2}")
         @MethodSource("testData")
         @DisplayName("obfuscateObject(Object)")
-        public void testObfuscateObject(String input, char maskChar, String expected) {
+        void testObfuscateObject(String input, char maskChar, String expected) {
             Obfuscator obfuscator = obfuscatorProvider.apply(maskChar);
 
             Obfuscated<String> obfuscated = obfuscator.obfuscateObject(input);
@@ -1237,7 +1237,7 @@ public class ObfuscatorTest {
         @ParameterizedTest(name = "{0} with {1} -> {2}")
         @MethodSource("testData")
         @DisplayName("obfuscateObject(Object, Supplier)")
-        public void testObfuscateObjectWithRepresentation(String input, char maskChar, String expected) {
+        void testObfuscateObjectWithRepresentation(String input, char maskChar, String expected) {
             Obfuscator obfuscator = obfuscatorProvider.apply(maskChar);
 
             Object value = new Object();
@@ -1249,12 +1249,12 @@ public class ObfuscatorTest {
         @Nested
         @TestInstance(Lifecycle.PER_CLASS)
         @DisplayName("streamTo(Appendable)")
-        public class StreamTo {
+        class StreamTo {
 
             @ParameterizedTest(name = "{0}: {2} with {3} -> {4}")
             @MethodSource("testData")
             @DisplayName("write(int)")
-            public void testWriteInt(@SuppressWarnings("unused") String appendableType, Supplier<Appendable> destinationSupplier,
+            void testWriteInt(@SuppressWarnings("unused") String appendableType, Supplier<Appendable> destinationSupplier,
                     String input, char maskChar, String expected) throws IOException {
 
                 Obfuscator obfuscator = obfuscatorProvider.apply(maskChar);
@@ -1279,7 +1279,7 @@ public class ObfuscatorTest {
             @ParameterizedTest(name = "{0}: {2} with {3} -> {4}")
             @MethodSource("testData")
             @DisplayName("write(char[])")
-            public void testWriteCharArray(@SuppressWarnings("unused") String appendableType, Supplier<Appendable> destinationSupplier,
+            void testWriteCharArray(@SuppressWarnings("unused") String appendableType, Supplier<Appendable> destinationSupplier,
                     String input, char maskChar, String expected) throws IOException {
 
                 Obfuscator obfuscator = obfuscatorProvider.apply(maskChar);
@@ -1302,7 +1302,7 @@ public class ObfuscatorTest {
             @ParameterizedTest(name = "{0}: {2} with {3} -> {4}")
             @MethodSource("testData")
             @DisplayName("write(char[], int, int)")
-            public void testWriteCharArrayRange(@SuppressWarnings("unused") String appendableType, Supplier<Appendable> destinationSupplier,
+            void testWriteCharArrayRange(@SuppressWarnings("unused") String appendableType, Supplier<Appendable> destinationSupplier,
                     String input, char maskChar, String expected) throws IOException {
 
                 Obfuscator obfuscator = obfuscatorProvider.apply(maskChar);
@@ -1336,7 +1336,7 @@ public class ObfuscatorTest {
             @ParameterizedTest(name = "{0}: {2} with {3} -> {4}")
             @MethodSource("testData")
             @DisplayName("write(String)")
-            public void testWriteString(@SuppressWarnings("unused") String appendableType, Supplier<Appendable> destinationSupplier,
+            void testWriteString(@SuppressWarnings("unused") String appendableType, Supplier<Appendable> destinationSupplier,
                     String input, char maskChar, String expected) throws IOException {
 
                 Obfuscator obfuscator = obfuscatorProvider.apply(maskChar);
@@ -1359,7 +1359,7 @@ public class ObfuscatorTest {
             @ParameterizedTest(name = "{0}: {2} with {3} -> {4}")
             @MethodSource("testData")
             @DisplayName("write(String, int, int)")
-            public void testWriteStringRange(@SuppressWarnings("unused") String appendableType, Supplier<Appendable> destinationSupplier,
+            void testWriteStringRange(@SuppressWarnings("unused") String appendableType, Supplier<Appendable> destinationSupplier,
                     String input, char maskChar, String expected) throws IOException {
 
                 Obfuscator obfuscator = obfuscatorProvider.apply(maskChar);
@@ -1387,7 +1387,7 @@ public class ObfuscatorTest {
             @ParameterizedTest(name = "{0}: {2} with {3} -> {4}")
             @MethodSource("testDataWithNull")
             @DisplayName("append(CharSequence)")
-            public void testAppendCharSequence(@SuppressWarnings("unused") String appendableType, Supplier<Appendable> destinationSupplier,
+            void testAppendCharSequence(@SuppressWarnings("unused") String appendableType, Supplier<Appendable> destinationSupplier,
                     String input, char maskChar, String expected) throws IOException {
 
                 Obfuscator obfuscator = obfuscatorProvider.apply(maskChar);
@@ -1410,7 +1410,7 @@ public class ObfuscatorTest {
             @ParameterizedTest(name = "{0}: {2} with {3} -> {4}")
             @MethodSource("testDataWithNull")
             @DisplayName("append(CharSequence, int, int)")
-            public void testAppendCharSequenceRange(@SuppressWarnings("unused") String appendableType, Supplier<Appendable> destinationSupplier,
+            void testAppendCharSequenceRange(@SuppressWarnings("unused") String appendableType, Supplier<Appendable> destinationSupplier,
                     String input, char maskChar, String expected) throws IOException {
 
                 Obfuscator obfuscator = obfuscatorProvider.apply(maskChar);
@@ -1443,7 +1443,7 @@ public class ObfuscatorTest {
             @ParameterizedTest(name = "{0}: {2} with {3} -> {4}")
             @MethodSource("testData")
             @DisplayName("append(char)")
-            public void testAppendChar(@SuppressWarnings("unused") String appendableType, Supplier<Appendable> destinationSupplier,
+            void testAppendChar(@SuppressWarnings("unused") String appendableType, Supplier<Appendable> destinationSupplier,
                     String input, char maskChar, String expected) throws IOException {
 
                 Obfuscator obfuscator = obfuscatorProvider.apply(maskChar);
@@ -1468,7 +1468,7 @@ public class ObfuscatorTest {
             @ParameterizedTest(name = "{0}")
             @MethodSource("appendableArguments")
             @DisplayName("flush()")
-            public void testFlush(@SuppressWarnings("unused") String appendableType, Supplier<Appendable> destinationSupplier) throws IOException {
+            void testFlush(@SuppressWarnings("unused") String appendableType, Supplier<Appendable> destinationSupplier) throws IOException {
                 Obfuscator obfuscator = obfuscatorProvider.apply('*');
 
                 Appendable destination = destinationSupplier.get();

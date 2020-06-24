@@ -56,13 +56,13 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-@SuppressWarnings({ "javadoc", "nls" })
+@SuppressWarnings("nls")
 @TestInstance(Lifecycle.PER_CLASS)
-public class MapBuilderTest {
+class MapBuilderTest {
 
     @Test
     @DisplayName("withEntry(String, K)")
-    public void testWithEntryCaseSensitive() {
+    void testWithEntryCaseSensitive() {
         MapBuilder<Integer> builder = new MapBuilder<Integer>()
                 .withEntry("a", 1)
                 .withEntry("b", 2);
@@ -78,7 +78,7 @@ public class MapBuilderTest {
 
     @Test
     @DisplayName("withEntry(String, K, CaseSensitivity)")
-    public void testWithEntry() {
+    void testWithEntry() {
         MapBuilder<Integer> builder = new MapBuilder<Integer>()
                 .withEntry("a", 1, CASE_SENSITIVE)
                 .withEntry("b", 2, CASE_INSENSITIVE);
@@ -116,7 +116,7 @@ public class MapBuilderTest {
 
     @Test
     @DisplayName("testEntry(String, K)")
-    public void testTestEntryCaseSensitive() {
+    void testTestEntryCaseSensitive() {
         MapBuilder<Integer> builder = new MapBuilder<Integer>()
                 .testEntry("a")
                 .testEntry("b");
@@ -130,7 +130,7 @@ public class MapBuilderTest {
 
     @Test
     @DisplayName("testEntry(String, K, CaseSensitivity)")
-    public void testTestEntry() {
+    void testTestEntry() {
         MapBuilder<Integer> builder = new MapBuilder<Integer>()
                 .withEntry("a", 1, CASE_SENSITIVE)
                 .withEntry("b", 2, CASE_INSENSITIVE);
@@ -165,7 +165,7 @@ public class MapBuilderTest {
 
     @Test
     @DisplayName("default case sensitivity")
-    public void testDefaultCaseSensitivity() {
+    void testDefaultCaseSensitivity() {
         MapBuilder<Integer> builder = new MapBuilder<Integer>()
                 .caseInsensitiveByDefault()
                 .withEntry("a", 1)
@@ -183,7 +183,7 @@ public class MapBuilderTest {
 
     @Test
     @DisplayName("transform")
-    public void testTransform() {
+    void testTransform() {
         MapBuilder<Integer> builder = new MapBuilder<>();
         @SuppressWarnings("unchecked")
         Function<MapBuilder<?>, String> f = mock(Function.class);
@@ -196,18 +196,18 @@ public class MapBuilderTest {
 
     @Nested
     @DisplayName("build()")
-    public class BuildTest {
+    class BuildTest {
 
         @Test
         @DisplayName("empty")
-        public void testEmpty() {
+        void testEmpty() {
             Map<String, Integer> map = new MapBuilder<Integer>().build();
             assertSame(Collections.emptyMap(), map);
         }
 
         @Test
         @DisplayName("only case sensitive entries")
-        public void testOnlyCaseSensitiveEntries() {
+        void testOnlyCaseSensitiveEntries() {
             Map<String, Integer> map = new MapBuilder<Integer>()
                     .withEntry("a", 1, CASE_SENSITIVE)
                     .withEntry("b", 2, CASE_SENSITIVE)
@@ -234,7 +234,7 @@ public class MapBuilderTest {
 
         @Test
         @DisplayName("only case insensitive entries")
-        public void testOnlyCaseInsensitiveEntries() {
+        void testOnlyCaseInsensitiveEntries() {
             Map<String, Integer> map = new MapBuilder<Integer>()
                     .withEntry("a", 1, CASE_INSENSITIVE)
                     .withEntry("b", 2, CASE_INSENSITIVE)
@@ -262,7 +262,7 @@ public class MapBuilderTest {
         @Nested
         @DisplayName("both case sensitive and case insensitive entries")
         @TestInstance(Lifecycle.PER_CLASS)
-        public class MixedCaseEntriesTest {
+        class MixedCaseEntriesTest {
 
             private final Map<String, Integer> map = new MapBuilder<Integer>()
                     .withEntry("a", 1, CASE_SENSITIVE)
@@ -273,20 +273,20 @@ public class MapBuilderTest {
 
             @Test
             @DisplayName("size()")
-            public void testSize() {
+            void testSize() {
                 assertEquals(4, map.size());
             }
 
             @Test
             @DisplayName("isEmpty()")
-            public void testIsEmpty() {
+            void testIsEmpty() {
                 assertFalse(map.isEmpty());
             }
 
             @ParameterizedTest(name = "{0}: {1}")
             @MethodSource
             @DisplayName("containsKey(Object)")
-            public void testContainsKey(Object key, boolean expected) {
+            void testContainsKey(Object key, boolean expected) {
                 assertEquals(expected, map.containsKey(key));
             }
 
@@ -309,7 +309,7 @@ public class MapBuilderTest {
             @ParameterizedTest(name = "{0}: {1}")
             @MethodSource
             @DisplayName("containsValue(Object)")
-            public void testContainsValue(Object key, boolean expected) {
+            void testContainsValue(Object key, boolean expected) {
                 assertEquals(expected, map.containsValue(key));
             }
 
@@ -329,7 +329,7 @@ public class MapBuilderTest {
             @ParameterizedTest(name = "{0}: {1}")
             @MethodSource
             @DisplayName("get(Object)")
-            public void testGet(Object key, Object expected) {
+            void testGet(Object key, Object expected) {
                 assertEquals(expected, map.get(key));
             }
 
@@ -351,7 +351,7 @@ public class MapBuilderTest {
 
             @Test
             @DisplayName("put(String, V)")
-            public void testPut() {
+            void testPut() {
                 assertThrows(UnsupportedOperationException.class, () -> map.put("a", 0));
                 assertThrows(UnsupportedOperationException.class, () -> map.put("x", 0));
                 assertEquals(4, map.size());
@@ -360,7 +360,7 @@ public class MapBuilderTest {
 
             @Test
             @DisplayName("remove(Object)")
-            public void testRemove() {
+            void testRemove() {
                 assertThrows(UnsupportedOperationException.class, () -> map.remove("a"));
                 assertThrows(UnsupportedOperationException.class, () -> map.remove("x"));
                 assertEquals(4, map.size());
@@ -368,7 +368,7 @@ public class MapBuilderTest {
 
             @Test
             @DisplayName("putAll(Map<? extends String, ? extends V>)")
-            public void testPutAll() {
+            void testPutAll() {
                 assertThrows(UnsupportedOperationException.class, () -> map.putAll(Collections.emptyMap()));
                 assertThrows(UnsupportedOperationException.class, () -> map.putAll(Collections.singletonMap("a", 0)));
                 assertEquals(4, map.size());
@@ -377,7 +377,7 @@ public class MapBuilderTest {
 
             @Test
             @DisplayName("clear()")
-            public void testClear() {
+            void testClear() {
                 assertThrows(UnsupportedOperationException.class, () -> map.clear());
                 assertEquals(4, map.size());
             }
@@ -385,26 +385,26 @@ public class MapBuilderTest {
             @Nested
             @DisplayName("entrySet()")
             @TestInstance(Lifecycle.PER_CLASS)
-            public class EntrySetTest {
+            class EntrySetTest {
 
                 private final Set<Map.Entry<String, Integer>> entrySet = map.entrySet();
 
                 @Test
                 @DisplayName("size()")
-                public void testSize() {
+                void testSize() {
                     assertEquals(4, entrySet.size());
                 }
 
                 @Test
                 @DisplayName("isEmpty()")
-                public void testIsEmpty() {
+                void testIsEmpty() {
                     assertFalse(entrySet.isEmpty());
                 }
 
                 @ParameterizedTest(name = "{0}: {1}")
                 @MethodSource
                 @DisplayName("contains(Object)")
-                public void testContains(Object o, boolean expected) {
+                void testContains(Object o, boolean expected) {
                     assertEquals(expected, entrySet.contains(o));
                 }
 
@@ -432,7 +432,7 @@ public class MapBuilderTest {
 
                 @Test
                 @DisplayName("iterator()")
-                public void testIterator() {
+                void testIterator() {
                     Iterator<Map.Entry<String, Integer>> iterator = entrySet.iterator();
 
                     // iteration order of HashMap is not defined but is consistent within a JVM
@@ -460,7 +460,7 @@ public class MapBuilderTest {
 
                 @Test
                 @DisplayName("add(Entry<String, V>)")
-                public void testAdd() {
+                void testAdd() {
                     assertThrows(UnsupportedOperationException.class, () -> entrySet.add(new SimpleEntry<>("a", 0)));
                     assertThrows(UnsupportedOperationException.class, () -> entrySet.add(new SimpleEntry<>("x", 0)));
                     assertEquals(4, entrySet.size());
@@ -469,7 +469,7 @@ public class MapBuilderTest {
 
                 @Test
                 @DisplayName("remove(Object)")
-                public void testRemove() {
+                void testRemove() {
                     assertThrows(UnsupportedOperationException.class, () -> entrySet.remove(new SimpleEntry<>("a", 0)));
                     assertThrows(UnsupportedOperationException.class, () -> entrySet.remove(new SimpleEntry<>("x", 0)));
                     assertEquals(4, entrySet.size());
@@ -478,7 +478,7 @@ public class MapBuilderTest {
 
                 @Test
                 @DisplayName("addAll(Collection<? extends Entry<String, V>)")
-                public void testAddAll() {
+                void testAddAll() {
                     assertThrows(UnsupportedOperationException.class, () -> entrySet.addAll(Collections.emptyList()));
                     assertThrows(UnsupportedOperationException.class, () -> entrySet.addAll(Collections.singleton(new SimpleEntry<>("a", 0))));
                     assertEquals(4, entrySet.size());
@@ -487,7 +487,7 @@ public class MapBuilderTest {
 
                 @Test
                 @DisplayName("retainAll(Collection<?>)")
-                public void testRetainAll() {
+                void testRetainAll() {
                     assertThrows(UnsupportedOperationException.class, () -> entrySet.retainAll(Collections.emptyList()));
                     assertThrows(UnsupportedOperationException.class, () -> entrySet.retainAll(Collections.singleton(new SimpleEntry<>("a", 0))));
                     assertEquals(4, entrySet.size());
@@ -496,7 +496,7 @@ public class MapBuilderTest {
 
                 @Test
                 @DisplayName("removeAll(Collection<?>)")
-                public void testRemoveAll() {
+                void testRemoveAll() {
                     assertThrows(UnsupportedOperationException.class, () -> entrySet.removeAll(Collections.emptyList()));
                     assertThrows(UnsupportedOperationException.class, () -> entrySet.removeAll(Collections.singleton(new SimpleEntry<>("a", 0))));
                     assertEquals(4, entrySet.size());
@@ -505,14 +505,14 @@ public class MapBuilderTest {
 
                 @Test
                 @DisplayName("clear()")
-                public void testClear() {
+                void testClear() {
                     assertThrows(UnsupportedOperationException.class, () -> entrySet.clear());
                     assertEquals(4, entrySet.size());
                 }
 
                 @Test
                 @DisplayName("removeIf(Predicate<? super Entry<String, V>)")
-                public void testRemoveIf() {
+                void testRemoveIf() {
                     assertThrows(UnsupportedOperationException.class, () -> entrySet.removeIf(e -> false));
                     assertThrows(UnsupportedOperationException.class, () -> entrySet.removeIf(e -> true));
                     assertEquals(4, entrySet.size());
@@ -521,7 +521,7 @@ public class MapBuilderTest {
 
                 @Test
                 @DisplayName("stream()")
-                public void testStream() {
+                void testStream() {
                     Map<String, Integer> result = entrySet.stream()
                             .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
 
@@ -536,7 +536,7 @@ public class MapBuilderTest {
 
                 @Test
                 @DisplayName("parallelStream()")
-                public void testParallelStream() {
+                void testParallelStream() {
                     Map<String, Integer> result = entrySet.parallelStream()
                             .collect(toConcurrentMap(Map.Entry::getKey, Map.Entry::getValue));
 
@@ -551,7 +551,7 @@ public class MapBuilderTest {
 
                 @Test
                 @DisplayName("forEach(Consumer<? super Entry<String, V>>)")
-                public void testForEach() {
+                void testForEach() {
                     Map<String, Integer> expected = new HashMap<>();
                     expected.put("a", 1);
                     expected.put("b", 2);
@@ -568,7 +568,7 @@ public class MapBuilderTest {
             @ParameterizedTest(name = "{0}, {1}: {2}")
             @MethodSource
             @DisplayName("getOrDefault(Object, V)")
-            public void testGetOrDefault(Object key, Integer defaultValue, Object expected) {
+            void testGetOrDefault(Object key, Integer defaultValue, Object expected) {
                 assertEquals(expected, map.getOrDefault(key, defaultValue));
             }
 
@@ -591,7 +591,7 @@ public class MapBuilderTest {
 
             @Test
             @DisplayName("forEach(BiConsumer<? super String, ? super V>)")
-            public void testForEach() {
+            void testForEach() {
                 Map<String, Integer> expected = new HashMap<>();
                 expected.put("a", 1);
                 expected.put("b", 2);
@@ -606,14 +606,14 @@ public class MapBuilderTest {
 
             @Test
             @DisplayName("replaceAll(BiFunction<? super String, ? super V, ? extends V>)")
-            public void testReplaceAll() {
+            void testReplaceAll() {
                 assertThrows(UnsupportedOperationException.class, () -> map.replaceAll((s, v) -> v));
                 assertEquals(4, map.size());
             }
 
             @Test
             @DisplayName("putIfAbsent(String, V)")
-            public void testPutIfAbsent() {
+            void testPutIfAbsent() {
                 assertThrows(UnsupportedOperationException.class, () -> map.putIfAbsent("a", 0));
                 assertThrows(UnsupportedOperationException.class, () -> map.putIfAbsent("x", 0));
                 assertEquals(4, map.size());
@@ -622,7 +622,7 @@ public class MapBuilderTest {
 
             @Test
             @DisplayName("remove(Object, Object)")
-            public void testRemoveWithValue() {
+            void testRemoveWithValue() {
                 assertThrows(UnsupportedOperationException.class, () -> map.remove("a", 1));
                 assertThrows(UnsupportedOperationException.class, () -> map.remove("a", 2));
                 assertThrows(UnsupportedOperationException.class, () -> map.remove("x", 1));
@@ -632,7 +632,7 @@ public class MapBuilderTest {
 
             @Test
             @DisplayName("replace(String, V, V)")
-            public void testReplaceWithValue() {
+            void testReplaceWithValue() {
                 assertThrows(UnsupportedOperationException.class, () -> map.replace("a", 1, 0));
                 assertThrows(UnsupportedOperationException.class, () -> map.replace("a", 0, -1));
                 assertThrows(UnsupportedOperationException.class, () -> map.replace("x", 0, 1));
@@ -642,7 +642,7 @@ public class MapBuilderTest {
 
             @Test
             @DisplayName("replace(String, V)")
-            public void testReplace() {
+            void testReplace() {
                 assertThrows(UnsupportedOperationException.class, () -> map.replace("a", 0));
                 assertThrows(UnsupportedOperationException.class, () -> map.replace("x", 0));
                 assertEquals(4, map.size());
@@ -651,7 +651,7 @@ public class MapBuilderTest {
 
             @Test
             @DisplayName("hashCode()")
-            public void testHashCode() {
+            void testHashCode() {
                 Map<String, Integer> hashMap = new HashMap<>();
                 hashMap.put("a", 1);
                 hashMap.put("b", 2);
@@ -670,7 +670,7 @@ public class MapBuilderTest {
             @ParameterizedTest(name = "{0}: {1}")
             @MethodSource
             @DisplayName("equals(Object)")
-            public void testEquals(Object object, boolean expected) {
+            void testEquals(Object object, boolean expected) {
                 assertEquals(expected, map.equals(object));
             }
 
@@ -756,7 +756,7 @@ public class MapBuilderTest {
 
             @Test
             @DisplayName("serializability")
-            public void testSerializability() throws IOException, ClassNotFoundException {
+            void testSerializability() throws IOException, ClassNotFoundException {
                 ByteArrayOutputStream output = new ByteArrayOutputStream();
                 try (ObjectOutputStream objectOutput = new ObjectOutputStream(output)) {
                     objectOutput.writeObject(map);
@@ -774,11 +774,11 @@ public class MapBuilderTest {
 
         @Nested
         @DisplayName("serialization")
-        public class SerializationTest {
+        class SerializationTest {
 
             @Test
             @DisplayName("empty")
-            public void testEmpty() {
+            void testEmpty() {
                 Map<String, Integer> map = new MapBuilder<Integer>().build();
                 map = serializeAndDeserialize(map);
                 assertSame(Collections.emptyMap(), map);
@@ -786,7 +786,7 @@ public class MapBuilderTest {
 
             @Test
             @DisplayName("only case sensitive entries")
-            public void testOnlyCaseSensitiveEntries() {
+            void testOnlyCaseSensitiveEntries() {
                 Map<String, Integer> map = new MapBuilder<Integer>()
                         .withEntry("a", 1, CASE_SENSITIVE)
                         .withEntry("b", 2, CASE_SENSITIVE)
@@ -815,7 +815,7 @@ public class MapBuilderTest {
 
             @Test
             @DisplayName("only case insensitive entries")
-            public void testOnlyCaseInsensitiveEntries() {
+            void testOnlyCaseInsensitiveEntries() {
                 Map<String, Integer> map = new MapBuilder<Integer>()
                         .withEntry("a", 1, CASE_INSENSITIVE)
                         .withEntry("b", 2, CASE_INSENSITIVE)
@@ -844,7 +844,7 @@ public class MapBuilderTest {
 
             @Test
             @DisplayName("both case sensitive and case insensitive entries")
-            public void testMixedCaseEntries() {
+            void testMixedCaseEntries() {
                 Map<String, Integer> map = new MapBuilder<Integer>()
                         .withEntry("a", 1, CASE_SENSITIVE)
                         .withEntry("b", 2, CASE_INSENSITIVE)

@@ -36,37 +36,37 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 
-@SuppressWarnings({ "javadoc", "nls" })
-public class AppendableWriterTest extends StreamTestBase {
+@SuppressWarnings("nls")
+class AppendableWriterTest extends StreamTestBase {
 
     @Nested
     @DisplayName("StringBuilder")
-    public class StringBuilderTest extends WriterTest {
+    class StringBuilderTest extends WriterTest {
 
-        public StringBuilderTest() {
+        StringBuilderTest() {
             super(StringBuilder::new);
         }
     }
 
     @Nested
     @DisplayName("StringBuffer")
-    public class StringBufferTest extends WriterTest {
+    class StringBufferTest extends WriterTest {
 
-        public StringBufferTest() {
+        StringBufferTest() {
             super(StringBuffer::new);
         }
     }
 
     @Nested
     @DisplayName("Appendable")
-    public class AppendableTest extends WriterTest {
+    class AppendableTest extends WriterTest {
 
-        public AppendableTest() {
+        AppendableTest() {
             super(StringWriter::new);
         }
     }
 
-    private static class WriterTest {
+    static class WriterTest {
 
         private final Supplier<Appendable> appendableSupplier;
 
@@ -76,7 +76,7 @@ public class AppendableWriterTest extends StreamTestBase {
 
         @Test
         @DisplayName("write(int)")
-        public void testWriteInt() throws IOException {
+        void testWriteInt() throws IOException {
             Appendable appendable = appendableSupplier.get();
             try (Writer writer = new AppendableWriter(appendable)) {
                 for (int i = 0; i < SOURCE.length(); i++) {
@@ -88,7 +88,7 @@ public class AppendableWriterTest extends StreamTestBase {
 
         @Test
         @DisplayName("write(char[])")
-        public void testWriteCharArray() throws IOException {
+        void testWriteCharArray() throws IOException {
             Appendable appendable = appendableSupplier.get();
             try (Writer writer = new AppendableWriter(appendable)) {
                 writer.write(SOURCE.toCharArray());
@@ -99,7 +99,7 @@ public class AppendableWriterTest extends StreamTestBase {
 
         @Test
         @DisplayName("write(char[], int, int)")
-        public void testWriteCharArrayRange() throws IOException {
+        void testWriteCharArrayRange() throws IOException {
             Appendable appendable = appendableSupplier.get();
             try (Writer writer = new AppendableWriter(appendable)) {
                 char[] content = SOURCE.toCharArray();
@@ -121,7 +121,7 @@ public class AppendableWriterTest extends StreamTestBase {
 
         @Test
         @DisplayName("write(String)")
-        public void testWriteString() throws IOException {
+        void testWriteString() throws IOException {
             Appendable appendable = appendableSupplier.get();
             try (Writer writer = new AppendableWriter(appendable)) {
                 writer.write("");
@@ -132,7 +132,7 @@ public class AppendableWriterTest extends StreamTestBase {
 
         @Test
         @DisplayName("write(String, int, int)")
-        public void testWriteStringRange() throws IOException {
+        void testWriteStringRange() throws IOException {
             Appendable appendable = appendableSupplier.get();
             try (Writer writer = new AppendableWriter(appendable)) {
                 int index = 0;
@@ -153,7 +153,7 @@ public class AppendableWriterTest extends StreamTestBase {
 
         @Test
         @DisplayName("append(CharSequence)")
-        public void testAppendCharSequence() throws IOException {
+        void testAppendCharSequence() throws IOException {
             Appendable appendable = appendableSupplier.get();
             try (Writer writer = new AppendableWriter(appendable)) {
                 writer.append(SOURCE);
@@ -164,7 +164,7 @@ public class AppendableWriterTest extends StreamTestBase {
 
         @Test
         @DisplayName("append(CharSequence, int, int)")
-        public void testAppendCharSequenceRange() throws IOException {
+        void testAppendCharSequenceRange() throws IOException {
             Appendable appendable = appendableSupplier.get();
             try (Writer writer = new AppendableWriter(appendable)) {
                 int index = 0;
@@ -189,7 +189,7 @@ public class AppendableWriterTest extends StreamTestBase {
 
         @Test
         @DisplayName("append(char)")
-        public void testAppendChar() throws IOException {
+        void testAppendChar() throws IOException {
             Appendable appendable = appendableSupplier.get();
             try (Writer writer = new AppendableWriter(appendable)) {
                 for (int i = 0; i < SOURCE.length(); i++) {
@@ -202,7 +202,7 @@ public class AppendableWriterTest extends StreamTestBase {
 
     @TestFactory
     @DisplayName("flush()")
-    public DynamicTest[] testFlush() {
+    DynamicTest[] testFlush() {
         return new DynamicTest[] {
                 dynamicTest("not Flushable", () -> {
                     Appendable appendable = mock(Appendable.class);
@@ -225,7 +225,7 @@ public class AppendableWriterTest extends StreamTestBase {
 
     @TestFactory
     @DisplayName("close()")
-    public DynamicTest[] testClose() throws Exception {
+    DynamicTest[] testClose() throws Exception {
         return new DynamicTest[] {
                 dynamicTest("not Closeable", () -> {
                     Appendable appendable = mock(Appendable.class);

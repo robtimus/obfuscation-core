@@ -49,21 +49,21 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import com.github.robtimus.obfuscation.PropertiesObfuscator.Builder;
 
-@SuppressWarnings({ "javadoc", "nls" })
+@SuppressWarnings("nls")
 @TestInstance(Lifecycle.PER_CLASS)
-public class PropertiesObfuscatorTest {
+class PropertiesObfuscatorTest {
 
     @Nested
     @DisplayName("obfuscateProperties(Properties)")
-    public class ObfuscateProperties {
+    class ObfuscateProperties {
 
         @Nested
         @DisplayName("caseSensitiveByDefault()")
-        public class CaseSensitiveByDefault {
+        class CaseSensitiveByDefault {
 
             @Test
             @DisplayName("toString()")
-            public void testToString() {
+            void testToString() {
                 Properties properties = newProperties("foo", "foo", "FOO", "FOO", "bar", "bar", "BAR", "BAR", "baz", "baz", "BAZ", "BAZ");
                 Properties obfuscating = createObfuscator(builder().caseSensitiveByDefault())
                         .obfuscateProperties(properties);
@@ -74,7 +74,7 @@ public class PropertiesObfuscatorTest {
 
             @Test
             @DisplayName("list(PrintStream)")
-            public void testListToPrintStream() throws IOException {
+            void testListToPrintStream() throws IOException {
                 Properties properties = newProperties("foo", "foo", "FOO", "FOO", "bar", "bar", "BAR", "BAR", "baz", "baz", "BAZ", "BAZ");
                 Properties obfuscating = createObfuscator(builder().caseSensitiveByDefault())
                         .obfuscateProperties(properties);
@@ -96,7 +96,7 @@ public class PropertiesObfuscatorTest {
 
             @Test
             @DisplayName("list(PrintWriter)")
-            public void testListToPrintWriter() {
+            void testListToPrintWriter() {
                 Properties properties = newProperties("foo", "foo", "FOO", "FOO", "bar", "bar", "BAR", "BAR", "baz", "baz", "BAZ", "BAZ");
                 Properties obfuscating = createObfuscator(builder().caseSensitiveByDefault())
                         .obfuscateProperties(properties);
@@ -119,11 +119,11 @@ public class PropertiesObfuscatorTest {
 
         @Nested
         @DisplayName("caseInsensitiveByDefault()")
-        public class CaseInsensitiveByDefault {
+        class CaseInsensitiveByDefault {
 
             @Test
             @DisplayName("toString()")
-            public void testToString() {
+            void testToString() {
                 Properties properties = newProperties("foo", "foo", "FOO", "FOO", "bar", "bar", "BAR", "BAR", "baz", "baz", "BAZ", "BAZ");
                 Properties obfuscating = createObfuscator(builder().caseInsensitiveByDefault())
                         .obfuscateProperties(properties);
@@ -134,7 +134,7 @@ public class PropertiesObfuscatorTest {
 
             @Test
             @DisplayName("list(PrintStream)")
-            public void testListToPrintStream() throws IOException {
+            void testListToPrintStream() throws IOException {
                 Properties properties = newProperties("foo", "foo", "FOO", "FOO", "bar", "bar", "BAR", "BAR", "baz", "baz", "BAZ", "BAZ");
                 Properties obfuscating = createObfuscator(builder().caseInsensitiveByDefault())
                         .obfuscateProperties(properties);
@@ -156,7 +156,7 @@ public class PropertiesObfuscatorTest {
 
             @Test
             @DisplayName("list(PrintWriter)")
-            public void testListToPrintWriter() {
+            void testListToPrintWriter() {
                 Properties properties = newProperties("foo", "foo", "FOO", "FOO", "bar", "bar", "BAR", "BAR", "baz", "baz", "BAZ", "BAZ");
                 Properties obfuscating = createObfuscator(builder().caseInsensitiveByDefault())
                         .obfuscateProperties(properties);
@@ -181,7 +181,7 @@ public class PropertiesObfuscatorTest {
     @ParameterizedTest(name = "{1}")
     @MethodSource
     @DisplayName("equals(Object)")
-    public void testEquals(PropertiesObfuscator obfuscator, Object object, boolean expected) {
+    void testEquals(PropertiesObfuscator obfuscator, Object object, boolean expected) {
         assertEquals(expected, obfuscator.equals(object));
     }
 
@@ -199,7 +199,7 @@ public class PropertiesObfuscatorTest {
 
     @Test
     @DisplayName("hashCode()")
-    public void testHashCode() {
+    void testHashCode() {
         PropertiesObfuscator obfuscator = createObfuscator(builder());
         assertEquals(obfuscator.hashCode(), obfuscator.hashCode());
         assertEquals(obfuscator.hashCode(), createObfuscator(builder()).hashCode());
@@ -207,11 +207,11 @@ public class PropertiesObfuscatorTest {
 
     @Nested
     @DisplayName("Builder")
-    public class BuilderTest {
+    class BuilderTest {
 
         @Test
         @DisplayName("transform")
-        public void testTransform() {
+        void testTransform() {
             Builder builder = builder();
             @SuppressWarnings("unchecked")
             Function<Builder, String> f = mock(Function.class);

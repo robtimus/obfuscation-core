@@ -38,12 +38,12 @@ import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 
-@SuppressWarnings({ "javadoc", "nls" })
-public class CopyingReaderTest extends StreamTestBase {
+@SuppressWarnings("nls")
+class CopyingReaderTest extends StreamTestBase {
 
     @Test
     @DisplayName("read()")
-    public void testReadChar() throws IOException {
+    void testReadChar() throws IOException {
         Writer writer = new StringWriter();
         Appendable appendable = new StringBuilder();
         try (Reader reader = new CopyingReader(new CharSequenceReader(SOURCE), appendable)) {
@@ -58,7 +58,7 @@ public class CopyingReaderTest extends StreamTestBase {
 
     @Test
     @DisplayName("read(char[], int, int)")
-    public void testReadCharArrayRange() throws IOException {
+    void testReadCharArrayRange() throws IOException {
         Writer writer = new StringWriter();
         Appendable appendable = new StringBuilder();
         try (Reader reader = new CopyingReader(new CharSequenceReader(SOURCE), appendable)) {
@@ -72,7 +72,7 @@ public class CopyingReaderTest extends StreamTestBase {
 
     @Test
     @DisplayName("skip(long)")
-    public void testSkip() throws IOException {
+    void testSkip() throws IOException {
         Writer writer = new StringWriter();
         Appendable appendable = new StringBuilder();
         try (Reader reader = new CopyingReader(new CharSequenceReader(SOURCE), appendable)) {
@@ -92,7 +92,7 @@ public class CopyingReaderTest extends StreamTestBase {
 
     @Test
     @DisplayName("ready()")
-    public void testReady() throws IOException {
+    void testReady() throws IOException {
         try (Reader reader = new CopyingReader(new CharSequenceReader(SOURCE), new StringBuilder())) {
             for (int i = 0; i < SOURCE.length(); i++) {
                 assertTrue(reader.ready());
@@ -105,7 +105,7 @@ public class CopyingReaderTest extends StreamTestBase {
 
     @TestFactory
     @DisplayName("mark(int) and reset()")
-    public DynamicTest[] testMarkReset() {
+    DynamicTest[] testMarkReset() {
         return new DynamicTest[] {
                 dynamicTest("Writer", () -> {
                     Writer writer = new StringWriter();
@@ -176,7 +176,7 @@ public class CopyingReaderTest extends StreamTestBase {
 
     @Test
     @DisplayName("close()")
-    public void testClose() throws IOException {
+    void testClose() throws IOException {
         Reader input = spy(new StringReader(SOURCE));
         @SuppressWarnings("resource")
         Appendable appendable = spy(new CloseableAppendable());

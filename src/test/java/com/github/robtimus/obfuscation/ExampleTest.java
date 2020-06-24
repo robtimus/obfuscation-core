@@ -43,41 +43,41 @@ import org.junit.jupiter.api.Test;
 /**
  * Verifies that the examples are correct.
  */
-@SuppressWarnings({ "javadoc", "nls" })
-public class ExampleTest {
+@SuppressWarnings("nls")
+class ExampleTest {
 
     @Test
     @DisplayName("Obfuscating all characters")
-    public void testAll() {
+    void testAll() {
         CharSequence obfuscated = Obfuscator.all().obfuscateText("Hello World");
         assertEquals("***********", obfuscated.toString());
     }
 
     @Test
     @DisplayName("Obfuscating with a fixed length")
-    public void testFixedLength() {
+    void testFixedLength() {
         CharSequence obfuscated = Obfuscator.fixedLength(5).obfuscateText("Hello World");
         assertEquals("*****", obfuscated.toString());
     }
 
     @Test
     @DisplayName("Obfuscating with a fixed value")
-    public void testFixedValue() {
+    void testFixedValue() {
         CharSequence obfuscated = Obfuscator.fixedValue("foo").obfuscateText("Hello World");
         assertEquals("foo", obfuscated.toString());
     }
 
     @Nested
     @DisplayName("Obfuscating portions of text")
-    public class Portions {
+    class Portions {
 
         @Nested
         @DisplayName("Obfuscating all but the last 4 characters")
-        public class AllButLast4 {
+        class AllButLast4 {
 
             @Test
             @DisplayName("without minimum obfuscation")
-            public void testAllButLast4() {
+            void testAllButLast4() {
                 CharSequence obfuscated = Obfuscator.portion()
                         .keepAtEnd(4)
                         .build()
@@ -87,7 +87,7 @@ public class ExampleTest {
 
             @Test
             @DisplayName("obfuscate minimum of 12")
-            public void testAllButLast4AtLeast12() {
+            void testAllButLast4AtLeast12() {
                 CharSequence obfuscated = Obfuscator.portion()
                         .keepAtEnd(4)
                         .atLeastFromStart(12)
@@ -99,7 +99,7 @@ public class ExampleTest {
 
         @Test
         @DisplayName("Obfuscating only the last 2 characters")
-        public void testLast2() {
+        void testLast2() {
             CharSequence obfuscated = Obfuscator.portion()
                     .keepAtStart(Integer.MAX_VALUE)
                     .atLeastFromEnd(2)
@@ -110,7 +110,7 @@ public class ExampleTest {
 
         @Test
         @DisplayName("Using a fixed length")
-        public void testFixedLength() {
+        void testFixedLength() {
             Obfuscator obfuscator = Obfuscator.portion()
                     .keepAtStart(2)
                     .keepAtEnd(2)
@@ -126,11 +126,11 @@ public class ExampleTest {
 
     @Nested
     @DisplayName("From function")
-    public class FromFunction {
+    class FromFunction {
 
         @Test
         @DisplayName("method takes CharSequence")
-        public void testCharSequenceArgument() {
+        void testCharSequenceArgument() {
             Obfuscator obfuscator = Obfuscator.fromFunction(this::obfuscate);
             CharSequence obfuscated = obfuscator.obfuscateText("Hello World");
             assertEquals("Hello World as CharSequence", obfuscated);
@@ -138,7 +138,7 @@ public class ExampleTest {
 
         @Test
         @DisplayName("method takes String")
-        public void testCharStringArgument() {
+        void testCharStringArgument() {
             Obfuscator obfuscator = Obfuscator.fromFunction(s -> obfuscate(s.toString()));
             CharSequence obfuscated = obfuscator.obfuscateText("Hello World");
             assertEquals("Hello World as String", obfuscated);
@@ -155,11 +155,11 @@ public class ExampleTest {
 
     @Nested
     @DisplayName("Obfuscating objects")
-    public class Objects {
+    class Objects {
 
         @Test
         @DisplayName("obfuscated")
-        public void testObfuscated() {
+        void testObfuscated() {
             LocalDate date = LocalDate.of(2020, 1, 1);
             Obfuscated<LocalDate> obfuscated = Obfuscator.portion()
                     .keepAtStart(8)
@@ -171,7 +171,7 @@ public class ExampleTest {
 
         @Test
         @DisplayName("cached")
-        public void testCached() {
+        void testCached() {
             LocalDate date = LocalDate.of(2020, 1, 1);
             Obfuscated<LocalDate> obfuscated = Obfuscator.portion()
                     .keepAtStart(8)
@@ -185,11 +185,11 @@ public class ExampleTest {
 
     @Nested
     @DisplayName("Obfuscating collections")
-    public class Collections {
+    class Collections {
 
         @Test
         @DisplayName("list")
-        public void testList() {
+        void testList() {
             List<String> list = new ArrayList<>();
             list.add("hello");
             list.add("world");
@@ -199,7 +199,7 @@ public class ExampleTest {
 
         @Test
         @DisplayName("set")
-        public void testSet() {
+        void testSet() {
             Set<String> set = new HashSet<>();
             set.add("hello");
             set.add("world");
@@ -209,7 +209,7 @@ public class ExampleTest {
 
         @Test
         @DisplayName("collection")
-        public void testCollection() {
+        void testCollection() {
             Collection<String> collection = new ArrayList<>();
             collection.add("hello");
             collection.add("world");
@@ -220,11 +220,11 @@ public class ExampleTest {
 
     @Nested
     @DisplayName("Obfuscating maps")
-    public class Maps {
+    class Maps {
 
         @Test
         @DisplayName("obfuscate each value the same way")
-        public void testObfuscateMap() {
+        void testObfuscateMap() {
             Map<String, String> map = new LinkedHashMap<>();
             map.put("username", "admin");
             map.put("password", "hello");
@@ -234,7 +234,7 @@ public class ExampleTest {
 
         @Test
         @DisplayName("obfuscate each entry separately")
-        public void testMapObfuscator() {
+        void testMapObfuscator() {
             Map<String, String> map = new LinkedHashMap<>();
             map.put("username", "admin");
             map.put("password", "hello");
@@ -248,11 +248,11 @@ public class ExampleTest {
 
     @Nested
     @DisplayName("Obfuscating Properties objects")
-    public class PropertiesObjects {
+    class PropertiesObjects {
 
         @Test
         @DisplayName("toString")
-        public void testToString() {
+        void testToString() {
             Properties properties = new Properties();
             properties.put("username", "admin");
             properties.put("password", "hello");
@@ -265,7 +265,7 @@ public class ExampleTest {
 
         @Test
         @DisplayName("list")
-        public void testList() {
+        void testList() {
             Properties properties = new Properties();
             properties.put("username", "admin");
             properties.put("password", "hello");
@@ -284,7 +284,7 @@ public class ExampleTest {
 
     @Test
     @DisplayName("Streaming obfuscation")
-    public void testStreaming() throws IOException {
+    void testStreaming() throws IOException {
         StringWriter writer = new StringWriter();
 
         Obfuscator obfuscator = Obfuscator.portion()

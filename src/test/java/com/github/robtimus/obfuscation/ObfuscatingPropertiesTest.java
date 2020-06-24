@@ -66,8 +66,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-@SuppressWarnings({ "javadoc", "nls" })
-public class ObfuscatingPropertiesTest {
+@SuppressWarnings("nls")
+class ObfuscatingPropertiesTest {
 
     private static final PropertiesObfuscator OBFUSCATOR = builder()
             .withDefaultObfuscator(portion()
@@ -94,7 +94,7 @@ public class ObfuscatingPropertiesTest {
     }
 
     @BeforeEach
-    public void init() {
+    void init() {
         Properties defaults = newProperties("default", "DEFAULT");
         properties = spy(newProperties(defaults, "foo", "FOO", "bar", "BAR"));
         obfuscating = OBFUSCATOR.obfuscateProperties(properties);
@@ -102,7 +102,7 @@ public class ObfuscatingPropertiesTest {
 
     @Test
     @DisplayName("size()")
-    public void testSize() {
+    void testSize() {
         assertEquals(2, obfuscating.size());
 
         properties.clear();
@@ -112,7 +112,7 @@ public class ObfuscatingPropertiesTest {
 
     @Test
     @DisplayName("isEmpty()")
-    public void testisEmpty() {
+    void testisEmpty() {
         assertFalse(obfuscating.isEmpty());
 
         properties.clear();
@@ -122,7 +122,7 @@ public class ObfuscatingPropertiesTest {
 
     @Test
     @DisplayName("containsKey(Object)")
-    public void testContainsKey() {
+    void testContainsKey() {
         assertTrue(obfuscating.containsKey("foo"));
         assertTrue(obfuscating.containsKey("bar"));
         assertFalse(obfuscating.containsKey("FOO"));
@@ -131,7 +131,7 @@ public class ObfuscatingPropertiesTest {
 
     @Test
     @DisplayName("containsValue(Object)")
-    public void testContainsValue() {
+    void testContainsValue() {
         assertTrue(obfuscating.containsValue("FOO"));
         assertTrue(obfuscating.containsValue("BAR"));
         assertFalse(obfuscating.containsValue("foo"));
@@ -140,7 +140,7 @@ public class ObfuscatingPropertiesTest {
 
     @Test
     @DisplayName("get(Object)")
-    public void testGet() {
+    void testGet() {
         assertEquals("FOO", obfuscating.get("foo"));
         assertEquals("BAR", obfuscating.get("bar"));
         assertNull(obfuscating.get("FOO"));
@@ -148,7 +148,7 @@ public class ObfuscatingPropertiesTest {
 
     @Test
     @DisplayName("put(Object, Object)")
-    public void testPut() {
+    void testPut() {
         assertEquals("FOO", obfuscating.put("foo", "foo"));
         assertEquals("BAR", obfuscating.put("bar", "bar"));
         assertEquals(newProperties("foo", "foo", "bar", "bar"), properties);
@@ -156,7 +156,7 @@ public class ObfuscatingPropertiesTest {
 
     @Test
     @DisplayName("remove(Object)")
-    public void testRemove() {
+    void testRemove() {
         assertEquals("FOO", obfuscating.remove("foo"));
         assertNull(obfuscating.remove("baz"));
         assertEquals(newProperties("bar", "BAR"), properties);
@@ -164,31 +164,31 @@ public class ObfuscatingPropertiesTest {
 
     @Test
     @DisplayName("putAll(Map<? extends Object, ? extends Object>)")
-    public void testAddAll() {
+    void testAddAll() {
         obfuscating.putAll(newProperties("baz", "BAZ", "foo", "foo"));
         assertEquals(newProperties("foo", "foo", "bar", "BAR", "baz", "BAZ"), properties);
     }
 
     @Test
     @DisplayName("clear()")
-    public void testClear() {
+    void testClear() {
         obfuscating.clear();
         assertTrue(properties.isEmpty());
     }
 
     @Nested
     @DisplayName("keySet()")
-    public class KeySet {
+    class KeySet {
 
         @Test
         @DisplayName("caching")
-        public void testCaching() {
+        void testCaching() {
             assertSame(obfuscating.entrySet(), obfuscating.entrySet());
         }
 
         @Test
         @DisplayName("toString()")
-        public void testToString() {
+        void testToString() {
             assertHasToString(obfuscating.keySet(), "[", "]", "foo", "bar");
 
             properties.remove("foo");
@@ -215,17 +215,17 @@ public class ObfuscatingPropertiesTest {
 
     @Nested
     @DisplayName("values()")
-    public class Values {
+    class Values {
 
         @Test
         @DisplayName("caching")
-        public void testCaching() {
+        void testCaching() {
             assertSame(obfuscating.values(), obfuscating.values());
         }
 
         @Test
         @DisplayName("toString()")
-        public void testToString() {
+        void testToString() {
             assertHasToString(obfuscating.values(), "[", "]", "F***O", "B***R");
 
             properties.remove("foo");
@@ -249,17 +249,17 @@ public class ObfuscatingPropertiesTest {
 
     @Nested
     @DisplayName("entrySet()")
-    public class EntrySet {
+    class EntrySet {
 
         @Test
         @DisplayName("caching")
-        public void testCaching() {
+        void testCaching() {
             assertSame(obfuscating.entrySet(), obfuscating.entrySet());
         }
 
         @Test
         @DisplayName("toString()")
-        public void testToString() {
+        void testToString() {
             assertHasToString(obfuscating.entrySet(), "[", "]", "foo=F***O", "bar=B***R");
 
             properties.remove("foo");
@@ -284,7 +284,7 @@ public class ObfuscatingPropertiesTest {
 
     @Test
     @DisplayName("getOrDefault(Object, Object)")
-    public void testGetOrDefault() {
+    void testGetOrDefault() {
         assertEquals("FOO", obfuscating.getOrDefault("foo", "bar"));
         assertEquals("BAR", obfuscating.getOrDefault("bar", "foo"));
         assertEquals("foo", obfuscating.getOrDefault("FOO", "foo"));
@@ -292,7 +292,7 @@ public class ObfuscatingPropertiesTest {
 
     @Test
     @DisplayName("forEach(BiConsumer<? super Object, ? super Object>)")
-    public void testForEach() {
+    void testForEach() {
         List<Object> result = new ArrayList<>();
         obfuscating.forEach((k, v) -> {
             result.add(k);
@@ -303,14 +303,14 @@ public class ObfuscatingPropertiesTest {
 
     @Test
     @DisplayName("replaceAll(BiFunction<? super Object, ? super Object, ? extends Object>)")
-    public void testReplaceAll() {
+    void testReplaceAll() {
         obfuscating.replaceAll((k, v) -> k.toString() + v);
         assertEquals(newProperties("foo", "fooFOO", "bar", "barBAR"), properties);
     }
 
     @Test
     @DisplayName("putIfAbsent(Object, Object)")
-    public void testPutIfAbsent() {
+    void testPutIfAbsent() {
         assertEquals("FOO", obfuscating.putIfAbsent("foo", "foo"));
         assertEquals("BAR", obfuscating.putIfAbsent("bar", "bar"));
         assertNull(obfuscating.putIfAbsent("baz", "BAZ"));
@@ -319,7 +319,7 @@ public class ObfuscatingPropertiesTest {
 
     @Test
     @DisplayName("remove(Object, Object)")
-    public void testRemoveWithValue() {
+    void testRemoveWithValue() {
         assertFalse(obfuscating.remove("foo", "foo"));
         assertTrue(obfuscating.remove("bar", "BAR"));
         assertFalse(obfuscating.remove("baz", "BAZ"));
@@ -328,7 +328,7 @@ public class ObfuscatingPropertiesTest {
 
     @Test
     @DisplayName("replace(Object, Object, Object)")
-    public void testReplaceWithValue() {
+    void testReplaceWithValue() {
         assertFalse(obfuscating.replace("foo", "foo", "bar"));
         assertTrue(obfuscating.replace("bar", "BAR", "foo"));
         assertFalse(obfuscating.replace("baz", "BAZ", "baz"));
@@ -337,7 +337,7 @@ public class ObfuscatingPropertiesTest {
 
     @Test
     @DisplayName("replace(Object, Object)")
-    public void testReplace() {
+    void testReplace() {
         assertEquals("FOO", obfuscating.replace("foo", "foo"));
         assertEquals("BAR", obfuscating.replace("bar", "bar"));
         assertNull(obfuscating.replace("baz", "BAZ"));
@@ -346,7 +346,7 @@ public class ObfuscatingPropertiesTest {
 
     @Test
     @DisplayName("computeIfAbsent(Object, Function<? super Object, ? extends Object>)")
-    public void testComputeIfAbsent() {
+    void testComputeIfAbsent() {
         assertEquals("FOO", obfuscating.computeIfAbsent("foo", Function.identity()));
         assertEquals("BAR", obfuscating.computeIfAbsent("bar", Function.identity()));
         assertEquals("BAZ", obfuscating.computeIfAbsent("baz", k -> k.toString().toUpperCase()));
@@ -356,7 +356,7 @@ public class ObfuscatingPropertiesTest {
 
     @Test
     @DisplayName("computeIfPresent(Object, BiFunction<? super Object, ? super Object, ? extends Object>)")
-    public void testComputeIfPresent() {
+    void testComputeIfPresent() {
         assertEquals("fooFOO", obfuscating.computeIfPresent("foo", (k, v) -> k.toString() + v));
         assertEquals(null, obfuscating.computeIfPresent("bar", (k, v) -> null));
         assertEquals(null, obfuscating.computeIfPresent("baz", (k, v) -> k.toString() + v));
@@ -365,7 +365,7 @@ public class ObfuscatingPropertiesTest {
 
     @Test
     @DisplayName("compute(Object, BiFunction<? super Object, ? super Object, ? extends Object>)")
-    public void testCompute() {
+    void testCompute() {
         assertEquals("fooFOO", obfuscating.compute("foo", (k, v) -> k.toString() + v));
         assertEquals(null, obfuscating.compute("bar", (k, v) -> null));
         assertEquals("baznull", obfuscating.compute("baz", (k, v) -> k.toString() + v));
@@ -374,7 +374,7 @@ public class ObfuscatingPropertiesTest {
 
     @Test
     @DisplayName("merge(Object, Object, BiFunction<? super Object, ? super Object, ? extends Object>)")
-    public void testMerge() {
+    void testMerge() {
         assertEquals("FOObar", obfuscating.merge("foo", "bar", (v1, v2) -> v1.toString() + v2));
         assertNull(obfuscating.merge("bar", "foo", (v1, v2) -> null));
         assertEquals("BAZ", obfuscating.merge("baz", "BAZ", (v1, v2) -> v1.toString() + v2));
@@ -384,7 +384,7 @@ public class ObfuscatingPropertiesTest {
     @ParameterizedTest(name = "{1}")
     @MethodSource
     @DisplayName("equals(Object)")
-    public void testEquals(Properties p, Object object, boolean expected) {
+    void testEquals(Properties p, Object object, boolean expected) {
         assertEquals(expected, p.equals(object));
     }
 
@@ -403,14 +403,14 @@ public class ObfuscatingPropertiesTest {
 
     @Test
     @DisplayName("hashCode()")
-    public void testHashCode() {
+    void testHashCode() {
         assertEquals(obfuscating.hashCode(), obfuscating.hashCode());
         assertEquals(obfuscating.hashCode(), properties.hashCode());
     }
 
     @Test
     @DisplayName("toString()")
-    public void testToString() {
+    void testToString() {
         assertHasToString(obfuscating, "{", "}", "foo=F***O", "bar=B***R");
 
         properties.remove("foo");
@@ -433,7 +433,7 @@ public class ObfuscatingPropertiesTest {
 
     @Test
     @DisplayName("clone()")
-    public void testClone() {
+    void testClone() {
         Properties obfuscatingClone = (Properties) obfuscating.clone();
         assertNotSame(obfuscating, obfuscatingClone);
         assertNotSame(obfuscating.keySet(), obfuscatingClone.keySet());
@@ -447,7 +447,7 @@ public class ObfuscatingPropertiesTest {
 
     @Test
     @DisplayName("keys()")
-    public void testKeys() {
+    void testKeys() {
         Enumeration<?> enumeration = obfuscating.keys();
         assertThat(enumeration.toString(), allOf(not(containsString("foo")), not(containsString("bar"))));
 
@@ -460,7 +460,7 @@ public class ObfuscatingPropertiesTest {
 
     @Test
     @DisplayName("elements()")
-    public void testElements() {
+    void testElements() {
         Enumeration<?> enumeration = obfuscating.elements();
         assertThat(enumeration.toString(), allOf(not(containsString("FOO")), not(containsString("BAR"))));
 
@@ -473,7 +473,7 @@ public class ObfuscatingPropertiesTest {
 
     @Test
     @DisplayName("contains(Object)")
-    public void testContains() {
+    void testContains() {
         assertTrue(obfuscating.contains("FOO"));
         assertTrue(obfuscating.contains("BAR"));
         assertFalse(obfuscating.contains("foo"));
@@ -482,7 +482,7 @@ public class ObfuscatingPropertiesTest {
 
     @Test
     @DisplayName("getProperty(String)")
-    public void testGetProperty() {
+    void testGetProperty() {
         assertEquals("FOO", obfuscating.getProperty("foo"));
         assertEquals("BAR", obfuscating.getProperty("bar"));
         assertNull(obfuscating.getProperty("FOO"));
@@ -490,7 +490,7 @@ public class ObfuscatingPropertiesTest {
 
     @Test
     @DisplayName("getProperty(String, String)")
-    public void testGetPropertyWithDefault() {
+    void testGetPropertyWithDefault() {
         assertEquals("FOO", obfuscating.getProperty("foo", "baz"));
         assertEquals("BAR", obfuscating.getProperty("bar", "baz"));
         assertEquals("baz", obfuscating.getProperty("FOO", "baz"));
@@ -498,7 +498,7 @@ public class ObfuscatingPropertiesTest {
 
     @Test
     @DisplayName("setProperty(String, String)")
-    public void testSetProperty() {
+    void testSetProperty() {
         assertEquals("FOO", obfuscating.setProperty("foo", "foo"));
         assertEquals("BAR", obfuscating.setProperty("bar", "bar"));
         assertEquals(newProperties("foo", "foo", "bar", "bar"), properties);
@@ -506,7 +506,7 @@ public class ObfuscatingPropertiesTest {
 
     @Test
     @DisplayName("propertyNames()")
-    public void testPropertyNames() {
+    void testPropertyNames() {
         Enumeration<?> enumeration = obfuscating.propertyNames();
         assertThat(enumeration.toString(), allOf(not(containsString("foo")), not(containsString("bar"))));
 
@@ -519,14 +519,14 @@ public class ObfuscatingPropertiesTest {
 
     @Test
     @DisplayName("stringPropertyNames()")
-    public void testStringPropertyNames() {
+    void testStringPropertyNames() {
         Set<String> propertyNames = obfuscating.stringPropertyNames();
         assertThat(propertyNames, containsInAnyOrder("default", "foo", "bar"));
     }
 
     @Test
     @DisplayName("load(Reader)")
-    public void testLoadFromReader() throws IOException {
+    void testLoadFromReader() throws IOException {
         String contents = "foo=foo\nbaz=BAZ";
         obfuscating.load(new StringReader(contents));
         assertEquals(newProperties("foo", "foo", "bar", "BAR", "baz", "BAZ"), obfuscating);
@@ -534,7 +534,7 @@ public class ObfuscatingPropertiesTest {
 
     @Test
     @DisplayName("load(InputStream)")
-    public void testLoadFromInputStream() throws IOException {
+    void testLoadFromInputStream() throws IOException {
         String contents = "foo=foo\nbaz=BAZ";
         obfuscating.load(new ByteArrayInputStream(contents.getBytes(StandardCharsets.UTF_8)));
         assertEquals(newProperties("foo", "foo", "bar", "BAR", "baz", "BAZ"), obfuscating);
@@ -543,7 +543,7 @@ public class ObfuscatingPropertiesTest {
     @Test
     @DisplayName("save(OutputStream, String)")
     @SuppressWarnings("deprecation")
-    public void testSave() throws IOException {
+    void testSave() throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         obfuscating.save(outputStream, "comments");
 
@@ -556,7 +556,7 @@ public class ObfuscatingPropertiesTest {
 
     @Test
     @DisplayName("store(Writer, String)")
-    public void testStoreToWriter() throws IOException {
+    void testStoreToWriter() throws IOException {
         StringWriter writer = new StringWriter();
         obfuscating.store(writer, "comments");
 
@@ -569,7 +569,7 @@ public class ObfuscatingPropertiesTest {
 
     @Test
     @DisplayName("store(OutputStream, String)")
-    public void testStoreToOutputStream() throws IOException {
+    void testStoreToOutputStream() throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         obfuscating.store(outputStream, "comments");
 
@@ -582,7 +582,7 @@ public class ObfuscatingPropertiesTest {
 
     @Test
     @DisplayName("loadFromXML(InputStream)")
-    public void testLoadFromFromXML() throws IOException {
+    void testLoadFromFromXML() throws IOException {
         String contents = "<!DOCTYPE properties SYSTEM \"http://java.sun.com/dtd/properties.dtd\">"
                 + "<properties><entry key=\"foo\">foo</entry><entry key=\"baz\">BAZ</entry></properties>";
         obfuscating.loadFromXML(new ByteArrayInputStream(contents.getBytes(StandardCharsets.UTF_8)));
@@ -591,7 +591,7 @@ public class ObfuscatingPropertiesTest {
 
     @Test
     @DisplayName("storeToXML(OutputStream, String)")
-    public void testStoreToXML() throws IOException {
+    void testStoreToXML() throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         obfuscating.storeToXML(outputStream, "comments");
 
@@ -603,7 +603,7 @@ public class ObfuscatingPropertiesTest {
 
     @Test
     @DisplayName("storeToXML(OutputStream, String, String)")
-    public void testStoreToXMLWithEncoding() throws IOException {
+    void testStoreToXMLWithEncoding() throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         obfuscating.storeToXML(outputStream, "comments", "UTF-8");
 
@@ -615,7 +615,7 @@ public class ObfuscatingPropertiesTest {
 
     @Test
     @DisplayName("list(PrintStream)")
-    public void testListToPrintStream() throws IOException {
+    void testListToPrintStream() throws IOException {
         properties.setProperty("foo", "123456789A123456789B123456789C123456789D123456789E");
         properties.setProperty("not-obfuscated", "123456789A123456789B123456789C123456789D123456789E");
 
@@ -633,7 +633,7 @@ public class ObfuscatingPropertiesTest {
 
     @Test
     @DisplayName("list(PrintWriter)")
-    public void testListToPrintWriter() {
+    void testListToPrintWriter() {
         properties.setProperty("foo", "123456789A123456789B123456789C123456789D123456789E");
         properties.setProperty("not-obfuscated", "123456789A123456789B123456789C123456789D123456789E");
 

@@ -24,12 +24,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-@SuppressWarnings("javadoc")
-public class ObfuscatingWriterTest {
+class ObfuscatingWriterTest {
 
     @Test
     @DisplayName("close()")
-    public void testClose() throws IOException {
+    void testClose() throws IOException {
         AtomicInteger closeCount = new AtomicInteger(0);
         @SuppressWarnings("resource")
         ObfuscatingWriter writer = new ObfuscatingWriter() {
