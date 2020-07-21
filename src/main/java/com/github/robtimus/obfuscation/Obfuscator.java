@@ -1034,7 +1034,8 @@ public abstract class Obfuscator {
      * A builder for obfuscators that obfuscate a specific portion of their input.
      * An obfuscator created with {@link #keepAtStart(int) keepAtStart(x)} and {@link #keepAtEnd(int) keepAtEnd(y)} will, for input {@code s},
      * obfuscate all characters in the range {@code x} (inclusive) to {@link CharSequence#length() s.length()}{@code - y} (exclusive).
-     * If this range is empty, such an obfuscator will not obfuscate anything, unless if {@link #withFixedLength(int)} is specified..
+     * If this range is empty, such an obfuscator will not obfuscate anything, unless if {@link #withFixedTotalLength(int)} or
+     * {@link #withFixedLength(int)} is specified.
      *
      * @author Rob Spoor
      */
@@ -1044,7 +1045,8 @@ public abstract class Obfuscator {
         private int keepAtEnd;
         private int atLeastFromStart;
         private int atLeastFromEnd;
-        private int fixedLength;
+        private int fixedTotalLength;
+        private int fixedObfuscatedLength;
         private char maskChar;
 
         private PortionBuilder() {
@@ -1114,14 +1116,37 @@ public abstract class Obfuscator {
         }
 
         /**
-         * Sets or removes the fixed number of {@link #withMaskChar(char) mask characters} to use for obfuscating.
+         * Sets or removes the fixed total length to use for obfuscated contents.
+         * When obfuscating, the result will have {@link #withMaskChar(char) mask characters} added until this total length has been reached.
+         * <p>
+         * Note: when used in combination with {@link #keepAtStart(int)} and/or {@link #keepAtEnd(int)}, this total length must be at least the sum
+         * of both other values. When used in combination with both, parts of the input may be repeated in the obfuscated content if the input's
+         * length is less than the combined number of characters to keep.
          *
-         * @param fixedLength The fixed number of mask characters, or a negative value to use the actual length of the input.
+         * @param fixedTotalLength The fixed total length for obfuscated contents, or a negative value to use the actual length of the input.
+         *                             The default is {@code -1}.
+         * @return This builder.
+         * @since 1.2
+         */
+        public PortionBuilder withFixedTotalLength(int fixedTotalLength) {
+            this.fixedTotalLength = Math.max(-1, fixedTotalLength);
+            return this;
+        }
+
+        /**
+         * Sets or removes the fixed number of {@link #withMaskChar(char) mask characters} to use for obfuscating.
+         * <p>
+         * This setting will be ignored if the {@link #withFixedTotalLength(int) fixed total length} is set.
+         *
+         * @param fixedObfuscatedLength The fixed number of mask characters, or a negative value to use the actual length of the input.
          *                        The default is {@code -1}.
          * @return This builder.
+         * @deprecated The total length of obfuscated contents can very when using this setting, making it possible in certain cases to find the
+         *             original value that was obfuscated. Use {@link #withFixedTotalLength(int)} instead.
          */
-        public PortionBuilder withFixedLength(int fixedLength) {
-            this.fixedLength = Math.max(-1, fixedLength);
+        @Deprecated
+        public PortionBuilder withFixedLength(int fixedObfuscatedLength) {
+            this.fixedObfuscatedLength = Math.max(-1, fixedObfuscatedLength);
             return this;
         }
 
@@ -1144,6 +1169,7 @@ public abstract class Obfuscator {
          * <li>{@link #keepAtEnd(int) keepAtEnd(0)}</li>
          * <li>{@link #atLeastFromStart(int) atLeastFromStart(0)}</li>
          * <li>{@link #atLeastFromEnd(int) atLeastFromEnd(0)}</li>
+         * <li>{@link #withFixedTotalLength(int) withFixedTotalLength(-1)}</li>
          * <li>{@link #withFixedLength(int) withFixedLength(-1)}</li>
          * <li>{@link #withMaskChar(char) withMaskChar('*')}</li>
          * </ul>
@@ -1155,6 +1181,7 @@ public abstract class Obfuscator {
             keepAtEnd(0);
             atLeastFromStart(0);
             atLeastFromEnd(0);
+            withFixedTotalLength(-1);
             withFixedLength(-1);
             withMaskChar(DEFAULT_MASK_CHAR);
             return this;
@@ -1177,6 +1204,8 @@ public abstract class Obfuscator {
          * Creates an immutable obfuscator with the current settings of this builder.
          *
          * @return An obfuscator with the current settings of this builder object.
+         * @throws IllegalStateException If this builder is in an invalid state, for example if {@link #withFixedTotalLength(int)} is smaller than
+         *                                   {@link #keepAtStart(int)} and {@link #keepAtEnd(int)} combined.
          */
         public Obfuscator build() {
             return new PortionObfuscator(this);
@@ -1189,7 +1218,8 @@ public abstract class Obfuscator {
         private final int keepAtEnd;
         private final int atLeastFromStart;
         private final int atLeastFromEnd;
-        private final int fixedLength;
+        private final int fixedTotalLength;
+        private final int fixedObfuscatedLength;
         private final char maskChar;
 
         private PortionObfuscator(PortionBuilder builder) {
@@ -1197,13 +1227,19 @@ public abstract class Obfuscator {
             this.keepAtEnd = builder.keepAtEnd;
             this.atLeastFromStart = builder.atLeastFromStart;
             this.atLeastFromEnd = builder.atLeastFromEnd;
-            this.fixedLength = builder.fixedLength;
+            this.fixedTotalLength = builder.fixedTotalLength;
+            this.fixedObfuscatedLength = builder.fixedObfuscatedLength;
             this.maskChar = builder.maskChar;
+
+            if (fixedTotalLength >= 0 && fixedTotalLength < keepAtStart + keepAtEnd) {
+                throw new IllegalStateException(
+                        Messages.portion.fixedTotalLengthSmallerThanKeepAtStartPlusKeepAtEnd.get(fixedTotalLength, keepAtStart, keepAtEnd));
+            }
         }
 
-        private int from(int length) {
+        private int fromStart(int length) {
             if (atLeastFromStart > 0) {
-                // the first characters need to be obfuscated so ignore fromStart
+                // the first characters need to be obfuscated so ignore keepAtStart
                 return 0;
             }
             // 0 <= keepAtMost <= length, the maximum number of characters to not obfuscate taking into account atLeastFromEnd
@@ -1212,15 +1248,16 @@ public abstract class Obfuscator {
             return Math.min(keepAtStart, keepAtMost);
         }
 
-        private int to(int length, int keepFromStart) {
+        private int fromEnd(int length, int keepFromStart, boolean allowDuplicates) {
             if (atLeastFromEnd > 0) {
-                // the last characters need to be obfuscated so ignore fromEnd
+                // the last characters need to be obfuscated so ignore keepAtEnd
                 return 0;
             }
             // 0 <= available <= length, the number of characters not already handled by fromStart (to prevent characters being appended twice)
+            //                           if allowDuplicates then available == length
             // 0 <= keepAtMost <= length, the maximum number of characters to not obfuscate taking into account atLeastFromStart
             // 0 <= result <= length, the minimum of what we want to obfuscate and what we can obfuscate
-            int available = length - keepFromStart;
+            int available = allowDuplicates ? length : length - keepFromStart;
             int keepAtMost = Math.max(0, length - atLeastFromStart);
             return Math.min(keepAtEnd, Math.min(available, keepAtMost));
         }
@@ -1229,25 +1266,29 @@ public abstract class Obfuscator {
         public CharSequence obfuscateText(CharSequence s, int start, int end) {
             checkStartAndEnd(s, start, end);
 
-            int length = end - start;
-            int from = from(length);
-            int to = to(length, from);
-            // 0 <= from <= length == end - start, so start <= from + start <= end
-            // 0 <= to <= length == end - start, so 0 <= length - to and start <= end - to
+            boolean allowDuplicates = fixedTotalLength >= 0;
 
-            if (fixedLength >= 0) {
-                // length - to - from needs to be fixedLength, so length needs to be fixedLength + from + to
-                length = fixedLength + from + to;
+            int length = end - start;
+            int fromStart = fromStart(length);
+            int fromEnd = fromEnd(length, fromStart, allowDuplicates);
+            // 0 <= fromStart <= length == end - start, so start <= start + fromStart <= end
+            // 0 <= fromEnd <= length == end - start, so 0 <= length - fromEnd and start <= end - fromEnd
+
+            if (fixedTotalLength >= 0) {
+                length = fixedTotalLength;
+            } else if (fixedObfuscatedLength >= 0) {
+                // length - fromStart - fromEnd needs to be fixedObfuscatedLength, so length needs to be fixedObfuscatedLength + fromStart + fromEnd
+                length = fixedObfuscatedLength + fromStart + fromEnd;
             }
 
             char[] array = new char[length];
 
-            // first build the content as expected: 0 to from non-obfuscated, then obfuscated, then from end - to non-obfuscated
-            getChars(s, start, start + from, array, 0);
-            for (int i = from; i < length - to; i++) {
+            // first build the content as expected: 0 to fromStart non-obfuscated, then obfuscated, then from end - fromEnd non-obfuscated
+            getChars(s, start, start + fromStart, array, 0);
+            for (int i = fromStart; i < length - fromEnd; i++) {
                 array[i] = maskChar;
             }
-            getChars(s, end - to, end, array, length - to);
+            getChars(s, end - fromEnd, end, array, length - fromEnd);
             return wrapArray(array);
         }
 
@@ -1255,20 +1296,28 @@ public abstract class Obfuscator {
         public void obfuscateText(CharSequence s, int start, int end, Appendable destination) throws IOException {
             checkStartAndEnd(s, start, end);
 
+            boolean allowDuplicates = fixedTotalLength >= 0;
+
             int length = end - start;
+            int fromStart = fromStart(length);
+            int fromEnd = fromEnd(length, fromStart, allowDuplicates);
+            // 0 <= fromStart <= length == end - start, so start <= start + fromStart <= end
+            // 0 <= fromEnd <= length == end - start, so 0 <= length - fromEnd and start <= end - fromEnd
 
-            int from = from(length);
-            int to = to(length, from);
-            // 0 <= from <= length == end - start, so start <= from + start <= end
-            // 0 <= to <= length == end - start, so 0 <= length - to and start <= end - to
-
-            // first build the content as expected: 0 to from non-obfuscated, then obfuscated, then end - to non-obfuscated
-            if (from > 0) {
-                destination.append(s, start, start + from);
+            if (fixedTotalLength >= 0) {
+                length = fixedTotalLength;
+            } else if (fixedObfuscatedLength >= 0) {
+                // length - fromStart - fromEnd needs to be fixedObfuscatedLength, so length needs to be fixedObfuscatedLength + fromStart + fromEnd
+                length = fixedObfuscatedLength + fromStart + fromEnd;
             }
-            ObfuscatorUtils.append(maskChar, fixedLength < 0 ? length - to - from : fixedLength, destination);
-            if (to > 0) {
-                destination.append(s, end - to, end);
+
+            // first build the content as expected: 0 to fromStart non-obfuscated, then obfuscated, then end - fromEnd non-obfuscated
+            if (fromStart > 0) {
+                destination.append(s, start, start + fromStart);
+            }
+            ObfuscatorUtils.append(maskChar, length - fromEnd - fromStart, destination);
+            if (fromEnd > 0) {
+                destination.append(s, end - fromEnd, end);
             }
         }
 
@@ -1300,22 +1349,42 @@ public abstract class Obfuscator {
             PortionObfuscator other = (PortionObfuscator) o;
             return keepAtStart == other.keepAtStart && keepAtEnd == other.keepAtEnd
                     && atLeastFromStart == other.atLeastFromStart && atLeastFromEnd == other.atLeastFromEnd
-                    && fixedLength == other.fixedLength
+                    && fixedObfuscatedLength == other.fixedObfuscatedLength
+                    && fixedTotalLength == other.fixedTotalLength
                     && maskChar == other.maskChar;
         }
 
         @Override
         public int hashCode() {
-            return keepAtStart ^ keepAtEnd ^ atLeastFromStart ^ atLeastFromEnd ^ fixedLength ^ maskChar;
+            return keepAtStart ^ keepAtEnd ^ atLeastFromStart ^ atLeastFromEnd ^ fixedObfuscatedLength ^ fixedTotalLength ^ maskChar;
         }
 
         @Override
         @SuppressWarnings("nls")
         public String toString() {
-            return Obfuscator.class.getName() + "#portion[keepAtStart=" + keepAtStart + ",keepAtEnd=" + keepAtEnd
-                    + ",atLeastFromStart=" + atLeastFromStart + ",atLeastFromEnd=" + atLeastFromEnd
-                    + ",fixedLength=" + fixedLength
-                    + ",maskChar=" + maskChar + "]";
+            StringBuilder sb = new StringBuilder()
+                    .append(Obfuscator.class.getName())
+                    .append("#portion[");
+            if (keepAtStart > 0) {
+                sb.append("keepAtStart=").append(keepAtStart).append(',');
+            }
+            if (keepAtEnd > 0) {
+                sb.append("keepAtEnd=").append(keepAtEnd).append(',');
+            }
+            if (atLeastFromStart > 0) {
+                sb.append("atLeastFromStart=").append(atLeastFromStart).append(',');
+            }
+            if (atLeastFromEnd > 0) {
+                sb.append("atLeastFromEnd=").append(atLeastFromEnd).append(',');
+            }
+            if (fixedObfuscatedLength >= 0) {
+                sb.append("fixedLength=").append(fixedObfuscatedLength).append(',');
+            }
+            if (fixedTotalLength >= 0) {
+                sb.append("fixedTotalLength=").append(fixedTotalLength).append(',');
+            }
+            return sb.append("maskChar=").append(maskChar).append(']')
+                    .toString();
         }
     }
 

@@ -73,7 +73,7 @@ class ObfuscatingPropertiesTest {
             .withDefaultObfuscator(portion()
                     .keepAtStart(1)
                     .keepAtEnd(1)
-                    .withFixedLength(3)
+                    .withFixedTotalLength(5)
                     .build())
             .withProperty("not-obfuscated", none())
             .build();

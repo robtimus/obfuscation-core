@@ -114,13 +114,13 @@ class ExampleTest {
             Obfuscator obfuscator = Obfuscator.portion()
                     .keepAtStart(2)
                     .keepAtEnd(2)
-                    .withFixedLength(3)
+                    .withFixedTotalLength(6)
                     .build();
             CharSequence obfuscated = obfuscator.obfuscateText("Hello World");
-            assertEquals("He***ld", obfuscated.toString());
+            assertEquals("He**ld", obfuscated.toString());
 
             obfuscated = obfuscator.obfuscateText("foo");
-            assertEquals("fo***o", obfuscated.toString());
+            assertEquals("fo**oo", obfuscated.toString());
         }
     }
 
@@ -289,7 +289,7 @@ class ExampleTest {
 
         Obfuscator obfuscator = Obfuscator.portion()
                 .keepAtStart(24)
-                .withFixedLength(3)
+                .withFixedTotalLength(27)
                 .build();
         try (Writer obfuscatingWriter = obfuscator.streamTo(writer)) {
             obfuscatingWriter.write("username=admin");

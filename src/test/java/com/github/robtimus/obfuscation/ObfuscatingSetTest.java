@@ -55,7 +55,7 @@ class ObfuscatingSetTest {
     private static final Obfuscator OBFUSCATOR = portion()
             .keepAtStart(1)
             .keepAtEnd(1)
-            .withFixedLength(3)
+            .withFixedTotalLength(5)
             .build();
 
     private Set<String> set;

@@ -58,17 +58,19 @@ Here, the `keepAtStart` instructs the obfuscator to keep everything; however, `a
 ### Using a fixed length
 
 Similar to using `Obfuscator.all`, by default an obfuscator built using `Obfuscator.portion` leaks out the length of the original text.
-If your text has a variable length, you should consider providing a fixed length to the result. The length of the obfuscated part will then be the same no matter how long the input is:
+If your text has a variable length, you should consider specifying a fixed total length for the result. The length of the result will then be the same no matter how long the input is:
 
     Obfuscator obfuscator = Obfuscator.portion()
             .keepAtStart(2)
             .keepAtEnd(2)
-            .withFixedLength(3)
+            .withFixedTotalLength(6)
             .build();
     CharSequence obfuscated = obfuscator.obfuscateText("Hello World");
-    // obfuscated represents "He***ld"
+    // obfuscated represents "He**ld"
     obfuscated = obfuscator.obfuscateText("foo");
-    // obfuscated represents "fo***o"
+    // obfuscated represents "fo**oo"
+
+Note that if `keepAtStart` and `keepAtEnd` are both specified, parts of the input may be repeated in the result if the input's length is less than the combined number of characters to keep. This makes it harder to find the original input. For example, if in the example `foo` would be obfuscated into `fo***o` instead, it would be clear that the input was `foo`. Instead, it can now be anything that starts with `fo` and ends with `oo`.
 
 ## Using a predefined function
 
@@ -171,7 +173,7 @@ To provide separate obfuscation per entry:
     // assume that writer is an existing Writer
     Obfuscator obfuscator = Obfuscator.portion()
             .keepAtStart(24)
-            .withFixedLength(3)
+            .withFixedTotalLength(27)
             .build();
     try (Writer obfuscatingWriter = obfuscator.streamTo(writer)) {
         obfuscatingWriter.write("username=admin");

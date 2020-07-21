@@ -72,7 +72,7 @@ class MapObfuscatorTest {
             Obfuscator defaultObfuscator = portion()
                     .keepAtStart(1)
                     .keepAtEnd(1)
-                    .withFixedLength(3)
+                    .withFixedTotalLength(5)
                     .withMaskChar('x')
                     .build();
             MapObfuscator<Integer, String> obfuscator = createBuilder()
@@ -108,7 +108,7 @@ class MapObfuscatorTest {
                 Obfuscator defaultObfuscator = portion()
                         .keepAtStart(1)
                         .keepAtEnd(1)
-                        .withFixedLength(3)
+                        .withFixedTotalLength(5)
                         .withMaskChar('x')
                         .build();
                 MapObfuscator<String, String> obfuscator = createStringKeyedBuilder(StringKeyedBuilder::caseSensitiveByDefault)
@@ -144,7 +144,7 @@ class MapObfuscatorTest {
                 Obfuscator defaultObfuscator = portion()
                         .keepAtStart(1)
                         .keepAtEnd(1)
-                        .withFixedLength(3)
+                        .withFixedTotalLength(5)
                         .withMaskChar('x')
                         .build();
                 MapObfuscator<String, String> obfuscator = createStringKeyedBuilder(StringKeyedBuilder::caseInsensitiveByDefault)
@@ -249,8 +249,8 @@ class MapObfuscatorTest {
                 .withKey(0, fixedLength(3))
                 .withKey(1, none())
                 .withKey(2, all())
-                .withKey(3, portion().keepAtStart(3).withFixedLength(3).build())
-                .withKey(null, portion().keepAtStart(1).keepAtEnd(1).withFixedLength(3).build())
+                .withKey(3, portion().keepAtStart(3).withFixedTotalLength(6).build())
+                .withKey(null, portion().keepAtStart(1).keepAtEnd(1).withFixedTotalLength(5).build())
                 ;
     }
 
@@ -260,7 +260,7 @@ class MapObfuscatorTest {
                 .withKey("a", fixedLength(3))
                 .withKey("b", none())
                 .withKey("c", all(), CASE_SENSITIVE)
-                .withKey("d", portion().keepAtStart(3).withFixedLength(3).build(), CASE_INSENSITIVE)
+                .withKey("d", portion().keepAtStart(3).withFixedTotalLength(6).build(), CASE_INSENSITIVE)
                 ;
     }
 }

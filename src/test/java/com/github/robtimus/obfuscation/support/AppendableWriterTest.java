@@ -66,7 +66,7 @@ class AppendableWriterTest extends StreamTestBase {
         }
     }
 
-    static class WriterTest {
+    abstract static class WriterTest {
 
         private final Supplier<Appendable> appendableSupplier;
 

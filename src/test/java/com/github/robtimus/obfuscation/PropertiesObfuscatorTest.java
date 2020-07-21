@@ -227,7 +227,7 @@ class PropertiesObfuscatorTest {
         Obfuscator obfuscator = portion()
                 .keepAtStart(1)
                 .keepAtEnd(1)
-                .withFixedLength(3)
+                .withFixedTotalLength(5)
                 .build();
         return builder
                 .withProperty("foo", obfuscator)
