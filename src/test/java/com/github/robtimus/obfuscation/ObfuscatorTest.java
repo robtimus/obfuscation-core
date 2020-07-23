@@ -1358,6 +1358,85 @@ class ObfuscatorTest {
         }
     }
 
+    @Nested
+    @DisplayName("none().untilLength(4).then(all()).untilLength(12).then(none())")
+    @TestInstance(Lifecycle.PER_CLASS)
+    class UntilLength extends NestedObfuscatorTest {
+
+        UntilLength() {
+            super(maskChar -> none().untilLength(4).then(all()).untilLength(12).then(none()), new Arguments[] {
+                    arguments("", '*', ""),
+                    arguments("0", '*', "0"),
+                    arguments("01", '*', "01"),
+                    arguments("012", '*', "012"),
+                    arguments("0123", '*', "0123"),
+                    arguments("01234", '*', "0123*"),
+                    arguments("012345", '*', "0123**"),
+                    arguments("0123456", '*', "0123***"),
+                    arguments("01234567", '*', "0123****"),
+                    arguments("012345678", '*', "0123*****"),
+                    arguments("0123456789", '*', "0123******"),
+                    arguments("0123456789A", '*', "0123*******"),
+                    arguments("0123456789AB", '*', "0123********"),
+                    arguments("0123456789ABC", '*', "0123********C"),
+                    arguments("0123456789ABCD", '*', "0123********CD"),
+                    arguments("0123456789ABCDE", '*', "0123********CDE"),
+                    arguments("0123456789ABCDEF", '*', "0123********CDEF"),
+            }, "", "null");
+        }
+
+        @Test
+        @DisplayName("invalid first prefix length")
+        void testInvalidFirstPrefixLength() {
+            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> none().untilLength(0));
+            assertEquals("0 <= 0", exception.getMessage());
+        }
+
+        @Test
+        @DisplayName("invalid second prefix length")
+        void testInvalidSecondPrefixLength() {
+            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                    () -> none().untilLength(1).then(all()).untilLength(1));
+            assertEquals("1 <= 1", exception.getMessage());
+        }
+
+        @Test
+        @DisplayName("invalid third prefix length")
+        void testInvalidThirdPrefixLength() {
+            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                    () -> none().untilLength(1).then(all()).untilLength(2).then(none()).untilLength(2));
+            assertEquals("2 <= 2", exception.getMessage());
+        }
+
+        @ParameterizedTest(name = "{1}")
+        @MethodSource
+        @DisplayName("equals(Object)")
+        void testEquals(Obfuscator obfuscator, Object object, boolean expected) {
+            assertEquals(expected, obfuscator.equals(object));
+        }
+
+        Arguments[] testEquals() {
+            Obfuscator obfuscator = none().untilLength(4).then(all());
+            return new Arguments[] {
+                    arguments(obfuscator, obfuscator, true),
+                    arguments(obfuscator, null, false),
+                    arguments(obfuscator, none().untilLength(4).then(all()), true),
+                    arguments(obfuscator, fixedLength(3).untilLength(4).then(all()), false),
+                    arguments(obfuscator, none().untilLength(5).then(all()), false),
+                    arguments(obfuscator, none().untilLength(4).then(fixedLength(3)), false),
+                    arguments(obfuscator, "foo", false),
+            };
+        }
+
+        @Test
+        @DisplayName("hashCode()")
+        void testHashCode() {
+            Obfuscator obfuscator = none().untilLength(4).then(all());
+            assertEquals(obfuscator.hashCode(), obfuscator.hashCode());
+            assertEquals(obfuscator.hashCode(), none().untilLength(4).then(all()).hashCode());
+        }
+    }
+
     abstract static class NestedObfuscatorTest {
 
         private final Function<Character, Obfuscator> obfuscatorProvider;

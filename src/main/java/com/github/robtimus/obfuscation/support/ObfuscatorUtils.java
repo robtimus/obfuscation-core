@@ -208,7 +208,7 @@ public final class ObfuscatorUtils {
      */
     public static void checkOffsetAndLength(CharSequence sequence, int offset, int length) {
         if (offset < 0 || length < 0 || offset + length > sequence.length()) {
-            throw new ArrayIndexOutOfBoundsException(Messages.array.invalidOffsetOrLength.get(sequence.length(), offset, length));
+            throw new IndexOutOfBoundsException(Messages.charSequence.invalidOffsetOrLength.get(sequence.length(), offset, length));
         }
     }
 
@@ -225,7 +225,7 @@ public final class ObfuscatorUtils {
      */
     public static void checkStartAndEnd(CharSequence sequence, int start, int end) {
         if (start < 0 || end > sequence.length() || start > end) {
-            throw new ArrayIndexOutOfBoundsException(Messages.array.invalidStartOrEnd.get(sequence.length(), start, end));
+            throw new IndexOutOfBoundsException(Messages.charSequence.invalidStartOrEnd.get(sequence.length(), start, end));
         }
     }
 
@@ -256,6 +256,21 @@ public final class ObfuscatorUtils {
             throw new IllegalArgumentException(count + " < 0"); //$NON-NLS-1$
         }
         return RepeatingCharSequence.valueOf(c, count);
+    }
+
+    /**
+     * Concatenates two {@code CharSequence}s into one.
+     *
+     * @param first The first {@code CharSequence}.
+     * @param second The second {@code CharSequence}.
+     * @return The concatenated {@code CharSequence}.
+     * @throws NullPointerException If either {@code CharSequence} is {@code null}.
+     * @since 1.2
+     */
+    public static CharSequence concat(CharSequence first, CharSequence second) {
+        Objects.requireNonNull(first);
+        Objects.requireNonNull(second);
+        return new ConcatCharSequence(first, second);
     }
 
     // Reader / Writer
@@ -319,6 +334,25 @@ public final class ObfuscatorUtils {
         Objects.requireNonNull(input);
         Objects.requireNonNull(appendable);
         return new CopyingReader(input, appendable);
+    }
+
+    /**
+     * Returns a {@code Reader} that is able to read only a portion of text from another {@code Reader}.
+     *
+     * @param input The {@code Reader} to read from.
+     * @param limit The maximum number of characters to read from the given {@code Reader}.
+     * @return A {@code Reader} that is able to read at most {@code limit} characters from the given {@code Reader}.
+     * @throws NullPointerException If the given {@code Reader} is {@code null}.
+     * @throws IllegalArgumentException If the given limit is negative.
+     * @since 1.2
+     */
+    @SuppressWarnings("resource")
+    public static Reader readAtMost(Reader input, int limit) {
+        Objects.requireNonNull(input);
+        if (limit < 0) {
+            throw new IllegalArgumentException(limit + " < 0"); //$NON-NLS-1$
+        }
+        return new LimitReader(input, limit);
     }
 
     // I/O

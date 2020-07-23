@@ -19,11 +19,13 @@ package com.github.robtimus.obfuscation;
 
 import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.checkOffsetAndLength;
 import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.checkStartAndEnd;
+import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.concat;
 import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.copyAll;
 import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.discardAll;
 import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.getChars;
 import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.maskAll;
 import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.readAll;
+import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.readAtMost;
 import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.repeatChar;
 import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.wrapArray;
 import java.io.Closeable;
@@ -292,6 +294,249 @@ public abstract class Obfuscator {
      * @return A writer that, when written to, will obfuscate its contents.
      */
     public abstract Writer streamTo(Appendable destination);
+
+    /**
+     * Creates a prefix that can be used to chain another obfuscator to this obfuscator.
+     * For the part up to the given prefix length, this obfuscator will be used; for any remaining content another obfuscator will be used.
+     * This makes it possible to easily create complex obfuscators that would otherwise be impossible using any of the other obfuscators provided
+     * by this library. For instance, it would be impossible to use only {@link #portion()} to create an obfuscator that does not obfuscate the first
+     * 4 characters, then obfuscates <em>at least</em> 8 characters, then does not obfuscate up to 4 characters at the end. With this method it's
+     * possible to do that by combining {@link #none()} and {link {@link #portion()}:
+     * <pre><code>
+     * Obfuscator obfuscator = none().untilLength(4).then(portion()
+     *         .keepAtEnd(4)
+     *         .atLeastFromStart(8)
+     *         .build();
+     * </code></pre>
+     *
+     * @param prefixLength The length of the part to use this obfuscator.
+     * @return A prefix that can be used to chain another obfuscator to this obfuscator.
+     * @throws IllegalArgumentException If the prefix length is not larger than all previous prefix lengths in a method chain.
+     *                                      In other words, each prefix length must be larger than its direct predecessor.
+     * @since 1.2
+     */
+    public final Prefix untilLength(int prefixLength) {
+        validatePrefixLength(prefixLength);
+        return other -> new CombinedObfuscator(this, prefixLength, other);
+    }
+
+    void validatePrefixLength(int prefixLength) {
+        if (prefixLength <= 0) {
+            throw new IllegalArgumentException(prefixLength + " <= 0"); //$NON-NLS-1$
+        }
+    }
+
+    /**
+     * A prefix of a specific length that uses a specific obfuscator.
+     * It can be used to create combined obfuscators that obfuscate {@link CharSequence CharSequences} or the contents of {@link Reader Readers} for
+     * the part up to the length of this prefix using the prefix' obfuscator, then the rest with another.
+     *
+     * @author Rob Spoor
+     * @since 1.2
+     */
+    public interface Prefix {
+
+        /**
+         * Returns an immutable obfuscator that first uses the source of this object for the length of this prefix, then another obfuscator.
+         * If the length of text to obfuscate is smaller than or equal to the length of this prefix, the other obfuscator will be skipped.
+         *
+         * @param other The other obfuscator to use for {@link CharSequence CharSequences} or the contents of {@link Reader Readers}
+         *                  after the length of this prefix has been exceeded.
+         * @return An obfuscator that combines the two obfuscators.
+         */
+        Obfuscator then(Obfuscator other);
+    }
+
+    private static final class CombinedObfuscator extends Obfuscator {
+
+        private final Obfuscator first;
+        private final int lengthForFirst;
+        private final Obfuscator second;
+
+        private CombinedObfuscator(Obfuscator first, int lengthForFirst, Obfuscator second) {
+            this.first = Objects.requireNonNull(first);
+            this.lengthForFirst = lengthForFirst;
+            this.second = Objects.requireNonNull(second);
+        }
+
+        @Override
+        public CharSequence obfuscateText(CharSequence s, int start, int end) {
+            int splitAt = Math.min(start + lengthForFirst, end);
+            CharSequence firstResult = first.obfuscateText(s, start, splitAt);
+
+            if (splitAt == end) {
+                return firstResult;
+            }
+            CharSequence secondResult = second.obfuscateText(s, splitAt, end);
+            return concat(firstResult, secondResult);
+        }
+
+        @Override
+        public void obfuscateText(CharSequence s, int start, int end, StringBuilder destination) {
+            int splitAt = Math.min(start + lengthForFirst, end);
+            first.obfuscateText(s, start, splitAt, destination);
+
+            if (splitAt < end) {
+                second.obfuscateText(s, splitAt, end, destination);
+            }
+        }
+
+        @Override
+        public void obfuscateText(CharSequence s, int start, int end, StringBuffer destination) {
+            int splitAt = Math.min(start + lengthForFirst, end);
+            first.obfuscateText(s, start, splitAt, destination);
+
+            if (splitAt < end) {
+                second.obfuscateText(s, splitAt, end, destination);
+            }
+        }
+
+        @Override
+        public void obfuscateText(CharSequence s, int start, int end, Appendable destination) throws IOException {
+            int splitAt = Math.min(start + lengthForFirst, end);
+            first.obfuscateText(s, start, splitAt, destination);
+
+            if (splitAt < end) {
+                second.obfuscateText(s, splitAt, end, destination);
+            }
+        }
+
+        @Override
+        @SuppressWarnings("resource")
+        public void obfuscateText(Reader input, Appendable destination) throws IOException {
+            first.obfuscateText(readAtMost(input, lengthForFirst), destination);
+            second.obfuscateText(input, destination);
+        }
+
+        @Override
+        public Writer streamTo(Appendable destination) {
+            return new ObfuscatingWriter() {
+                private Writer writer = first.streamTo(destination);
+                private int remainingForChange = lengthForFirst;
+
+                @Override
+                public void write(int c) throws IOException {
+                    checkClosed();
+
+                    writer.write(c);
+                    changeWriterIfNeeded(1);
+                }
+
+                @Override
+                public void write(char[] cbuf, int off, int len) throws IOException {
+                    checkClosed();
+                    checkOffsetAndLength(cbuf, off, len);
+
+                    int remaining = len;
+                    int written = 0;
+                    if (remainingForChange > 0) {
+                        written = Math.min(remainingForChange, len);
+                        writer.write(cbuf, off, written);
+                        changeWriterIfNeeded(written);
+                        remaining -= written;
+                    }
+                    if (remaining > 0) {
+                        writer.write(cbuf, off + written, remaining);
+                    }
+                }
+
+                @Override
+                public void write(String str, int off, int len) throws IOException {
+                    checkClosed();
+                    checkOffsetAndLength(str, off, len);
+
+                    int remaining = len;
+                    int written = 0;
+                    if (remainingForChange > 0) {
+                        written = Math.min(remainingForChange, len);
+                        writer.write(str, off, written);
+                        changeWriterIfNeeded(written);
+                        remaining -= written;
+                    }
+                    if (remaining > 0) {
+                        writer.write(str, off + written, remaining);
+                    }
+                }
+
+                @Override
+                public Writer append(CharSequence csq) throws IOException {
+                    checkClosed();
+
+                    CharSequence cs = csq == null ? "null" : csq; //$NON-NLS-1$
+                    return append(cs, 0, cs.length());
+                }
+
+                @Override
+                public Writer append(CharSequence csq, int start, int end) throws IOException {
+                    checkClosed();
+                    CharSequence cs = csq == null ? "null" : csq; //$NON-NLS-1$
+                    checkStartAndEnd(cs, start, end);
+
+                    int len = end - start;
+                    int remaining = len;
+                    int written = 0;
+                    if (remainingForChange > 0) {
+                        written = Math.min(remainingForChange, len);
+                        writer.append(cs, start, start + written);
+                        changeWriterIfNeeded(written);
+                        remaining -= written;
+                    }
+                    if (remaining > 0) {
+                        writer.append(cs, start + written, end);
+                    }
+                    return this;
+                }
+
+                @Override
+                public Writer append(char c) throws IOException {
+                    write(c);
+                    return this;
+                }
+
+                private void changeWriterIfNeeded(int written) throws IOException {
+                    if (remainingForChange > 0) {
+                        remainingForChange -= written;
+                        if (remainingForChange == 0) {
+                            writer.close();
+                            writer = second.streamTo(destination);
+                        }
+                    }
+                }
+            };
+        }
+
+        @Override
+        void validatePrefixLength(int prefixLength) {
+            if (prefixLength <= lengthForFirst) {
+                throw new IllegalArgumentException(prefixLength + " <= " + lengthForFirst); //$NON-NLS-1$
+            }
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || o.getClass() != getClass()) {
+                return false;
+            }
+            CombinedObfuscator other = (CombinedObfuscator) o;
+            return first.equals(other.first)
+                    && lengthForFirst == other.lengthForFirst
+                    && second.equals(other.second);
+        }
+
+        @Override
+        public int hashCode() {
+            return first.hashCode() ^ lengthForFirst ^ second.hashCode();
+        }
+
+        @Override
+        @SuppressWarnings("nls")
+        public String toString() {
+            return first + " until length " + lengthForFirst + ", then " + second;
+        }
+    }
 
     /**
      * Returns an immutable obfuscator that replaces all characters with {@code *}.

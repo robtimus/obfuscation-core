@@ -21,6 +21,7 @@ import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.append;
 import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.checkIndex;
 import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.checkOffsetAndLength;
 import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.checkStartAndEnd;
+import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.concat;
 import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.copyAll;
 import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.copyTo;
 import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.discardAll;
@@ -28,6 +29,7 @@ import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.getChars;
 import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.indexOf;
 import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.maskAll;
 import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.readAll;
+import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.readAtMost;
 import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.reader;
 import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.repeatChar;
 import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.skipLeadingWhitespace;
@@ -244,6 +246,14 @@ class ObfuscatorUtilsTest {
     }
 
     @Test
+    @DisplayName("concat(CharSequence, CharSequence)")
+    void testConcat() {
+        assertThat(concat("", ""), instanceOf(ConcatCharSequence.class));
+        assertThrows(NullPointerException.class, () -> concat(null, ""));
+        assertThrows(NullPointerException.class, () -> concat("", null));
+    }
+
+    @Test
     @DisplayName("reader(CharSequence)")
     @SuppressWarnings("resource")
     void testReader() {
@@ -279,12 +289,21 @@ class ObfuscatorUtilsTest {
     }
 
     @Test
-    @DisplayName("copyTo(Reader, Appendable) with nulls")
+    @DisplayName("copyTo(Reader, Appendable)")
     @SuppressWarnings("resource")
     void testCopyTo() {
         assertThat(copyTo(new StringReader(""), new StringBuilder()), instanceOf(CopyingReader.class));
         assertThrows(NullPointerException.class, () -> copyTo(null, new StringBuilder()));
         assertThrows(NullPointerException.class, () -> copyTo(new StringReader(""), null));
+    }
+
+    @Test
+    @DisplayName("readAtMost(Reader, int)")
+    @SuppressWarnings("resource")
+    void testReadAtMost() {
+        assertThat(readAtMost(new StringReader(""), 5), instanceOf(LimitReader.class));
+        assertThrows(NullPointerException.class, () -> readAtMost(null, 5));
+        assertThrows(IllegalArgumentException.class, () -> readAtMost(new StringReader(""), -1));
     }
 
     @Test
