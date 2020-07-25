@@ -181,3 +181,41 @@ To provide separate obfuscation per entry:
     }
     // "username=admin&password=***" has been written to writer
     // note that writer has not been closed at this point
+
+## Combining obfuscators
+
+Sometimes the obfucators in this library alone cannot perform the obfuscation you need. For instance, if you want to obfuscate credit cards, but keep the first and last 4 characters. If the credit cards are all fixed length, `Obfuscator.portion` can do just that:
+
+    Obfuscator obfuscator = Obfuscator.portion()
+            .keepAtStart(4)
+            .keepAtEnd(4)
+            .build();
+    CharSequence obfuscated = obfuscator.obfuscateText("1234567890123456");
+    // obfuscated represents "1234********3456"
+
+However, if you attempt to use such an obfuscator on only a part of a credit card, you could end up leaking parts of the credit card that you wanted to obfuscate:
+
+    CharSequence incorrectlyObfuscated = obfuscator.obfuscateText("12345678901234");
+    // incorrectlyObfuscated represents "1234******1234" where "1234********34" would probably be preferred
+
+To overcome this issue, it's possible to combine obfuscators. The form is as follows:
+
+* Specify the first obfuscator, and the input length to which it should be used.
+* Specify any other obfuscators, and the input lengths to which they should be used. Note that each input length should be larger than the previous input length.
+* Specify the obfuscator that will be used for the remainder.
+
+For instance, for credit card numbers of exactly 16 characters, the above can also be written like this:
+
+    Obfuscator obfuscator = Obfuscator.none().untilLength(4)
+            .then(Obfuscator.all()).untilLength(12)
+            .then(Obfuscator.none());
+
+With this chaining, it's now possible to keep the first and last 4 characters, but with at least 8 characters in between:
+
+    Obfuscator obfuscator = Obfuscator.none().untilLength(4)
+            .then(Obfuscator.portion()
+                    .keepAtEnd(4)
+                    .atLeastFromStart(8)
+                    .build());
+    CharSequence obfuscated = obfuscator.obfuscateText("12345678901234");
+    // obfuscated represents "1234********34"

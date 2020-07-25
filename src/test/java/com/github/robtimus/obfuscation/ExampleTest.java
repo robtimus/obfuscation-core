@@ -297,4 +297,45 @@ class ExampleTest {
         }
         assertEquals("username=admin&password=***", writer.toString());
     }
+
+    @Nested
+    @DisplayName("Combining obfuscators")
+    class Combined {
+
+        @Test
+        @DisplayName("using only portion")
+        void testOnlyPortion() {
+            Obfuscator obfuscator = Obfuscator.portion()
+                    .keepAtStart(4)
+                    .keepAtEnd(4)
+                    .build();
+            CharSequence obfuscated = obfuscator.obfuscateText("1234567890123456");
+            assertEquals("1234********3456", obfuscated.toString());
+
+            CharSequence incorrectlyObfuscated = obfuscator.obfuscateText("12345678901234");
+            assertEquals("1234******1234", incorrectlyObfuscated.toString());
+        }
+
+        @Test
+        @DisplayName("combining none() and all() instead of using portion")
+        void testCombiningNoneAndAllInsteadOfUsingPortion() {
+            Obfuscator obfuscator = Obfuscator.none().untilLength(4)
+                    .then(Obfuscator.all()).untilLength(12)
+                    .then(Obfuscator.none());
+            CharSequence obfuscated = obfuscator.obfuscateText("1234567890123456");
+            assertEquals("1234********3456", obfuscated.toString());
+        }
+
+        @Test
+        @DisplayName("combining none() and portion()")
+        void testCombiningNoneAndPortion() {
+            Obfuscator obfuscator = Obfuscator.none().untilLength(4)
+                    .then(Obfuscator.portion()
+                            .keepAtEnd(4)
+                            .atLeastFromStart(8)
+                            .build());
+            CharSequence obfuscated = obfuscator.obfuscateText("12345678901234");
+            assertEquals("1234********34", obfuscated.toString());
+        }
+    }
 }
