@@ -28,6 +28,7 @@ import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.readAll;
 import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.readAtMost;
 import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.repeatChar;
 import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.wrapArray;
+import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.Flushable;
 import java.io.IOException;
@@ -361,7 +362,8 @@ public abstract class Obfuscator {
 
         @Override
         public CharSequence obfuscateText(CharSequence s, int start, int end) {
-            int splitAt = Math.min(start + lengthForFirst, end);
+            // cast to long, then back to int to prevent unexpected overflow errors
+            int splitAt = (int) Math.min(start + (long) lengthForFirst, end);
             CharSequence firstResult = first.obfuscateText(s, start, splitAt);
 
             if (splitAt == end) {
@@ -373,7 +375,8 @@ public abstract class Obfuscator {
 
         @Override
         public void obfuscateText(CharSequence s, int start, int end, StringBuilder destination) {
-            int splitAt = Math.min(start + lengthForFirst, end);
+            // cast to long, then back to int to prevent unexpected overflow errors
+            int splitAt = (int) Math.min(start + (long) lengthForFirst, end);
             first.obfuscateText(s, start, splitAt, destination);
 
             if (splitAt < end) {
@@ -383,7 +386,8 @@ public abstract class Obfuscator {
 
         @Override
         public void obfuscateText(CharSequence s, int start, int end, StringBuffer destination) {
-            int splitAt = Math.min(start + lengthForFirst, end);
+            // cast to long, then back to int to prevent unexpected overflow errors
+            int splitAt = (int) Math.min(start + (long) lengthForFirst, end);
             first.obfuscateText(s, start, splitAt, destination);
 
             if (splitAt < end) {
@@ -393,7 +397,8 @@ public abstract class Obfuscator {
 
         @Override
         public void obfuscateText(CharSequence s, int start, int end, Appendable destination) throws IOException {
-            int splitAt = Math.min(start + lengthForFirst, end);
+            // cast to long, then back to int to prevent unexpected overflow errors
+            int splitAt = (int) Math.min(start + (long) lengthForFirst, end);
             first.obfuscateText(s, start, splitAt, destination);
 
             if (splitAt < end) {
@@ -404,8 +409,14 @@ public abstract class Obfuscator {
         @Override
         @SuppressWarnings("resource")
         public void obfuscateText(Reader input, Appendable destination) throws IOException {
-            first.obfuscateText(readAtMost(input, lengthForFirst), destination);
-            second.obfuscateText(input, destination);
+            BufferedReader bufferedReader = new BufferedReader(input);
+            first.obfuscateText(readAtMost(bufferedReader, lengthForFirst), destination);
+
+            bufferedReader.mark(1);
+            if (bufferedReader.read() != -1) {
+                bufferedReader.reset();
+                second.obfuscateText(bufferedReader, destination);
+            }
         }
 
         @Override
@@ -418,8 +429,11 @@ public abstract class Obfuscator {
                 public void write(int c) throws IOException {
                     checkClosed();
 
+                    changeWriterIfNeeded();
                     writer.write(c);
-                    changeWriterIfNeeded(1);
+                    if (remainingForChange > 0) {
+                        remainingForChange--;
+                    }
                 }
 
                 @Override
@@ -432,10 +446,11 @@ public abstract class Obfuscator {
                     if (remainingForChange > 0) {
                         written = Math.min(remainingForChange, len);
                         writer.write(cbuf, off, written);
-                        changeWriterIfNeeded(written);
+                        remainingForChange -= written;
                         remaining -= written;
                     }
                     if (remaining > 0) {
+                        changeWriterIfNeeded();
                         writer.write(cbuf, off + written, remaining);
                     }
                 }
@@ -450,10 +465,11 @@ public abstract class Obfuscator {
                     if (remainingForChange > 0) {
                         written = Math.min(remainingForChange, len);
                         writer.write(str, off, written);
-                        changeWriterIfNeeded(written);
+                        remainingForChange -= written;
                         remaining -= written;
                     }
                     if (remaining > 0) {
+                        changeWriterIfNeeded();
                         writer.write(str, off + written, remaining);
                     }
                 }
@@ -478,10 +494,11 @@ public abstract class Obfuscator {
                     if (remainingForChange > 0) {
                         written = Math.min(remainingForChange, len);
                         writer.append(cs, start, start + written);
-                        changeWriterIfNeeded(written);
+                        remainingForChange -= written;
                         remaining -= written;
                     }
                     if (remaining > 0) {
+                        changeWriterIfNeeded();
                         writer.append(cs, start + written, end);
                     }
                     return this;
@@ -493,14 +510,17 @@ public abstract class Obfuscator {
                     return this;
                 }
 
-                private void changeWriterIfNeeded(int written) throws IOException {
-                    if (remainingForChange > 0) {
-                        remainingForChange -= written;
-                        if (remainingForChange == 0) {
-                            writer.close();
-                            writer = second.streamTo(destination);
-                        }
+                private void changeWriterIfNeeded() throws IOException {
+                    if (remainingForChange == 0) {
+                        writer.close();
+                        writer = second.streamTo(destination);
+                        remainingForChange = -1;
                     }
+                }
+
+                @Override
+                protected void onClose() throws IOException {
+                    writer.close();
                 }
             };
         }

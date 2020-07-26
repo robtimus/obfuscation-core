@@ -1359,30 +1359,98 @@ class ObfuscatorTest {
     }
 
     @Nested
-    @DisplayName("none().untilLength(4).then(all()).untilLength(12).then(none())")
+    @DisplayName("untilLength")
     @TestInstance(Lifecycle.PER_CLASS)
-    class UntilLength extends NestedObfuscatorTest {
+    class UntilLength {
 
-        UntilLength() {
-            super(maskChar -> none().untilLength(4).then(all()).untilLength(12).then(none()), new Arguments[] {
-                    arguments("", '*', ""),
-                    arguments("0", '*', "0"),
-                    arguments("01", '*', "01"),
-                    arguments("012", '*', "012"),
-                    arguments("0123", '*', "0123"),
-                    arguments("01234", '*', "0123*"),
-                    arguments("012345", '*', "0123**"),
-                    arguments("0123456", '*', "0123***"),
-                    arguments("01234567", '*', "0123****"),
-                    arguments("012345678", '*', "0123*****"),
-                    arguments("0123456789", '*', "0123******"),
-                    arguments("0123456789A", '*', "0123*******"),
-                    arguments("0123456789AB", '*', "0123********"),
-                    arguments("0123456789ABC", '*', "0123********C"),
-                    arguments("0123456789ABCD", '*', "0123********CD"),
-                    arguments("0123456789ABCDE", '*', "0123********CDE"),
-                    arguments("0123456789ABCDEF", '*', "0123********CDEF"),
-            }, "", "null");
+        @Nested
+        @DisplayName("none().untilLength(4)")
+        @TestInstance(Lifecycle.PER_CLASS)
+        class UntilLengthWithNoFixedLengthPrefix {
+
+            @Nested
+            @DisplayName("then(all()).untilLength(12).then(none())")
+            @TestInstance(Lifecycle.PER_CLASS)
+            class WithNoFixedLength extends NestedObfuscatorTest {
+
+                WithNoFixedLength() {
+                    super(maskChar -> none().untilLength(4).then(all()).untilLength(12).then(none()), new Arguments[] {
+                            arguments("0", '*', "0"),
+                            arguments("01", '*', "01"),
+                            arguments("012", '*', "012"),
+                            arguments("0123", '*', "0123"),
+                            arguments("01234", '*', "0123*"),
+                            arguments("012345", '*', "0123**"),
+                            arguments("0123456", '*', "0123***"),
+                            arguments("01234567", '*', "0123****"),
+                            arguments("012345678", '*', "0123*****"),
+                            arguments("0123456789", '*', "0123******"),
+                            arguments("0123456789A", '*', "0123*******"),
+                            arguments("0123456789AB", '*', "0123********"),
+                            arguments("0123456789ABC", '*', "0123********C"),
+                            arguments("0123456789ABCD", '*', "0123********CD"),
+                            arguments("0123456789ABCDE", '*', "0123********CDE"),
+                            arguments("0123456789ABCDEF", '*', "0123********CDEF"),
+                    }, "", "null");
+                }
+            }
+
+            @Nested
+            @DisplayName("then(fixedLength(3))")
+            @TestInstance(Lifecycle.PER_CLASS)
+            class WithFixedLength extends NestedObfuscatorTest {
+
+                WithFixedLength() {
+                    super(maskChar -> none().untilLength(4).then(fixedLength(3)), new Arguments[] {
+                            arguments("0", '*', "0"),
+                            arguments("01", '*', "01"),
+                            arguments("012", '*', "012"),
+                            arguments("0123", '*', "0123"),
+                            arguments("01234", '*', "0123***"),
+                            arguments("012345", '*', "0123***"),
+                    }, "", "null");
+                }
+            }
+        }
+
+        @Nested
+        @DisplayName("fixedLength(3).untilLength(4)")
+        @TestInstance(Lifecycle.PER_CLASS)
+        class UntilLengthWithFixedLengthPrefix {
+
+            @Nested
+            @DisplayName("then(none())")
+            @TestInstance(Lifecycle.PER_CLASS)
+            class WithNoFixedLength extends NestedObfuscatorTest {
+
+                WithNoFixedLength() {
+                    super(maskChar -> fixedLength(3).untilLength(4).then(none()), new Arguments[] {
+                            arguments("0", '*', "***"),
+                            arguments("01", '*', "***"),
+                            arguments("012", '*', "***"),
+                            arguments("0123", '*', "***"),
+                            arguments("01234", '*', "***4"),
+                            arguments("012345", '*', "***45"),
+                    }, "***", "***");
+                }
+            }
+
+            @Nested
+            @DisplayName("then(fixedValue(xxx))")
+            @TestInstance(Lifecycle.PER_CLASS)
+            class WithFixedLength extends NestedObfuscatorTest {
+
+                WithFixedLength() {
+                    super(maskChar -> fixedLength(3).untilLength(4).then(fixedValue("xxx")), new Arguments[] {
+                            arguments("0", '*', "***"),
+                            arguments("01", '*', "***"),
+                            arguments("012", '*', "***"),
+                            arguments("0123", '*', "***"),
+                            arguments("01234", '*', "***xxx"),
+                            arguments("012345", '*', "***xxx"),
+                    }, "***", "***");
+                }
+            }
         }
 
         @Test
