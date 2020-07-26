@@ -318,7 +318,7 @@ public abstract class Obfuscator {
      */
     public final Prefix untilLength(int prefixLength) {
         validatePrefixLength(prefixLength);
-        return other -> new CombinedObfuscator(this, prefixLength, other);
+        return new Prefix(this, prefixLength);
     }
 
     void validatePrefixLength(int prefixLength) {
@@ -335,7 +335,15 @@ public abstract class Obfuscator {
      * @author Rob Spoor
      * @since 1.2
      */
-    public interface Prefix {
+    public static final class Prefix {
+
+        private final Obfuscator obfuscator;
+        private final int prefixLength;
+
+        private Prefix(Obfuscator prefix, int prefixLength) {
+            this.obfuscator = prefix;
+            this.prefixLength = prefixLength;
+        }
 
         /**
          * Returns an immutable obfuscator that first uses the source of this object for the length of this prefix, then another obfuscator.
@@ -345,7 +353,9 @@ public abstract class Obfuscator {
          *                  after the length of this prefix has been exceeded.
          * @return An obfuscator that combines the two obfuscators.
          */
-        Obfuscator then(Obfuscator other);
+        public Obfuscator then(Obfuscator other) {
+            return new CombinedObfuscator(obfuscator, prefixLength, other);
+        }
     }
 
     private static final class CombinedObfuscator extends Obfuscator {
