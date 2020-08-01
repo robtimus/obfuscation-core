@@ -1181,32 +1181,37 @@ class ObfuscatorTest {
         @Test
         @DisplayName("negative keepAtStart")
         void testNegativeKeepAtStart() {
-            assertThrows(IllegalArgumentException.class, () -> portion().keepAtStart(-1));
+            PortionBuilder builder = portion();
+            assertThrows(IllegalArgumentException.class, () -> builder.keepAtStart(-1));
         }
 
         @Test
         @DisplayName("negative keepAtEnd")
         void testNegativeKeepAtEnd() {
-            assertThrows(IllegalArgumentException.class, () -> portion().keepAtEnd(-1));
+            PortionBuilder builder = portion();
+            assertThrows(IllegalArgumentException.class, () -> builder.keepAtEnd(-1));
         }
 
         @Test
         @DisplayName("negative atLeastFomStart")
         void testNegativeAtLeastFromStart() {
-            assertThrows(IllegalArgumentException.class, () -> portion().atLeastFromStart(-1));
+            PortionBuilder builder = portion();
+            assertThrows(IllegalArgumentException.class, () -> builder.atLeastFromStart(-1));
         }
 
         @Test
         @DisplayName("negative AtLeastFromEnd")
         void testNegativeAtLeastFromEnd() {
-            assertThrows(IllegalArgumentException.class, () -> portion().atLeastFromEnd(-1));
+            PortionBuilder builder = portion();
+            assertThrows(IllegalArgumentException.class, () -> builder.atLeastFromEnd(-1));
         }
 
         @Test
         @DisplayName("fixedTotalLength < keepAtStart + keepAtEnd")
         void testFixedTotalLengthSmallerThanKeepAtStartPlusKeepAtEnd() {
             assertDoesNotThrow(() -> portion().keepAtStart(1).keepAtEnd(1).withFixedTotalLength(2).build());
-            assertThrows(IllegalStateException.class, () -> portion().keepAtStart(1).keepAtEnd(1).withFixedTotalLength(1).build());
+            PortionBuilder builder = portion().keepAtStart(1).keepAtEnd(1).withFixedTotalLength(1);
+            assertThrows(IllegalStateException.class, () -> builder.build());
         }
 
         @Test
@@ -1456,23 +1461,24 @@ class ObfuscatorTest {
         @Test
         @DisplayName("invalid first prefix length")
         void testInvalidFirstPrefixLength() {
-            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> none().untilLength(0));
+            Obfuscator obfuscator = none();
+            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> obfuscator.untilLength(0));
             assertEquals("0 <= 0", exception.getMessage());
         }
 
         @Test
         @DisplayName("invalid second prefix length")
         void testInvalidSecondPrefixLength() {
-            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                    () -> none().untilLength(1).then(all()).untilLength(1));
+            Obfuscator obfuscator = none().untilLength(1).then(all());
+            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> obfuscator.untilLength(1));
             assertEquals("1 <= 1", exception.getMessage());
         }
 
         @Test
         @DisplayName("invalid third prefix length")
         void testInvalidThirdPrefixLength() {
-            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                    () -> none().untilLength(1).then(all()).untilLength(2).then(none()).untilLength(2));
+            Obfuscator obfuscator = none().untilLength(1).then(all()).untilLength(2).then(none());
+            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> obfuscator.untilLength(2));
             assertEquals("2 <= 2", exception.getMessage());
         }
 
@@ -1757,7 +1763,7 @@ class ObfuscatorTest {
                 IOException exception = assertThrows(IOException.class, () -> {
                     @SuppressWarnings("resource")
                     Writer w = obfuscator.streamTo(destination);
-                    w.close();
+                    assertDoesNotThrow(w::close);
                     w.write('x');
                 });
                 assertClosedException(exception);
@@ -1780,7 +1786,7 @@ class ObfuscatorTest {
                 IOException exception = assertThrows(IOException.class, () -> {
                     @SuppressWarnings("resource")
                     Writer w = obfuscator.streamTo(destination);
-                    w.close();
+                    assertDoesNotThrow(w::close);
                     w.write(input.toCharArray());
                 });
                 assertClosedException(exception);
@@ -1814,7 +1820,7 @@ class ObfuscatorTest {
                 IOException exception = assertThrows(IOException.class, () -> {
                     @SuppressWarnings("resource")
                     Writer w = obfuscator.streamTo(destination);
-                    w.close();
+                    assertDoesNotThrow(w::close);
                     w.write(input.toCharArray(), 0, 1);
                 });
                 assertClosedException(exception);
@@ -1837,7 +1843,7 @@ class ObfuscatorTest {
                 IOException exception = assertThrows(IOException.class, () -> {
                     @SuppressWarnings("resource")
                     Writer w = obfuscator.streamTo(destination);
-                    w.close();
+                    assertDoesNotThrow(w::close);
                     w.write(input);
                 });
                 assertClosedException(exception);
@@ -1865,7 +1871,7 @@ class ObfuscatorTest {
                 IOException exception = assertThrows(IOException.class, () -> {
                     @SuppressWarnings("resource")
                     Writer w = obfuscator.streamTo(destination);
-                    w.close();
+                    assertDoesNotThrow(w::close);
                     w.write(input, 0, 1);
                 });
                 assertClosedException(exception);
@@ -1888,7 +1894,7 @@ class ObfuscatorTest {
                 IOException exception = assertThrows(IOException.class, () -> {
                     @SuppressWarnings("resource")
                     Writer w = obfuscator.streamTo(destination);
-                    w.close();
+                    assertDoesNotThrow(w::close);
                     w.append(input);
                 });
                 assertClosedException(exception);
@@ -1921,7 +1927,7 @@ class ObfuscatorTest {
                 IOException exception = assertThrows(IOException.class, () -> {
                     @SuppressWarnings("resource")
                     Writer w = obfuscator.streamTo(destination);
-                    w.close();
+                    assertDoesNotThrow(w::close);
                     w.append(input, 0, 1);
                 });
                 assertClosedException(exception);
@@ -1946,7 +1952,7 @@ class ObfuscatorTest {
                 IOException exception = assertThrows(IOException.class, () -> {
                     @SuppressWarnings("resource")
                     Writer w = obfuscator.streamTo(destination);
-                    w.close();
+                    assertDoesNotThrow(w::close);
                     w.append('x');
                 });
                 assertClosedException(exception);
@@ -1966,7 +1972,7 @@ class ObfuscatorTest {
                 IOException exception = assertThrows(IOException.class, () -> {
                     @SuppressWarnings("resource")
                     Writer w = obfuscator.streamTo(destination);
-                    w.close();
+                    assertDoesNotThrow(w::close);
                     w.flush();
                 });
                 assertClosedException(exception);
