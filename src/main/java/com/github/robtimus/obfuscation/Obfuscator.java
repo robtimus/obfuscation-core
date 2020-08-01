@@ -307,7 +307,7 @@ public abstract class Obfuscator {
      * Obfuscator obfuscator = none().untilLength(4).then(portion()
      *         .keepAtEnd(4)
      *         .atLeastFromStart(8)
-     *         .build();
+     *         .build());
      * </code></pre>
      *
      * @param prefixLength The length of the part to use this obfuscator.
@@ -346,8 +346,10 @@ public abstract class Obfuscator {
         }
 
         /**
-         * Returns an immutable obfuscator that first uses the source of this object for the length of this prefix, then another obfuscator.
+         * Returns an obfuscator that first uses the source of this object for the length of this prefix, then another obfuscator.
          * If the length of text to obfuscate is smaller than or equal to the length of this prefix, the other obfuscator will be skipped.
+         * <p>
+         * The returned obfuscator is immutable if both the source of this object and the other obfuscator are.
          *
          * @param other The other obfuscator to use for {@link CharSequence CharSequences} or the contents of {@link Reader Readers}
          *                  after the length of this prefix has been exceeded.
@@ -1416,7 +1418,7 @@ public abstract class Obfuscator {
          * @param fixedObfuscatedLength The fixed number of mask characters, or a negative value to use the actual length of the input.
          *                        The default is {@code -1}.
          * @return This builder.
-         * @deprecated The total length of obfuscated contents can very when using this setting, making it possible in certain cases to find the
+         * @deprecated The total length of obfuscated contents can vary when using this setting, making it possible in certain cases to find the
          *             original value that was obfuscated. Use {@link #withFixedTotalLength(int)} instead.
          */
         @Deprecated
