@@ -401,29 +401,51 @@ class ObfuscatingMapTest {
         assertEquals(obfuscating.hashCode(), map.hashCode());
     }
 
-    @Test
+    @Nested
     @DisplayName("toString()")
-    void testToString() {
-        assertEquals("{foo=F***O, bar=B***R, null=<***>}", obfuscating.toString());
+    class ToString {
 
-        map.remove("foo");
-        assertEquals("{bar=B***R, null=<***>}", obfuscating.toString());
+        @Test
+        @DisplayName("with default element representation")
+        void testWithDefaultElementRepresentation() {
+            assertEquals("{foo=F***O, bar=B***R, null=<***>}", obfuscating.toString());
 
-        map.remove("bar");
-        assertEquals("{null=<***>}", obfuscating.toString());
+            map.remove("foo");
+            assertEquals("{bar=B***R, null=<***>}", obfuscating.toString());
 
-        map.remove(null);
-        assertEquals("{}", obfuscating.toString());
+            map.remove("bar");
+            assertEquals("{null=<***>}", obfuscating.toString());
 
-        Map<String, Object> objectMap = new LinkedHashMap<>();
-        Map<String, Object> objectObfuscating = OBFUSCATOR.obfuscateMap(objectMap);
-        objectMap.put("map", objectMap);
-        objectMap.put("keySet", objectMap.keySet());
-        objectMap.put("obfuscatingMap", objectObfuscating);
-        objectMap.put("obfuscatingKeySet", objectObfuscating.keySet());
-        // Adding values or entrySet causes a StackOverflowError because the map and values / entrySet keep ping-ponging.
-        // That's fine though, as objectMap suffers the same issue.
+            map.remove(null);
+            assertEquals("{}", obfuscating.toString());
 
-        assertEquals("{map=(***), keySet=[***], obfuscatingMap=(***), obfuscatingKeySet=[***]}", objectObfuscating.toString());
+            Map<String, Object> objectMap = new LinkedHashMap<>();
+            Map<String, Object> objectObfuscating = OBFUSCATOR.obfuscateMap(objectMap);
+            objectMap.put("map", objectMap);
+            objectMap.put("keySet", objectMap.keySet());
+            objectMap.put("obfuscatingMap", objectObfuscating);
+            objectMap.put("obfuscatingKeySet", objectObfuscating.keySet());
+            // Adding values or entrySet causes a StackOverflowError because the map and values / entrySet keep ping-ponging.
+            // That's fine though, as objectMap suffers the same issue.
+
+            assertEquals("{map=(***), keySet=[***], obfuscatingMap=(***), obfuscatingKeySet=[***]}", objectObfuscating.toString());
+        }
+
+        @Test
+        @DisplayName("with custom element representation")
+        void testWithCustomElementRepresentation() {
+            obfuscating = OBFUSCATOR.obfuscateMap(map, String::toLowerCase);
+
+            assertEquals("{foo=f***o, bar=b***r, null=<***>}", obfuscating.toString());
+
+            map.remove("foo");
+            assertEquals("{bar=b***r, null=<***>}", obfuscating.toString());
+
+            map.remove("bar");
+            assertEquals("{null=<***>}", obfuscating.toString());
+
+            map.remove(null);
+            assertEquals("{}", obfuscating.toString());
+        }
     }
 }

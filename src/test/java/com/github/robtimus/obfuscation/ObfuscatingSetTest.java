@@ -301,18 +301,40 @@ class ObfuscatingSetTest {
         assertEquals(obfuscating.hashCode(), set.hashCode());
     }
 
-    @Test
+    @Nested
     @DisplayName("toString()")
-    void testToString() {
-        assertEquals("[f***o, n***l, b***r]", obfuscating.toString());
+    class ToString {
 
-        set.remove("foo");
-        assertEquals("[n***l, b***r]", obfuscating.toString());
+        @Test
+        @DisplayName("with default element representation")
+        void testWithDefaultElementRepresentation() {
+            assertEquals("[f***o, n***l, b***r]", obfuscating.toString());
 
-        set.remove(null);
-        assertEquals("[b***r]", obfuscating.toString());
+            set.remove("foo");
+            assertEquals("[n***l, b***r]", obfuscating.toString());
 
-        set.remove("bar");
-        assertEquals("[]", obfuscating.toString());
+            set.remove(null);
+            assertEquals("[b***r]", obfuscating.toString());
+
+            set.remove("bar");
+            assertEquals("[]", obfuscating.toString());
+        }
+
+        @Test
+        @DisplayName("with custom element representation")
+        void testWithCustomElementRepresentation() {
+            obfuscating = OBFUSCATOR.obfuscateSet(set, String::toUpperCase);
+
+            assertEquals("[F***O, n***l, B***R]", obfuscating.toString());
+
+            set.remove("foo");
+            assertEquals("[n***l, B***R]", obfuscating.toString());
+
+            set.remove(null);
+            assertEquals("[B***R]", obfuscating.toString());
+
+            set.remove("bar");
+            assertEquals("[]", obfuscating.toString());
+        }
     }
 }

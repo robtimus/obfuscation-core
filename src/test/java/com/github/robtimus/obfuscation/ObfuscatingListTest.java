@@ -35,6 +35,7 @@ import java.util.ListIterator;
 import java.util.RandomAccess;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("nls")
@@ -222,13 +223,30 @@ class ObfuscatingListTest {
         assertEquals(Arrays.asList("foo", null), list);
     }
 
-    @Test
+    @Nested
     @DisplayName("subList(int, int)")
-    void testSubList() {
-        assertEquals("[f***o, n***l, b***r]", obfuscating.toString());
+    class SubList {
 
-        assertEquals("[f***o]", obfuscating.subList(0, 1).toString());
+        @Test
+        @DisplayName("with default element representation")
+        void testWithDefaultElementRepresentation() {
+            assertEquals("[f***o, n***l, b***r]", obfuscating.toString());
 
-        assertEquals("[]", obfuscating.subList(0, 0).toString());
+            assertEquals("[f***o]", obfuscating.subList(0, 1).toString());
+
+            assertEquals("[]", obfuscating.subList(0, 0).toString());
+        }
+
+        @Test
+        @DisplayName("with custom element representation")
+        void testWithCustomElementRepresentation() {
+            obfuscating = OBFUSCATOR.obfuscateList(list, String::toUpperCase);
+
+            assertEquals("[F***O, n***l, B***R]", obfuscating.toString());
+
+            assertEquals("[F***O]", obfuscating.subList(0, 1).toString());
+
+            assertEquals("[]", obfuscating.subList(0, 0).toString());
+        }
     }
 }

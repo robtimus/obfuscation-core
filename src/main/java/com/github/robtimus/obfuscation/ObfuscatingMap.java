@@ -31,13 +31,17 @@ class ObfuscatingMap<K, V> implements Map<K, V> {
 
     private final Map<K, V> map;
 
-    private final BiFunction<K, String, CharSequence> valueObfuscator;
+    private final Function<? super V, ? extends CharSequence> valueRepresentation;
+    private final BiFunction<K, CharSequence, CharSequence> valueObfuscator;
 
     private Collection<V> values;
     private Set<Map.Entry<K, V>> entrySet;
 
-    ObfuscatingMap(Map<K, V> map, BiFunction<K, String, CharSequence> valueObfuscator) {
+    ObfuscatingMap(Map<K, V> map, Function<? super V, ? extends CharSequence> valueRepresentation,
+            BiFunction<K, CharSequence, CharSequence> valueObfuscator) {
+
         this.map = Objects.requireNonNull(map);
+        this.valueRepresentation = Objects.requireNonNull(valueRepresentation);
         this.valueObfuscator = Objects.requireNonNull(valueObfuscator);
     }
 
@@ -204,13 +208,13 @@ class ObfuscatingMap<K, V> implements Map<K, V> {
     }
 
     void appendValue(K key, V value, StringBuilder sb, Object unlessSame, String ifSame, UnaryOperator<Object> unwrapper) {
-        String s;
+        CharSequence s;
         if (value == null) {
             s = null;
         } else if (unwrapper.apply(value) == unwrapper.apply(unlessSame)) {
             s = ifSame;
         } else {
-            s = value.toString();
+            s = valueRepresentation.apply(value);
         }
         CharSequence obfuscated = valueObfuscator.apply(key, s == null ? "null" : s); //$NON-NLS-1$
         sb.append(obfuscated);
@@ -222,7 +226,7 @@ class ObfuscatingMap<K, V> implements Map<K, V> {
         private final Set<Entry<K, V>> entrySet;
 
         private Values(ObfuscatingMap<K, V> map) {
-            super(map.map.values(), unsupportedOperation());
+            super(map.map.values(), unsupportedOperation(), unsupportedUnaryOperation());
             this.map = map;
             entrySet = map.map.entrySet();
         }
@@ -255,7 +259,7 @@ class ObfuscatingMap<K, V> implements Map<K, V> {
         private final Set<Entry<K, V>> entrySet;
 
         private EntrySet(ObfuscatingMap<K, V> map) {
-            super(map.map.entrySet(), unsupportedOperation());
+            super(map.map.entrySet(), unsupportedOperation(), unsupportedUnaryOperation());
             this.map = map;
             entrySet = map.map.entrySet();
         }
@@ -285,6 +289,12 @@ class ObfuscatingMap<K, V> implements Map<K, V> {
     }
 
     private static <T, R> Function<T, R> unsupportedOperation() {
+        return t -> {
+            throw new UnsupportedOperationException();
+        };
+    }
+
+    private static <T> UnaryOperator<T> unsupportedUnaryOperation() {
         return t -> {
             throw new UnsupportedOperationException();
         };

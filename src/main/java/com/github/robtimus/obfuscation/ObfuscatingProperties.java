@@ -356,7 +356,7 @@ final class ObfuscatingProperties extends Properties {
         private final Set<Map.Entry<Object, Object>> entrySet;
 
         private Values(ObfuscatingProperties properties) {
-            super(properties.properties.values(), unsupportedOperation());
+            super(properties.properties.values(), unsupportedOperation(), unsupportedUnaryOperation());
             this.properties = properties;
             entrySet = properties.properties.entrySet();
         }
@@ -389,7 +389,7 @@ final class ObfuscatingProperties extends Properties {
         private final Set<Entry<Object, Object>> entrySet;
 
         private EntrySet(ObfuscatingProperties properties) {
-            super(properties.properties.entrySet(), unsupportedOperation());
+            super(properties.properties.entrySet(), unsupportedOperation(), unsupportedUnaryOperation());
             this.properties = properties;
             entrySet = properties.properties.entrySet();
         }
@@ -419,6 +419,12 @@ final class ObfuscatingProperties extends Properties {
     }
 
     private static <T, R> Function<T, R> unsupportedOperation() {
+        return t -> {
+            throw new UnsupportedOperationException();
+        };
+    }
+
+    private static <T> UnaryOperator<T> unsupportedUnaryOperation() {
         return t -> {
             throw new UnsupportedOperationException();
         };

@@ -49,6 +49,7 @@ import com.github.robtimus.obfuscation.MapObfuscator.StringKeyedBuilder;
 @SuppressWarnings("nls")
 @TestInstance(Lifecycle.PER_CLASS)
 class MapObfuscatorTest {
+
     @Nested
     @DisplayName("obfuscateMap(Map<K, V>)")
     class ObfuscateMap {
@@ -158,16 +159,6 @@ class MapObfuscatorTest {
             }
         }
 
-        private Map<Integer, String> createMap() {
-            Map<Integer, String> map = new LinkedHashMap<>();
-            for (int i = 0; i < 5; i++) {
-                map.put(i, "value" + i);
-            }
-            map.put(-1, null);
-            map.put(null, "<null>");
-            return map;
-        }
-
         private Map<String, String> createStringKeyedMap() {
             Map<String, String> map = new LinkedHashMap<>();
             map.put("a", "value1");
@@ -181,6 +172,29 @@ class MapObfuscatorTest {
             map.put(null, "<null>");
             return map;
         }
+    }
+
+    @Test
+    @DisplayName("obfuscateMap(Map<K, V>, Function<? super V, ? extends CharSequence>)")
+    void testObfuscateWithoutDefaultObfuscator() {
+        MapObfuscator<Integer, String> obfuscator = createBuilder()
+                .build();
+        Map<Integer, String> map = createMap();
+        Map<Integer, String> obfuscated = obfuscator.obfuscateMap(map, String::toUpperCase);
+        assertEquals("{0=***, 1=VALUE1, 2=******, 3=VAL***, 4=VALUE4, -1=null, null=<***>}", obfuscated.toString());
+        assertEquals("[0, 1, 2, 3, 4, -1, null]", obfuscated.keySet().toString());
+        assertEquals("[***, VALUE1, ******, VAL***, VALUE4, null, <***>]", obfuscated.values().toString());
+        assertEquals("[0=***, 1=VALUE1, 2=******, 3=VAL***, 4=VALUE4, -1=null, null=<***>]", obfuscated.entrySet().toString());
+    }
+
+    private Map<Integer, String> createMap() {
+        Map<Integer, String> map = new LinkedHashMap<>();
+        for (int i = 0; i < 5; i++) {
+            map.put(i, "value" + i);
+        }
+        map.put(-1, null);
+        map.put(null, "<null>");
+        return map;
     }
 
     @ParameterizedTest(name = "{1}")
@@ -229,7 +243,7 @@ class MapObfuscatorTest {
 
     @Nested
     @DisplayName("StringKeyedBuilder")
-    class StringKeyeedBuilderTest {
+    class StringKeyedBuilderTest {
         @Test
         @DisplayName("transform")
         void testTransform() {

@@ -42,7 +42,7 @@ public final class MapObfuscator<K, V> {
     private final Map<K, Obfuscator> obfuscators;
     private final Obfuscator defaultObfuscator;
 
-    private final BiFunction<K, String, CharSequence> valueObfuscator;
+    private final BiFunction<K, CharSequence, CharSequence> valueObfuscator;
 
     private MapObfuscator(Builder<K, V> builder) {
         obfuscators = builder.obfuscators();
@@ -66,7 +66,7 @@ public final class MapObfuscator<K, V> {
     }
 
     /**
-     * Obfuscates a map.
+     * Obfuscates a map. For each value, the value's {@link Object#toString() string representation} will be used to obfuscate the value.
      * <p>
      * The result will be a map that will behave exactly the same as the given map, except it will obfuscate each value when its
      * {@link Object#toString() toString()} method is called. This is different from {@link Obfuscator#obfuscateObject(Object)} because it will not
@@ -78,7 +78,26 @@ public final class MapObfuscator<K, V> {
      */
     public Map<K, V> obfuscateMap(Map<K, V> map) {
         Objects.requireNonNull(map);
-        return new ObfuscatingMap<>(map, valueObfuscator);
+        return new ObfuscatingMap<>(map, Object::toString, valueObfuscator);
+    }
+
+    /**
+     * Obfuscates a map.
+     * For each value, a function will be used to create the element's string representation that will be used to obfuscate the element.
+     * <p>
+     * The result will be a map that will behave exactly the same as the given map, except it will obfuscate each value when its
+     * {@link Object#toString() toString()} method is called. This is different from {@link Obfuscator#obfuscateObject(Object)} because it will not
+     * obfuscate the map structure or the number of entries.
+     *
+     * @param map The map to obfuscate.
+     * @param valueRepresentation The function to use to create the string representation for each value.
+     * @return An obfuscating map wrapper around the given map.
+     * @throws NullPointerException If the given map or function is {@code null}.
+     * @since 1.3
+     */
+    public Map<K, V> obfuscateMap(Map<K, V> map, Function<? super V, ? extends CharSequence> valueRepresentation) {
+        Objects.requireNonNull(map);
+        return new ObfuscatingMap<>(map, valueRepresentation, valueObfuscator);
     }
 
     @Override

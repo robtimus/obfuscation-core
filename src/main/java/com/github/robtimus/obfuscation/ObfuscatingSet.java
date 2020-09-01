@@ -19,10 +19,11 @@ package com.github.robtimus.obfuscation;
 
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 class ObfuscatingSet<E> extends ObfuscatingCollection<E> implements Set<E> {
 
-    ObfuscatingSet(Set<E> set, Function<String, CharSequence> elementObfuscator) {
-        super(set, elementObfuscator);
+    ObfuscatingSet(Set<E> set, Function<? super E, ? extends CharSequence> elementRepresentation, UnaryOperator<CharSequence> elementObfuscator) {
+        super(set, elementRepresentation, elementObfuscator);
     }
 }

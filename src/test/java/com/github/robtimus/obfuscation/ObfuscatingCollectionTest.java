@@ -297,24 +297,50 @@ class ObfuscatingCollectionTest {
         assertEquals(obfuscating.hashCode(), collection.hashCode());
     }
 
-    @Test
+    @Nested
     @DisplayName("toString()")
-    void testToString() {
-        assertEquals("[f***o, n***l, b***r]", obfuscating.toString());
+    class ToString {
 
-        collection.remove("foo");
-        assertEquals("[n***l, b***r]", obfuscating.toString());
+        @Test
+        @DisplayName("with default element representation")
+        void testWithDefaultElementRepresentation() {
+            assertEquals("[f***o, n***l, b***r]", obfuscating.toString());
 
-        collection.remove(null);
-        assertEquals("[b***r]", obfuscating.toString());
+            collection.remove("foo");
+            assertEquals("[n***l, b***r]", obfuscating.toString());
 
-        collection.remove("bar");
-        assertEquals("[]", obfuscating.toString());
+            collection.remove(null);
+            assertEquals("[b***r]", obfuscating.toString());
 
-        Collection<Object> objectCollection = new ArrayList<>(Arrays.asList("foo", "bar"));
-        Collection<?> objectObfuscating = OBFUSCATOR.obfuscateCollection(objectCollection);
-        objectCollection.add(objectObfuscating);
+            collection.remove("bar");
+            assertEquals("[]", obfuscating.toString());
 
-        assertEquals("[f***o, b***r, (***)]", objectObfuscating.toString());
+            Collection<Object> objectCollection = new ArrayList<>(Arrays.asList("foo", "bar"));
+            Collection<?> objectObfuscating = OBFUSCATOR.obfuscateCollection(objectCollection);
+            objectCollection.add(objectObfuscating);
+
+            assertEquals("[f***o, b***r, (***)]", objectObfuscating.toString());
+        }
+
+        @Test
+        @DisplayName("with custom element representation")
+        void testWithCustomElementRepresentation() {
+            assertEquals("[f***o, n***l, b***r]", obfuscating.toString());
+
+            collection.remove("foo");
+            assertEquals("[n***l, b***r]", obfuscating.toString());
+
+            collection.remove(null);
+            assertEquals("[b***r]", obfuscating.toString());
+
+            collection.remove("bar");
+            assertEquals("[]", obfuscating.toString());
+
+            Collection<Object> objectCollection = new ArrayList<>(Arrays.asList("foo", "bar"));
+            Collection<?> objectObfuscating = OBFUSCATOR.obfuscateCollection(objectCollection, o -> o.toString().toUpperCase());
+            objectCollection.add(objectObfuscating);
+
+            assertEquals("[F***O, B***R, (***)]", objectObfuscating.toString());
+        }
     }
 }
