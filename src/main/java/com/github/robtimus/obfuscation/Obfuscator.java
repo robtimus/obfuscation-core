@@ -208,7 +208,7 @@ public abstract class Obfuscator {
      *
      * @param <T> The type of value to obfuscate.
      * @param value The value to obfuscate.
-     * @param representation A supplier for the string representation that will be used to obfuscate the value.
+     * @param representation A supplier for the character representation that will be used to obfuscate the value.
      *                           This can be used for values that don't have a sensible {@link Object#toString() string representation} of their own.
      * @return An {@code Obfuscated} wrapper around the given value.
      * @throws NullPointerException If the given value is or supplier is {@code null}.
@@ -236,7 +236,7 @@ public abstract class Obfuscator {
 
     /**
      * Obfuscates a list.
-     * For each element, a function will be used to create the element's string representation that will be used to obfuscate the element.
+     * For each element, a function will be used to create the element's character representation that will be used to obfuscate the element.
      * <p>
      * The result will be a list that will behave exactly the same as the given list, except it will obfuscate each element when its
      * {@link Object#toString() toString()} method is called. This is different from {@link #obfuscateObject(Object)} because it will not obfuscate
@@ -244,7 +244,7 @@ public abstract class Obfuscator {
      *
      * @param <E> The list's element type.
      * @param list The list to obfuscate.
-     * @param elementRepresentation The function to use to create the string representation for each element.
+     * @param elementRepresentation The function to use to create the character representation for each element.
      * @return An obfuscating list wrapper around the given list.
      * @throws NullPointerException If the given list or function is {@code null}.
      * @since 1.3
@@ -274,7 +274,7 @@ public abstract class Obfuscator {
 
     /**
      * Obfuscates a set.
-     * For each element, a function will be used to create the element's string representation that will be used to obfuscate the element.
+     * For each element, a function will be used to create the element's character representation that will be used to obfuscate the element.
      * <p>
      * The result will be a set that will behave exactly the same as the given set, except it will obfuscate each element when its
      * {@link Object#toString() toString()} method is called. This is different from {@link #obfuscateObject(Object)} because it will not obfuscate
@@ -282,7 +282,7 @@ public abstract class Obfuscator {
      *
      * @param <E> The set's element type.
      * @param set The set to obfuscate.
-     * @param elementRepresentation The function to use to create the string representation for each element.
+     * @param elementRepresentation The function to use to create the character representation for each element.
      * @return An obfuscating set wrapper around the given set.
      * @throws NullPointerException If the given set or function is {@code null}.
      * @since 1.3
@@ -312,7 +312,7 @@ public abstract class Obfuscator {
 
     /**
      * Obfuscates a collection.
-     * For each element, a function will be used to create the element's string representation that will be used to obfuscate the element.
+     * For each element, a function will be used to create the element's character representation that will be used to obfuscate the element.
      * <p>
      * The result will be a collection that will behave exactly the same as the given collection, except it will obfuscate each element when its
      * {@link Object#toString() toString()} method is called. This is different from {@link #obfuscateObject(Object)} because it will not obfuscate
@@ -320,7 +320,7 @@ public abstract class Obfuscator {
      *
      * @param <E> The collection's element type.
      * @param collection The collection to obfuscate.
-     * @param elementRepresentation The function to use to create the string representation for each element.
+     * @param elementRepresentation The function to use to create the character representation for each element.
      * @return An obfuscating collection wrapper around the given collection.
      * @throws NullPointerException If the given collection or function is {@code null}.
      * @since 1.3
@@ -351,7 +351,7 @@ public abstract class Obfuscator {
 
     /**
      * Obfuscates a map.
-     * For each value, a function will be used to create the element's string representation that will be used to obfuscate the element.
+     * For each value, a function will be used to create the element's character representation that will be used to obfuscate the element.
      * <p>
      * The result will be a map that will behave exactly the same as the given map, except it will obfuscate each value when its
      * {@link Object#toString() toString()} method is called. This is different from {@link #obfuscateObject(Object)} because it will not obfuscate
@@ -360,7 +360,7 @@ public abstract class Obfuscator {
      * @param <K> The map's key type.
      * @param <V> The map's value type.
      * @param map The map to obfuscate.
-     * @param valueRepresentation The function to use to create the string representation for each value.
+     * @param valueRepresentation The function to use to create the character representation for each value.
      * @return An obfuscating map wrapper around the given list.
      * @throws NullPointerException If the given map or function is {@code null}.
      * @since 1.3

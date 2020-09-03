@@ -83,14 +83,14 @@ public final class MapObfuscator<K, V> {
 
     /**
      * Obfuscates a map.
-     * For each value, a function will be used to create the element's string representation that will be used to obfuscate the element.
+     * For each value, a function will be used to create the element's character representation that will be used to obfuscate the element.
      * <p>
      * The result will be a map that will behave exactly the same as the given map, except it will obfuscate each value when its
      * {@link Object#toString() toString()} method is called. This is different from {@link Obfuscator#obfuscateObject(Object)} because it will not
      * obfuscate the map structure or the number of entries.
      *
      * @param map The map to obfuscate.
-     * @param valueRepresentation The function to use to create the string representation for each value.
+     * @param valueRepresentation The function to use to create the character representation for each value.
      * @return An obfuscating map wrapper around the given map.
      * @throws NullPointerException If the given map or function is {@code null}.
      * @since 1.3
@@ -156,7 +156,7 @@ public final class MapObfuscator<K, V> {
         }
 
         /**
-         * Adds a key to obfuscate the value for. The value's {@link Object#toString() string representation} will be used to obfuscate the value.
+         * Adds a key to obfuscate the value for.
          *
          * @param key The key to obfuscate the value for.
          * @param obfuscator The obfuscator to use for obfuscating the value.
@@ -234,7 +234,7 @@ public final class MapObfuscator<K, V> {
         }
 
         /**
-         * Adds a key to obfuscate the value for. The value's {@link Object#toString() string representation} will be used to obfuscate the value.
+         * Adds a key to obfuscate the value for.
          * This method is an alias for {@link #withKey(String, Obfuscator, CaseSensitivity)} with the last specified default case sensitivity
          * using {@link #caseSensitiveByDefault()} or {@link #caseInsensitiveByDefault()}. The default is {@link CaseSensitivity#CASE_SENSITIVE}.
          *
@@ -250,7 +250,7 @@ public final class MapObfuscator<K, V> {
         }
 
         /**
-         * Adds a key to obfuscate the value for. The value's {@link Object#toString() string representation} will be used to obfuscate the value.
+         * Adds a key to obfuscate the value for.
          *
          * @param key The key to obfuscate the value for.
          * @param obfuscator The obfuscator to use for obfuscating the value.

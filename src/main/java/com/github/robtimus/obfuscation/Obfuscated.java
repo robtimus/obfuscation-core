@@ -104,7 +104,7 @@ public abstract class Obfuscated<T> {
      *
      * @param <U> The result type of the mapping function.
      * @param mapper The mapping function to apply.
-     * @param representation A supplier for the string representation that will be used to obfuscate the value.
+     * @param representation A supplier for the character representation that will be used to obfuscate the value.
      *                           This can be used for values that don't have a sensible {@link Object#toString() string representation} of their own.
      * @return An {@code Obfuscated} object wrapping the result of applying the given mapping function to this object's value.
      * @throws NullPointerException If the mapping function or supplier is {@code null},
