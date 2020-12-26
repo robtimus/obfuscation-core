@@ -27,6 +27,7 @@ Besides obfuscating simple text, it's possible to obfuscate complex structures u
 * [obfuscation-commons-lang](https://robtimus.github.io/obfuscation-commons-lang/) provides extensions to [Apache Commons Lang](https://commons.apache.org/proper/commons-lang/) for obfuscating objects.
 * [obfuscation-http](https://robtimus.github.io/obfuscation-http/) provides support for obfuscating HTTP requests and responses.
 * [obfuscation-jackson](https://robtimus.github.io/obfuscation-jackson/) and [obfuscation-json](https://robtimus.github.io/obfuscation-json/) provide support for obfuscating properties in JSON documents.
+* [obfuscation-xml](https://robtimus.github.io/obfuscation-xml/) provides support for obfuscating properties in XML documents.
 * [obfuscation-yaml](https://robtimus.github.io/obfuscation-yaml/) provides support for obfuscating properties in YAML documents.
 
 ## Writing custom obfucators
