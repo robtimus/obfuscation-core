@@ -38,3 +38,4 @@ Package [com.github.robtimus.obfuscation.support](https://robtimus.github.io/obf
 
 * [obfuscation-annotations](https://robtimus.github.io/obfuscation-annotations/) provides general purpose `Obfuscator` annotations.
 * [obfuscation-jackson-databind](https://robtimus.github.io/obfuscation-jackson-databind/) provides integration with [jackson-databind](https://github.com/FasterXML/jackson-databind).
+* [obfuscation-spring](https://robtimus.github.io/obfuscation-spring/) provides integration with [Spring](https://spring.io/) and [Spring Boot](https://spring.io/projects/spring-boot).
