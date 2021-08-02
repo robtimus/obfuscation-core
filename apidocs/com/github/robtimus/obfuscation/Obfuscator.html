@@ -921,7 +921,7 @@ extends <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/Object.html
  This makes it possible to easily create complex obfuscators that would otherwise be impossible using any of the other obfuscators provided
  by this library. For instance, it would be impossible to use only <a href="../../../../com/github/robtimus/obfuscation/Obfuscator.html#portion--"><code>portion()</code></a> to create an obfuscator that does not obfuscate the first
  4 characters, then obfuscates <em>at least</em> 8 characters, then does not obfuscate up to 4 characters at the end. With this method it's
- possible to do that by combining <a href="../../../../com/github/robtimus/obfuscation/Obfuscator.html#none--"><code>none()</code></a> and {link <a href="../../../../com/github/robtimus/obfuscation/Obfuscator.html#portion--"><code>portion()</code></a>:
+ possible to do that by combining <a href="../../../../com/github/robtimus/obfuscation/Obfuscator.html#none--"><code>none()</code></a> and <a href="../../../../com/github/robtimus/obfuscation/Obfuscator.html#portion--"><code>portion()</code></a>:
  <pre><code>
  Obfuscator obfuscator = none().untilLength(4).then(portion()
          .keepAtEnd(4)
