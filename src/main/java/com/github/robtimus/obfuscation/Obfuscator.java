@@ -387,7 +387,7 @@ public abstract class Obfuscator {
      * This makes it possible to easily create complex obfuscators that would otherwise be impossible using any of the other obfuscators provided
      * by this library. For instance, it would be impossible to use only {@link #portion()} to create an obfuscator that does not obfuscate the first
      * 4 characters, then obfuscates <em>at least</em> 8 characters, then does not obfuscate up to 4 characters at the end. With this method it's
-     * possible to do that by combining {@link #none()} and {link {@link #portion()}:
+     * possible to do that by combining {@link #none()} and {@link #portion()}:
      * <pre><code>
      * Obfuscator obfuscator = none().untilLength(4).then(portion()
      *         .keepAtEnd(4)
