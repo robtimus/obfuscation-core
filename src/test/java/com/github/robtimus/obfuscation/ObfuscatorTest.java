@@ -1193,14 +1193,14 @@ class ObfuscatorTest {
         }
 
         @Test
-        @DisplayName("negative atLeastFomStart")
+        @DisplayName("negative atLeastFromStart")
         void testNegativeAtLeastFromStart() {
             PortionBuilder builder = portion();
             assertThrows(IllegalArgumentException.class, () -> builder.atLeastFromStart(-1));
         }
 
         @Test
-        @DisplayName("negative AtLeastFromEnd")
+        @DisplayName("negative atLeastFromEnd")
         void testNegativeAtLeastFromEnd() {
             PortionBuilder builder = portion();
             assertThrows(IllegalArgumentException.class, () -> builder.atLeastFromEnd(-1));
