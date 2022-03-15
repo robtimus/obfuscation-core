@@ -321,6 +321,20 @@ public final class ObfuscatorUtils {
     }
 
     /**
+     * Returns a {@code Reader} that counts all text read from another {@code Reader}.
+     *
+     * @param input The {@code Reader} to read from.
+     * @return A {@code Reader} that counts all text read from the given {@code Reader}.
+     * @throws NullPointerException If the given {@code Reader} is {@code null}.
+     * @since 1.4
+     */
+    @SuppressWarnings("resource")
+    public static CountingReader counting(Reader input) {
+        Objects.requireNonNull(input);
+        return new CountingReader(input);
+    }
+
+    /**
      * Returns a {@code Reader} that transparently appends all text read from another {@code Reader} to an {@code Appendable}.
      * If the returned {@code Reader} is closed, the given {@code Reader} will be closed as well. The {@code Appendable} will not be closed though.
      *
@@ -353,6 +367,26 @@ public final class ObfuscatorUtils {
             throw new IllegalArgumentException(limit + " < 0"); //$NON-NLS-1$
         }
         return new LimitReader(input, limit);
+    }
+
+    // Appendable
+
+    /**
+     * Returns an {@code Appendable} that will discard text after a specific amount of text has been appended.
+     *
+     * @param appendable The {@code Appendable} to append to.
+     * @param limit The maximum number of characters to append to the given {@code Appendable}.
+     * @return An {@code Appendable} that will discard text after a specific amount of text has been appended.
+     * @throws NullPointerException If the given {@code Appendable} is {@code null}.
+     * @throws IllegalArgumentException If the given limit is negative.
+     * @since 1.4
+     */
+    public static LimitAppendable appendAtMost(Appendable appendable, long limit) {
+        Objects.requireNonNull(appendable);
+        if (limit < 0) {
+            throw new IllegalArgumentException(limit + " < 0"); //$NON-NLS-1$
+        }
+        return new LimitAppendable(appendable, limit);
     }
 
     // I/O
@@ -449,6 +483,8 @@ public final class ObfuscatorUtils {
         }
     }
 
+    // masking
+
     /**
      * Copies the contents of a {@code Reader} to an {@code Appendable}, masking each character.
      *
@@ -502,6 +538,8 @@ public final class ObfuscatorUtils {
             destination.write(mask, 0, len);
         }
     }
+
+    // appending
 
     /**
      * Appends a single character to an {@code Appendable}.

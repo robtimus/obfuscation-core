@@ -18,12 +18,14 @@
 package com.github.robtimus.obfuscation.support;
 
 import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.append;
+import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.appendAtMost;
 import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.checkIndex;
 import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.checkOffsetAndLength;
 import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.checkStartAndEnd;
 import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.concat;
 import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.copyAll;
 import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.copyTo;
+import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.counting;
 import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.discardAll;
 import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.getChars;
 import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.indexOf;
@@ -289,6 +291,14 @@ class ObfuscatorUtilsTest {
     }
 
     @Test
+    @DisplayName("count(Reader)")
+    @SuppressWarnings("resource")
+    void testCount() {
+        assertThat(counting(new StringReader("")), instanceOf(CountingReader.class));
+        assertThrows(NullPointerException.class, () -> counting(null));
+    }
+
+    @Test
     @DisplayName("copyTo(Reader, Appendable)")
     @SuppressWarnings("resource")
     void testCopyTo() {
@@ -304,6 +314,14 @@ class ObfuscatorUtilsTest {
         assertThat(readAtMost(new StringReader(""), 5), instanceOf(LimitReader.class));
         assertThrows(NullPointerException.class, () -> readAtMost(null, 5));
         assertThrows(IllegalArgumentException.class, () -> readAtMost(new StringReader(""), -1));
+    }
+
+    @Test
+    @DisplayName("appendAtMost(Appendable, int)")
+    void testAppendAtMost() {
+        assertThat(appendAtMost(new StringWriter(), 5), instanceOf(LimitAppendable.class));
+        assertThrows(NullPointerException.class, () -> appendAtMost(null, 5));
+        assertThrows(IllegalArgumentException.class, () -> appendAtMost(new StringWriter(), -1));
     }
 
     @Test
