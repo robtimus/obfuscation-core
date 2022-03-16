@@ -27,7 +27,7 @@
   </parent>
 
   <artifactId>obfuscation-core</artifactId>
-  <version>1.4</version>
+  <version>1.5-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>obfuscation-core</name>
@@ -52,7 +52,7 @@
   <scm>
     <connection>scm:git:git@github.com:robtimus/obfuscation-core.git</connection>
     <developerConnection>scm:git:git@github.com:robtimus/obfuscation-core.git</developerConnection>
-    <tag>1.4</tag>
+    <tag>HEAD</tag>
     <url>https://github.com/robtimus/obfuscation-core</url>
   </scm>
 
