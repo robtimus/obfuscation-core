@@ -28,6 +28,7 @@ import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.matchesRegex;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -35,6 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.spy;
@@ -55,6 +57,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.hamcrest.Matcher;
@@ -62,6 +65,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.JRE;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -243,7 +247,13 @@ class ObfuscatingPropertiesTest {
             // Adding properties or entrySet causes a StackOverflowError because the map and values / entrySet keep ping-ponging.
             // That's fine though, as objectProperties suffers the same issue.
 
-            assertHasToString(objectObfuscating.values(), "[", "]", "[***]", "(***)", "[***]", "(***)");
+            // In Java 9, Properties was refactored. As a result, it throws a StackOverflowError if the Properties object contains (parts of) itself
+            if (JRE.currentVersion().compareTo(JRE.JAVA_8) <= 0) {
+                assertHasToString(objectObfuscating.values(), "[", "]", "[***]", "(***)", "[***]", "(***)");
+            } else {
+                assertThrows(StackOverflowError.class, objectProperties.values()::toString);
+                assertThrows(StackOverflowError.class, objectObfuscating.values()::toString);
+            }
         }
     }
 
@@ -277,8 +287,30 @@ class ObfuscatingPropertiesTest {
             // Adding properties or values causes a StackOverflowError because the map and values / entrySet keep ping-ponging.
             // That's fine though, as objectProperties suffers the same issue.
 
-            assertHasToString(objectObfuscating.entrySet(), "[", "]", "keySet=[***]", "entrySet=(***)", "obfuscatingKeySet=[***]",
-                    "obfuscatingEntrySet=(***)");
+            String expectedEntrySetValue = "entrySet=(***)";
+
+            // In Java 9, Properties was refactored.
+            // Java 9 through 16 don't implement entrySet().toString() correctly, see https://bugs.openjdk.org/browse/JDK-8245694
+            // As a result, the entrySet's toString() is inherited from Object, and the obfuscated value is not (***) but j***X, where X is the last
+            // character of the hexadecimal hashCode
+            // In Java 16 this was fixed, but as a result, it throws a StackOverflowError if the Properties object contains (parts of) itself
+            JRE currentJRE = JRE.currentVersion();
+            if (currentJRE.compareTo(JRE.JAVA_8) <= 0) {
+                assertHasToString(objectObfuscating.entrySet(), "[", "]", "keySet=[***]", expectedEntrySetValue, "obfuscatingKeySet=[***]",
+                        "obfuscatingEntrySet=(***)");
+            } else if (currentJRE.compareTo(JRE.JAVA_16) < 0) {
+                // entrySet() returns a new instance every time, so assertHasToString cannot be used; use matchesRegex instead
+                String toStringValue = objectObfuscating.entrySet().toString();
+                String entryPrefix = "(^\\[|.*, )";
+                String entryPostfix = "(, .*|\\]$)";
+                assertThat(toStringValue, matchesRegex(entryPrefix + Pattern.quote("keySet=[***]") + entryPostfix));
+                assertThat(toStringValue, matchesRegex(entryPrefix + Pattern.quote("entrySet=j***") + "[a-f0-9]" + entryPostfix));
+                assertThat(toStringValue, matchesRegex(entryPrefix + Pattern.quote("obfuscatingKeySet=[***]") + entryPostfix));
+                assertThat(toStringValue, matchesRegex(entryPrefix + Pattern.quote("obfuscatingEntrySet=(***)") + entryPostfix));
+            } else {
+                assertThrows(StackOverflowError.class, objectProperties.entrySet()::toString);
+                assertThrows(StackOverflowError.class, objectObfuscating.entrySet()::toString);
+            }
         }
     }
 
@@ -298,7 +330,8 @@ class ObfuscatingPropertiesTest {
             result.add(k);
             result.add(v);
         });
-        assertEquals(Arrays.asList("foo", "FOO", "bar", "BAR"), result);
+        // The order is not guaranteed
+        assertThat(result, anyOf(is(Arrays.asList("bar", "BAR", "foo", "FOO")), is(Arrays.asList("foo", "FOO", "bar", "BAR"))));
     }
 
     @Test
