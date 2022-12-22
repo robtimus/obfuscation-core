@@ -60,7 +60,7 @@ class ConcatCharSequenceTest {
     void testCharAtWithInvalidIndex(CharSequence first, CharSequence second, int index) {
         CharSequence concatenated = concat(first, second);
         IndexOutOfBoundsException exception = assertThrows(IndexOutOfBoundsException.class, () -> concatenated.charAt(index));
-        assertEquals(Messages.charSequence.invalidIndex.get(concatenated.length(), index), exception.getMessage());
+        assertEquals(Messages.charSequence.invalidIndex(concatenated.length(), index), exception.getMessage());
     }
 
     @ParameterizedTest(name = "{0} + {1}, {2} - {3}: {4}")
@@ -108,7 +108,7 @@ class ConcatCharSequenceTest {
     void testSubSequenceWithInvalidRange(CharSequence first, CharSequence second, int start, int end) {
         CharSequence concatenated = concat(first, second);
         IndexOutOfBoundsException exception = assertThrows(IndexOutOfBoundsException.class, () -> concatenated.subSequence(start, end));
-        assertEquals(Messages.charSequence.invalidStartOrEnd.get(concatenated.length(), start, end), exception.getMessage());
+        assertEquals(Messages.charSequence.invalidStartOrEnd(concatenated.length(), start, end), exception.getMessage());
     }
 
     @ParameterizedTest(name = "{0} + {1}: {2}")

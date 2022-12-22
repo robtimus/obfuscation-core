@@ -1284,7 +1284,7 @@ class ObfuscatorTest {
 
             private void testThrowsNullPointerException(String input, Executable executable) {
                 NullPointerException exception = assertThrows(NullPointerException.class, executable);
-                assertEquals(Messages.fromFunction.functionReturnedNull.get(input), exception.getMessage());
+                assertEquals(Messages.fromFunction.functionReturnedNull(input), exception.getMessage());
             }
 
             @Test
@@ -1539,20 +1539,22 @@ class ObfuscatorTest {
         @MethodSource("testData")
         @DisplayName("obfuscateText(CharSequence, int, int)")
         void testObfuscateTextCharSequenceRange(String input, char maskChar, String expected) {
+            int length = input.length();
+
             final String prefix = "foo";
             final String postfix = "bar";
 
             Obfuscator obfuscator = obfuscatorProvider.apply(maskChar);
 
-            assertEquals(expected, obfuscator.obfuscateText(input, 0, input.length()).toString());
-            assertEquals(expected, obfuscator.obfuscateText(prefix + input + postfix, prefix.length(), prefix.length() + input.length()).toString());
-            assertEquals(expected, obfuscator.obfuscateText(prefix + input, prefix.length(), prefix.length() + input.length()).toString());
-            assertEquals(expected, obfuscator.obfuscateText(input + postfix, 0, input.length()).toString());
+            assertEquals(expected, obfuscator.obfuscateText(input, 0, length).toString());
+            assertEquals(expected, obfuscator.obfuscateText(prefix + input + postfix, prefix.length(), prefix.length() + length).toString());
+            assertEquals(expected, obfuscator.obfuscateText(prefix + input, prefix.length(), prefix.length() + length).toString());
+            assertEquals(expected, obfuscator.obfuscateText(input + postfix, 0, length).toString());
 
-            assertThrows(IndexOutOfBoundsException.class, () -> obfuscator.obfuscateText(input, -1, input.length()));
-            assertThrows(IndexOutOfBoundsException.class, () -> obfuscator.obfuscateText(input, 0, input.length() + 1));
+            assertThrows(IndexOutOfBoundsException.class, () -> obfuscator.obfuscateText(input, -1, length));
+            assertThrows(IndexOutOfBoundsException.class, () -> obfuscator.obfuscateText(input, 0, length + 1));
             assertThrows(IndexOutOfBoundsException.class, () -> obfuscator.obfuscateText(input, 0, -1));
-            assertThrows(IndexOutOfBoundsException.class, () -> obfuscator.obfuscateText(input, input.length() + 1, input.length()));
+            assertThrows(IndexOutOfBoundsException.class, () -> obfuscator.obfuscateText(input, length + 1, length));
         }
 
         @ParameterizedTest(name = "{0} with {1} -> {2}")

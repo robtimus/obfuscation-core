@@ -130,7 +130,7 @@ public final class MapBuilder<V> {
 
         Map<String, V> map = caseSensitivity.isCaseSensitive() ? caseSensitiveMap : caseInsensitiveMap;
         if (map.containsKey(key)) {
-            throw new IllegalArgumentException(Messages.stringMap.duplicateKey.get(key, caseSensitivity));
+            throw new IllegalArgumentException(Messages.stringMap.duplicateKey(key, caseSensitivity));
         }
         return this;
     }

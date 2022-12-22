@@ -68,7 +68,7 @@ abstract class StreamTestBase {
 
     void assertClosed(Executable executable) {
         IOException thrown = assertThrows(IOException.class, executable);
-        assertEquals(Messages.stream.closed.get(), thrown.getMessage());
+        assertEquals(Messages.stream.closed(), thrown.getMessage());
     }
 
     // the following classes are not final so they can be spied / mocked

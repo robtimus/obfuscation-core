@@ -36,7 +36,7 @@ public abstract class ObfuscatingWriter extends Writer {
      */
     protected final void checkClosed() throws IOException {
         if (closed) {
-            throw new IOException(Messages.stream.closed.get());
+            throw new IOException(Messages.stream.closed());
         }
     }
 

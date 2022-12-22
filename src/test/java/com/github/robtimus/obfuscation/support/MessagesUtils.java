@@ -28,6 +28,6 @@ public final class MessagesUtils {
     }
 
     public static void assertClosedException(IOException exception) {
-        assertEquals(Messages.stream.closed.get(), exception.getMessage());
+        assertEquals(Messages.stream.closed(), exception.getMessage());
     }
 }

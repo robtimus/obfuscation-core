@@ -1595,7 +1595,7 @@ public abstract class Obfuscator {
 
             if (fixedTotalLength >= 0 && fixedTotalLength < keepAtStart + keepAtEnd) {
                 throw new IllegalStateException(
-                        Messages.portion.fixedTotalLengthSmallerThanKeepAtStartPlusKeepAtEnd.get(fixedTotalLength, keepAtStart, keepAtEnd));
+                        Messages.portion.fixedTotalLengthSmallerThanKeepAtStartPlusKeepAtEnd(fixedTotalLength, keepAtStart, keepAtEnd));
             }
         }
 
@@ -1835,7 +1835,7 @@ public abstract class Obfuscator {
 
         private CharSequence applyFunction(CharSequence s) {
             CharSequence result = function.apply(s);
-            return Objects.requireNonNull(result, () -> Messages.fromFunction.functionReturnedNull.get(s));
+            return Objects.requireNonNull(result, () -> Messages.fromFunction.functionReturnedNull(s));
         }
 
         private CharSequence applyFunction(CharSequence s, int start, int end) {

@@ -43,7 +43,7 @@ final class CharSequenceReader extends Reader {
 
     private void checkClosed() throws IOException {
         if (s == null) {
-            throw new IOException(Messages.stream.closed.get());
+            throw new IOException(Messages.stream.closed());
         }
     }
 

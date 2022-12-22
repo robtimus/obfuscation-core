@@ -145,7 +145,7 @@ public final class ObfuscatorUtils {
      */
     public static void checkIndex(char[] array, int index) {
         if (index < 0 || index >= array.length) {
-            throw new IndexOutOfBoundsException(Messages.charSequence.invalidIndex.get(array.length, index));
+            throw new IndexOutOfBoundsException(Messages.charSequence.invalidIndex(array.length, index));
         }
     }
 
@@ -161,7 +161,7 @@ public final class ObfuscatorUtils {
      */
     public static void checkOffsetAndLength(char[] array, int offset, int length) {
         if (offset < 0 || length < 0 || offset + length > array.length) {
-            throw new ArrayIndexOutOfBoundsException(Messages.array.invalidOffsetOrLength.get(array.length, offset, length));
+            throw new ArrayIndexOutOfBoundsException(Messages.array.invalidOffsetOrLength(array.length, offset, length));
         }
     }
 
@@ -178,7 +178,7 @@ public final class ObfuscatorUtils {
      */
     public static void checkStartAndEnd(char[] array, int start, int end) {
         if (start < 0 || end > array.length || start > end) {
-            throw new ArrayIndexOutOfBoundsException(Messages.array.invalidStartOrEnd.get(array.length, start, end));
+            throw new ArrayIndexOutOfBoundsException(Messages.array.invalidStartOrEnd(array.length, start, end));
         }
     }
 
@@ -192,7 +192,7 @@ public final class ObfuscatorUtils {
      */
     public static void checkIndex(CharSequence s, int index) {
         if (index < 0 || index >= s.length()) {
-            throw new IndexOutOfBoundsException(Messages.charSequence.invalidIndex.get(s.length(), index));
+            throw new IndexOutOfBoundsException(Messages.charSequence.invalidIndex(s.length(), index));
         }
     }
 
@@ -208,7 +208,7 @@ public final class ObfuscatorUtils {
      */
     public static void checkOffsetAndLength(CharSequence sequence, int offset, int length) {
         if (offset < 0 || length < 0 || offset + length > sequence.length()) {
-            throw new IndexOutOfBoundsException(Messages.charSequence.invalidOffsetOrLength.get(sequence.length(), offset, length));
+            throw new IndexOutOfBoundsException(Messages.charSequence.invalidOffsetOrLength(sequence.length(), offset, length));
         }
     }
 
@@ -225,7 +225,7 @@ public final class ObfuscatorUtils {
      */
     public static void checkStartAndEnd(CharSequence sequence, int start, int end) {
         if (start < 0 || end > sequence.length() || start > end) {
-            throw new IndexOutOfBoundsException(Messages.charSequence.invalidStartOrEnd.get(sequence.length(), start, end));
+            throw new IndexOutOfBoundsException(Messages.charSequence.invalidStartOrEnd(sequence.length(), start, end));
         }
     }
 

@@ -111,7 +111,7 @@ class MapBuilderTest {
 
     private void assertDuplicateKey(MapBuilder<Integer> builder, String key, Integer value, CaseSensitivity caseSensitivity) {
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> builder.withEntry(key, value, caseSensitivity));
-        assertEquals(Messages.stringMap.duplicateKey.get(key, caseSensitivity), exception.getMessage());
+        assertEquals(Messages.stringMap.duplicateKey(key, caseSensitivity), exception.getMessage());
     }
 
     @Test
@@ -160,7 +160,7 @@ class MapBuilderTest {
 
     private void assertDuplicateKey(MapBuilder<Integer> builder, String key, CaseSensitivity caseSensitivity) {
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> builder.testEntry(key, caseSensitivity));
-        assertEquals(Messages.stringMap.duplicateKey.get(key, caseSensitivity), exception.getMessage());
+        assertEquals(Messages.stringMap.duplicateKey(key, caseSensitivity), exception.getMessage());
     }
 
     @Test
