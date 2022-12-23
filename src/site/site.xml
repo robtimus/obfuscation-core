@@ -25,7 +25,7 @@
       <item name="Examples" href="examples.html" />
       <item name="Download" href="download.html" />
       <item name="Releases" href="https://github.com/robtimus/obfuscation-core/releases" />
-      <item name="JavaDocs" href="apidocs/index.html" />
+      <item name="Javadoc" href="apidocs/index.html" />
     </menu>
   </body>
 </project>
