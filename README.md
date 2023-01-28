@@ -1,4 +1,9 @@
 # obfuscation-core
+[![Maven Central](https://img.shields.io/maven-central/v/com.github.robtimus/obfuscation-core)](https://search.maven.org/artifact/com.github.robtimus/obfuscation-core)
+[![Build Status](https://github.com/robtimus/obfuscation-core/actions/workflows/build.yml/badge.svg)](https://github.com/robtimus/obfuscation-core/actions/workflows/build.yml)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=com.github.robtimus%3Aobfuscation-core&metric=alert_status)](https://sonarcloud.io/summary/overall?id=com.github.robtimus%3Aobfuscation-core)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=com.github.robtimus%3Aobfuscation-core&metric=coverage)](https://sonarcloud.io/summary/overall?id=com.github.robtimus%3Aobfuscation-core)
+[![Known Vulnerabilities](https://snyk.io/test/github/robtimus/obfuscation-core/badge.svg)](https://snyk.io/test/github/robtimus/obfuscation-core)
 
 Provides functionality for obfuscating text. This can be useful for logging information that contains sensitive information.
 
