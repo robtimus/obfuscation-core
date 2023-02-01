@@ -223,17 +223,17 @@ class ObfuscatingMap<K, V> implements Map<K, V> {
     private static final class Values<K, V> extends ObfuscatingCollection<V> {
 
         private final ObfuscatingMap<K, V> map;
-        private final Set<Entry<K, V>> entrySet;
+        private final Set<Entry<K, V>> entries;
 
         private Values(ObfuscatingMap<K, V> map) {
             super(map.map.values(), unsupportedOperation(), unsupportedUnaryOperation());
             this.map = map;
-            entrySet = map.map.entrySet();
+            entries = map.map.entrySet();
         }
 
         @Override
         public String toString() {
-            Iterator<Entry<K, V>> iterator = entrySet.iterator();
+            Iterator<Entry<K, V>> iterator = entries.iterator();
             if (!iterator.hasNext()) {
                 return "[]"; //$NON-NLS-1$
             }
@@ -256,17 +256,17 @@ class ObfuscatingMap<K, V> implements Map<K, V> {
     private static final class EntrySet<K, V> extends ObfuscatingSet<Map.Entry<K, V>> {
 
         private final ObfuscatingMap<K, V> map;
-        private final Set<Entry<K, V>> entrySet;
+        private final Set<Entry<K, V>> entries;
 
         private EntrySet(ObfuscatingMap<K, V> map) {
             super(map.map.entrySet(), unsupportedOperation(), unsupportedUnaryOperation());
             this.map = map;
-            entrySet = map.map.entrySet();
+            entries = map.map.entrySet();
         }
 
         @Override
         public String toString() {
-            Iterator<Entry<K, V>> iterator = entrySet.iterator();
+            Iterator<Entry<K, V>> iterator = entries.iterator();
             if (!iterator.hasNext()) {
                 return "[]"; //$NON-NLS-1$
             }

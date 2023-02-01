@@ -138,27 +138,30 @@ class ObfuscatorUtilsTest {
 
     private DynamicNode testGetChars(String type, Function<String, CharSequence> constructor) {
         String input = "hello world";
+        int length = input.length();
+        CharSequence sequence = constructor.apply(input);
+
         DynamicTest[] tests = {
                 dynamicTest("negative srcBegin", () -> assertThrows(IndexOutOfBoundsException.class,
-                        () -> getChars(constructor.apply(input), -1, input.length(), new char[input.length()], 0))),
+                        () -> getChars(sequence, -1, length, new char[length], 0))),
                 dynamicTest("too large srcEnd", () -> assertThrows(IndexOutOfBoundsException.class,
-                        () -> getChars(constructor.apply(input), 0, input.length() + 1, new char[input.length()], 0))),
+                        () -> getChars(sequence, 0, length + 1, new char[length], 0))),
                 dynamicTest("srcBegin > srcEnd", () -> assertThrows(IndexOutOfBoundsException.class,
-                        () -> getChars(constructor.apply(input), 1, 0, new char[input.length()], 0))),
+                        () -> getChars(sequence, 1, 0, new char[length], 0))),
                 dynamicTest("negative dstBegin", () -> assertThrows(IndexOutOfBoundsException.class,
-                        () -> getChars(constructor.apply(input), 0, input.length(), new char[input.length()], -1))),
+                        () -> getChars(sequence, 0, length, new char[length], -1))),
                 dynamicTest("too large portion", () -> assertThrows(IndexOutOfBoundsException.class,
-                        () -> getChars(constructor.apply(input), 0, input.length(), new char[input.length()], 1))),
+                        () -> getChars(sequence, 0, length, new char[length], 1))),
                 dynamicTest("get all", () -> {
-                    char[] dst = new char[input.length() + 2];
-                    getChars(constructor.apply(input), 0, input.length(), dst, 1);
+                    char[] dst = new char[length + 2];
+                    getChars(sequence, 0, length, dst, 1);
                     char[] expected = ('\0' + input + '\0').toCharArray();
                     assertArrayEquals(expected, dst);
                 }),
                 dynamicTest("get some", () -> {
-                    char[] dst = new char[input.length()];
-                    getChars(constructor.apply(input), 1, input.length() - 1, dst, 1);
-                    char[] expected = ('\0' + input.substring(1, input.length() - 1) + '\0').toCharArray();
+                    char[] dst = new char[length];
+                    getChars(sequence, 1, length - 1, dst, 1);
+                    char[] expected = ('\0' + input.substring(1, length - 1) + '\0').toCharArray();
                     assertArrayEquals(expected, dst);
                 }),
         };
@@ -203,21 +206,25 @@ class ObfuscatorUtilsTest {
     @DisplayName("checkIndex(CharSequence, int)")
     void testCheckIndexForCharSequence() {
         CharSequence sequence = "hello world";
+        int length = sequence.length();
+
         checkIndex(sequence, 0);
         assertThrows(IndexOutOfBoundsException.class, () -> checkIndex(sequence, -1));
-        assertThrows(IndexOutOfBoundsException.class, () -> checkIndex(sequence, sequence.length()));
-        checkIndex(sequence, sequence.length() - 1);
+        assertThrows(IndexOutOfBoundsException.class, () -> checkIndex(sequence, length));
+        checkIndex(sequence, length - 1);
     }
 
     @Test
     @DisplayName("checkOffsetAndLength(CharSequence, int, int)")
     void testCheckOffsetAndLengthForCharSequence() {
         CharSequence sequence = "hello world";
-        checkOffsetAndLength(sequence, 0, sequence.length());
-        assertThrows(IndexOutOfBoundsException.class, () -> checkOffsetAndLength(sequence, -1, sequence.length()));
+        int length = sequence.length();
+
+        checkOffsetAndLength(sequence, 0, length);
+        assertThrows(IndexOutOfBoundsException.class, () -> checkOffsetAndLength(sequence, -1, length));
         assertThrows(IndexOutOfBoundsException.class, () -> checkOffsetAndLength(sequence, 1, -1));
-        assertThrows(IndexOutOfBoundsException.class, () -> checkOffsetAndLength(sequence, 0, sequence.length() + 1));
-        assertThrows(IndexOutOfBoundsException.class, () -> checkOffsetAndLength(sequence, 1, sequence.length()));
+        assertThrows(IndexOutOfBoundsException.class, () -> checkOffsetAndLength(sequence, 0, length + 1));
+        assertThrows(IndexOutOfBoundsException.class, () -> checkOffsetAndLength(sequence, 1, length));
         checkOffsetAndLength(sequence, 1, 0);
     }
 
@@ -225,11 +232,13 @@ class ObfuscatorUtilsTest {
     @DisplayName("checkStartAndEnd(CharSequence, int, int)")
     void testCheckStartAndEndForCharSequence() {
         CharSequence sequence = "hello world";
-        checkStartAndEnd(sequence, 0, sequence.length());
-        assertThrows(IndexOutOfBoundsException.class, () -> checkStartAndEnd(sequence, -1, sequence.length()));
+        int length = sequence.length();
+
+        checkStartAndEnd(sequence, 0, length);
+        assertThrows(IndexOutOfBoundsException.class, () -> checkStartAndEnd(sequence, -1, length));
         assertThrows(IndexOutOfBoundsException.class, () -> checkStartAndEnd(sequence, 1, -1));
-        assertThrows(IndexOutOfBoundsException.class, () -> checkStartAndEnd(sequence, 0, sequence.length() + 1));
-        checkStartAndEnd(sequence, 1, sequence.length());
+        assertThrows(IndexOutOfBoundsException.class, () -> checkStartAndEnd(sequence, 0, length + 1));
+        checkStartAndEnd(sequence, 1, length);
         assertThrows(IndexOutOfBoundsException.class, () -> checkStartAndEnd(sequence, 1, 0));
     }
 
@@ -268,11 +277,13 @@ class ObfuscatorUtilsTest {
     @SuppressWarnings("resource")
     void testReaderWithRange() {
         CharSequence sequence = "hello world";
-        assertThat(reader(sequence, 0, sequence.length()), instanceOf(CharSequenceReader.class));
+        int length = sequence.length();
+
+        assertThat(reader(sequence, 0, length), instanceOf(CharSequenceReader.class));
         assertThrows(NullPointerException.class, () -> reader(null, 0, 0));
-        assertThrows(IndexOutOfBoundsException.class, () -> reader(sequence, -1, sequence.length()));
+        assertThrows(IndexOutOfBoundsException.class, () -> reader(sequence, -1, length));
         assertThrows(IndexOutOfBoundsException.class, () -> reader(sequence, 1, -1));
-        assertThrows(IndexOutOfBoundsException.class, () -> reader(sequence, 0, sequence.length() + 1));
+        assertThrows(IndexOutOfBoundsException.class, () -> reader(sequence, 0, length + 1));
         assertThrows(IndexOutOfBoundsException.class, () -> reader(sequence, 1, 0));
     }
 
@@ -302,26 +313,33 @@ class ObfuscatorUtilsTest {
     @DisplayName("copyTo(Reader, Appendable)")
     @SuppressWarnings("resource")
     void testCopyTo() {
-        assertThat(copyTo(new StringReader(""), new StringBuilder()), instanceOf(CopyingReader.class));
-        assertThrows(NullPointerException.class, () -> copyTo(null, new StringBuilder()));
-        assertThrows(NullPointerException.class, () -> copyTo(new StringReader(""), null));
+        StringReader reader = new StringReader("");
+        StringBuilder sb = new StringBuilder();
+
+        assertThat(copyTo(reader, sb), instanceOf(CopyingReader.class));
+        assertThrows(NullPointerException.class, () -> copyTo(null, sb));
+        assertThrows(NullPointerException.class, () -> copyTo(reader, null));
     }
 
     @Test
     @DisplayName("readAtMost(Reader, int)")
     @SuppressWarnings("resource")
     void testReadAtMost() {
-        assertThat(readAtMost(new StringReader(""), 5), instanceOf(LimitReader.class));
+        StringReader stringReader = new StringReader("");
+
+        assertThat(readAtMost(stringReader, 5), instanceOf(LimitReader.class));
         assertThrows(NullPointerException.class, () -> readAtMost(null, 5));
-        assertThrows(IllegalArgumentException.class, () -> readAtMost(new StringReader(""), -1));
+        assertThrows(IllegalArgumentException.class, () -> readAtMost(stringReader, -1));
     }
 
     @Test
     @DisplayName("appendAtMost(Appendable, int)")
     void testAppendAtMost() {
-        assertThat(appendAtMost(new StringWriter(), 5), instanceOf(LimitAppendable.class));
+        StringWriter writer = new StringWriter();
+
+        assertThat(appendAtMost(writer, 5), instanceOf(LimitAppendable.class));
         assertThrows(NullPointerException.class, () -> appendAtMost(null, 5));
-        assertThrows(IllegalArgumentException.class, () -> appendAtMost(new StringWriter(), -1));
+        assertThrows(IllegalArgumentException.class, () -> appendAtMost(writer, -1));
     }
 
     @Test
@@ -455,6 +473,7 @@ class ObfuscatorUtilsTest {
             throws IOException {
 
         String input = "hello world";
+        int length = input.length();
 
         Appendable destination = destinationSupplier.get();
         append(input, 5, 5, destination);
@@ -464,10 +483,10 @@ class ObfuscatorUtilsTest {
 
         assertThrows(NullPointerException.class, () -> append((String) null, 0, 0, destination));
 
-        assertThrows(IndexOutOfBoundsException.class, () -> append(input, -1, input.length(), destination));
-        assertThrows(IndexOutOfBoundsException.class, () -> append(input, 0, input.length() + 1, destination));
+        assertThrows(IndexOutOfBoundsException.class, () -> append(input, -1, length, destination));
+        assertThrows(IndexOutOfBoundsException.class, () -> append(input, 0, length + 1, destination));
         assertThrows(IndexOutOfBoundsException.class, () -> append(input, 0, -1, destination));
-        assertThrows(IndexOutOfBoundsException.class, () -> append(input, input.length() + 1, input.length(), destination));
+        assertThrows(IndexOutOfBoundsException.class, () -> append(input, length + 1, length, destination));
     }
 
     Arguments[] appendableArguments() {

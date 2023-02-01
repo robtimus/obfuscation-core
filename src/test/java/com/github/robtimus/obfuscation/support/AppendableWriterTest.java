@@ -135,17 +135,19 @@ class AppendableWriterTest extends StreamTestBase {
         void testWriteStringRange() throws IOException {
             Appendable appendable = appendableSupplier.get();
             try (Writer writer = new AppendableWriter(appendable)) {
+                int length = SOURCE.length();
+
                 int index = 0;
                 writer.write(SOURCE, index, 0);
-                while (index < SOURCE.length()) {
-                    int to = Math.min(index + 5, SOURCE.length());
+                while (index < length) {
+                    int to = Math.min(index + 5, length);
                     writer.write(SOURCE, index, to - index);
                     index = to;
                 }
 
-                assertThrows(IndexOutOfBoundsException.class, () -> writer.write(SOURCE, 0, SOURCE.length() + 1));
-                assertThrows(IndexOutOfBoundsException.class, () -> writer.write(SOURCE, -1, SOURCE.length()));
-                assertThrows(IndexOutOfBoundsException.class, () -> writer.write(SOURCE, 1, SOURCE.length()));
+                assertThrows(IndexOutOfBoundsException.class, () -> writer.write(SOURCE, 0, length + 1));
+                assertThrows(IndexOutOfBoundsException.class, () -> writer.write(SOURCE, -1, length));
+                assertThrows(IndexOutOfBoundsException.class, () -> writer.write(SOURCE, 1, length));
                 assertThrows(IndexOutOfBoundsException.class, () -> writer.write(SOURCE, 0, -1));
             }
             assertEquals(SOURCE, appendable.toString());
@@ -167,17 +169,19 @@ class AppendableWriterTest extends StreamTestBase {
         void testAppendCharSequenceRange() throws IOException {
             Appendable appendable = appendableSupplier.get();
             try (Writer writer = new AppendableWriter(appendable)) {
+                int length = SOURCE.length();
+
                 int index = 0;
-                while (index < SOURCE.length()) {
-                    int to = Math.min(index + 5, SOURCE.length());
+                while (index < length) {
+                    int to = Math.min(index + 5, length);
                     writer.append(SOURCE, index, to);
                     index = to;
                 }
                 writer.append(null, 0, 2);
                 writer.append(null, 2, 4);
 
-                assertThrows(IndexOutOfBoundsException.class, () -> writer.append(SOURCE, 0, SOURCE.length() + 1));
-                assertThrows(IndexOutOfBoundsException.class, () -> writer.append(SOURCE, -1, SOURCE.length()));
+                assertThrows(IndexOutOfBoundsException.class, () -> writer.append(SOURCE, 0, length + 1));
+                assertThrows(IndexOutOfBoundsException.class, () -> writer.append(SOURCE, -1, length));
                 assertThrows(IndexOutOfBoundsException.class, () -> writer.append(SOURCE, 1, 0));
 
                 assertThrows(IndexOutOfBoundsException.class, () -> writer.append(null, 0, 5));

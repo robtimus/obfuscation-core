@@ -353,17 +353,17 @@ final class ObfuscatingProperties extends Properties {
     private static final class Values extends ObfuscatingCollection<Object> {
 
         private final ObfuscatingProperties properties;
-        private final Set<Map.Entry<Object, Object>> entrySet;
+        private final Set<Map.Entry<Object, Object>> entries;
 
         private Values(ObfuscatingProperties properties) {
             super(properties.properties.values(), unsupportedOperation(), unsupportedUnaryOperation());
             this.properties = properties;
-            entrySet = properties.properties.entrySet();
+            entries = properties.properties.entrySet();
         }
 
         @Override
         public String toString() {
-            Iterator<Map.Entry<Object, Object>> iterator = entrySet.iterator();
+            Iterator<Map.Entry<Object, Object>> iterator = entries.iterator();
             if (!iterator.hasNext()) {
                 return "[]"; //$NON-NLS-1$
             }
@@ -386,17 +386,17 @@ final class ObfuscatingProperties extends Properties {
     private static final class EntrySet extends ObfuscatingSet<Map.Entry<Object, Object>> {
 
         private final ObfuscatingProperties properties;
-        private final Set<Entry<Object, Object>> entrySet;
+        private final Set<Entry<Object, Object>> entries;
 
         private EntrySet(ObfuscatingProperties properties) {
             super(properties.properties.entrySet(), unsupportedOperation(), unsupportedUnaryOperation());
             this.properties = properties;
-            entrySet = properties.properties.entrySet();
+            entries = properties.properties.entrySet();
         }
 
         @Override
         public String toString() {
-            Iterator<Entry<Object, Object>> iterator = entrySet.iterator();
+            Iterator<Entry<Object, Object>> iterator = entries.iterator();
             if (!iterator.hasNext()) {
                 return "[]"; //$NON-NLS-1$
             }

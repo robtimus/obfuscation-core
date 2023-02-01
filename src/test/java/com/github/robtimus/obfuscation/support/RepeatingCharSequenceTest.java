@@ -42,12 +42,14 @@ class RepeatingCharSequenceTest {
     }
 
     private void testCharAtAndLength(String string, CharSequence sequence) {
-        assertEquals(string.length(), sequence.length());
-        for (int i = 0; i < sequence.length(); i++) {
+        int length = sequence.length();
+
+        assertEquals(string.length(), length);
+        for (int i = 0; i < length; i++) {
             assertEquals(string.charAt(i), sequence.charAt(i));
         }
         assertThrows(IndexOutOfBoundsException.class, () -> sequence.charAt(-1));
-        assertThrows(IndexOutOfBoundsException.class, () -> sequence.charAt(sequence.length()));
+        assertThrows(IndexOutOfBoundsException.class, () -> sequence.charAt(length));
     }
 
     @Test

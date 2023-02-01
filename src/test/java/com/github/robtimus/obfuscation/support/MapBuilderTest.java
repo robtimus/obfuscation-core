@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.AbstractMap.SimpleEntry;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -369,8 +370,11 @@ class MapBuilderTest {
             @Test
             @DisplayName("putAll(Map<? extends String, ? extends V>)")
             void testPutAll() {
-                assertThrows(UnsupportedOperationException.class, () -> map.putAll(Collections.emptyMap()));
-                assertThrows(UnsupportedOperationException.class, () -> map.putAll(Collections.singletonMap("a", 0)));
+                Map<String, Integer> emptyMap = Collections.emptyMap();
+                Map<String, Integer> singletonMap = Collections.singletonMap("a", 0);
+
+                assertThrows(UnsupportedOperationException.class, () -> map.putAll(emptyMap));
+                assertThrows(UnsupportedOperationException.class, () -> map.putAll(singletonMap));
                 assertEquals(4, map.size());
                 assertEquals(1, map.get("a"));
             }
@@ -461,8 +465,11 @@ class MapBuilderTest {
                 @Test
                 @DisplayName("add(Entry<String, V>)")
                 void testAdd() {
-                    assertThrows(UnsupportedOperationException.class, () -> entrySet.add(new SimpleEntry<>("a", 0)));
-                    assertThrows(UnsupportedOperationException.class, () -> entrySet.add(new SimpleEntry<>("x", 0)));
+                    Map.Entry<String, Integer> entryWithContainedKey = new SimpleEntry<>("a", 0);
+                    Map.Entry<String, Integer> entryWithNonContainedKey = new SimpleEntry<>("x", 0);
+
+                    assertThrows(UnsupportedOperationException.class, () -> entrySet.add(entryWithContainedKey));
+                    assertThrows(UnsupportedOperationException.class, () -> entrySet.add(entryWithNonContainedKey));
                     assertEquals(4, entrySet.size());
                     assertEquals(1, map.get("a"));
                 }
@@ -470,8 +477,11 @@ class MapBuilderTest {
                 @Test
                 @DisplayName("remove(Object)")
                 void testRemove() {
-                    assertThrows(UnsupportedOperationException.class, () -> entrySet.remove(new SimpleEntry<>("a", 0)));
-                    assertThrows(UnsupportedOperationException.class, () -> entrySet.remove(new SimpleEntry<>("x", 0)));
+                    Map.Entry<String, Integer> entryWithContainedKey = new SimpleEntry<>("a", 0);
+                    Map.Entry<String, Integer> entryWithNonContainedKey = new SimpleEntry<>("x", 0);
+
+                    assertThrows(UnsupportedOperationException.class, () -> entrySet.remove(entryWithContainedKey));
+                    assertThrows(UnsupportedOperationException.class, () -> entrySet.remove(entryWithNonContainedKey));
                     assertEquals(4, entrySet.size());
                     assertEquals(1, map.get("a"));
                 }
@@ -479,8 +489,11 @@ class MapBuilderTest {
                 @Test
                 @DisplayName("addAll(Collection<? extends Entry<String, V>)")
                 void testAddAll() {
-                    assertThrows(UnsupportedOperationException.class, () -> entrySet.addAll(Collections.emptyList()));
-                    assertThrows(UnsupportedOperationException.class, () -> entrySet.addAll(Collections.singleton(new SimpleEntry<>("a", 0))));
+                    Collection<Map.Entry<String, Integer>> emptyCollection = Collections.emptyList();
+                    Collection<Map.Entry<String, Integer>> singletonCollection = Collections.singleton(new SimpleEntry<>("a", 0));
+
+                    assertThrows(UnsupportedOperationException.class, () -> entrySet.addAll(emptyCollection));
+                    assertThrows(UnsupportedOperationException.class, () -> entrySet.addAll(singletonCollection));
                     assertEquals(4, entrySet.size());
                     assertEquals(1, map.get("a"));
                 }
@@ -488,8 +501,11 @@ class MapBuilderTest {
                 @Test
                 @DisplayName("retainAll(Collection<?>)")
                 void testRetainAll() {
-                    assertThrows(UnsupportedOperationException.class, () -> entrySet.retainAll(Collections.emptyList()));
-                    assertThrows(UnsupportedOperationException.class, () -> entrySet.retainAll(Collections.singleton(new SimpleEntry<>("a", 0))));
+                    Collection<?> emptyCollection = Collections.emptyList();
+                    Collection<?> singletonCollection = Collections.singleton(new SimpleEntry<>("a", 0));
+
+                    assertThrows(UnsupportedOperationException.class, () -> entrySet.retainAll(emptyCollection));
+                    assertThrows(UnsupportedOperationException.class, () -> entrySet.retainAll(singletonCollection));
                     assertEquals(4, entrySet.size());
                     assertEquals(1, map.get("a"));
                 }
@@ -497,8 +513,11 @@ class MapBuilderTest {
                 @Test
                 @DisplayName("removeAll(Collection<?>)")
                 void testRemoveAll() {
-                    assertThrows(UnsupportedOperationException.class, () -> entrySet.removeAll(Collections.emptyList()));
-                    assertThrows(UnsupportedOperationException.class, () -> entrySet.removeAll(Collections.singleton(new SimpleEntry<>("a", 0))));
+                    Collection<?> emptyCollection = Collections.emptyList();
+                    Collection<?> singletonCollection = Collections.singleton(new SimpleEntry<>("a", 0));
+
+                    assertThrows(UnsupportedOperationException.class, () -> entrySet.removeAll(emptyCollection));
+                    assertThrows(UnsupportedOperationException.class, () -> entrySet.removeAll(singletonCollection));
                     assertEquals(4, entrySet.size());
                     assertEquals(1, map.get("a"));
                 }

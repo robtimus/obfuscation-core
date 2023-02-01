@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import com.github.robtimus.obfuscation.Obfuscator;
 
 class CachingObfuscatingWriterTest {
 
@@ -39,7 +40,9 @@ class CachingObfuscatingWriterTest {
         if (expectSuccess) {
             assertDoesNotThrow(() -> new CachingObfuscatingWriter(all(), new StringBuilder(), capacity));
         } else {
-            assertThrows(NegativeArraySizeException.class, () -> new CachingObfuscatingWriter(all(), new StringBuilder(), capacity));
+            Obfuscator obfuscator = all();
+            StringBuilder sb = new StringBuilder();
+            assertThrows(NegativeArraySizeException.class, () -> new CachingObfuscatingWriter(obfuscator, sb, capacity));
         }
     }
 }
