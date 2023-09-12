@@ -17,6 +17,7 @@
 
 package com.github.robtimus.obfuscation.support;
 
+import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.checkOffsetAndLength;
 import java.io.IOException;
 import java.io.Reader;
 
@@ -48,6 +49,7 @@ final class LimitReader extends Reader {
 
     @Override
     public int read(char[] cbuf, int off, int len) throws IOException {
+        checkOffsetAndLength(cbuf, off, len);
         if (remaining == 0) {
             return -1;
         }

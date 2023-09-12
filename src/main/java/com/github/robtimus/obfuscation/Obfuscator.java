@@ -55,6 +55,8 @@ public abstract class Obfuscator {
 
     private static final char DEFAULT_MASK_CHAR = '*';
 
+    private static final NoneObfuscator NONE = new NoneObfuscator();
+
     /**
      * Obfuscates the contents of a {@code CharSequence}.
      *
@@ -518,108 +520,118 @@ public abstract class Obfuscator {
 
         @Override
         public Writer streamTo(Appendable destination) {
-            return new ObfuscatingWriter() {
-                private Writer writer = first.streamTo(destination);
-                private int remainingForChange = lengthForFirst;
+            return new CombinedObfuscatorWriter(destination);
+        }
 
-                @Override
-                public void write(int c) throws IOException {
-                    checkClosed();
+        private final class CombinedObfuscatorWriter extends ObfuscatingWriter {
 
+            private final Appendable destination;
+            private Writer writer;
+            private int remainingForChange;
+
+            private CombinedObfuscatorWriter(Appendable destination) {
+                this.destination = destination;
+                writer = first.streamTo(destination);
+                remainingForChange = lengthForFirst;
+            }
+
+            @Override
+            public void write(int c) throws IOException {
+                checkClosed();
+
+                changeWriterIfNeeded();
+                writer.write(c);
+                if (remainingForChange > 0) {
+                    remainingForChange--;
+                }
+            }
+
+            @Override
+            public void write(char[] cbuf, int off, int len) throws IOException {
+                checkClosed();
+                checkOffsetAndLength(cbuf, off, len);
+
+                int remaining = len;
+                int written = 0;
+                if (remainingForChange > 0) {
+                    written = Math.min(remainingForChange, len);
+                    writer.write(cbuf, off, written);
+                    remainingForChange -= written;
+                    remaining -= written;
+                }
+                if (remaining > 0) {
                     changeWriterIfNeeded();
-                    writer.write(c);
-                    if (remainingForChange > 0) {
-                        remainingForChange--;
-                    }
+                    writer.write(cbuf, off + written, remaining);
                 }
+            }
 
-                @Override
-                public void write(char[] cbuf, int off, int len) throws IOException {
-                    checkClosed();
-                    checkOffsetAndLength(cbuf, off, len);
+            @Override
+            public void write(String str, int off, int len) throws IOException {
+                checkClosed();
+                checkOffsetAndLength(str, off, len);
 
-                    int remaining = len;
-                    int written = 0;
-                    if (remainingForChange > 0) {
-                        written = Math.min(remainingForChange, len);
-                        writer.write(cbuf, off, written);
-                        remainingForChange -= written;
-                        remaining -= written;
-                    }
-                    if (remaining > 0) {
-                        changeWriterIfNeeded();
-                        writer.write(cbuf, off + written, remaining);
-                    }
+                int remaining = len;
+                int written = 0;
+                if (remainingForChange > 0) {
+                    written = Math.min(remainingForChange, len);
+                    writer.write(str, off, written);
+                    remainingForChange -= written;
+                    remaining -= written;
                 }
-
-                @Override
-                public void write(String str, int off, int len) throws IOException {
-                    checkClosed();
-                    checkOffsetAndLength(str, off, len);
-
-                    int remaining = len;
-                    int written = 0;
-                    if (remainingForChange > 0) {
-                        written = Math.min(remainingForChange, len);
-                        writer.write(str, off, written);
-                        remainingForChange -= written;
-                        remaining -= written;
-                    }
-                    if (remaining > 0) {
-                        changeWriterIfNeeded();
-                        writer.write(str, off + written, remaining);
-                    }
+                if (remaining > 0) {
+                    changeWriterIfNeeded();
+                    writer.write(str, off + written, remaining);
                 }
+            }
 
-                @Override
-                public Writer append(CharSequence csq) throws IOException {
-                    checkClosed();
+            @Override
+            public Writer append(CharSequence csq) throws IOException {
+                checkClosed();
 
-                    CharSequence cs = csq == null ? "null" : csq; //$NON-NLS-1$
-                    return append(cs, 0, cs.length());
+                CharSequence cs = csq == null ? "null" : csq; //$NON-NLS-1$
+                return append(cs, 0, cs.length());
+            }
+
+            @Override
+            public Writer append(CharSequence csq, int start, int end) throws IOException {
+                checkClosed();
+                CharSequence cs = csq == null ? "null" : csq; //$NON-NLS-1$
+                checkStartAndEnd(cs, start, end);
+
+                int len = end - start;
+                int remaining = len;
+                int written = 0;
+                if (remainingForChange > 0) {
+                    written = Math.min(remainingForChange, len);
+                    writer.append(cs, start, start + written);
+                    remainingForChange -= written;
+                    remaining -= written;
                 }
-
-                @Override
-                public Writer append(CharSequence csq, int start, int end) throws IOException {
-                    checkClosed();
-                    CharSequence cs = csq == null ? "null" : csq; //$NON-NLS-1$
-                    checkStartAndEnd(cs, start, end);
-
-                    int len = end - start;
-                    int remaining = len;
-                    int written = 0;
-                    if (remainingForChange > 0) {
-                        written = Math.min(remainingForChange, len);
-                        writer.append(cs, start, start + written);
-                        remainingForChange -= written;
-                        remaining -= written;
-                    }
-                    if (remaining > 0) {
-                        changeWriterIfNeeded();
-                        writer.append(cs, start + written, end);
-                    }
-                    return this;
+                if (remaining > 0) {
+                    changeWriterIfNeeded();
+                    writer.append(cs, start + written, end);
                 }
+                return this;
+            }
 
-                @Override
-                public Writer append(char c) throws IOException {
-                    write(c);
-                    return this;
-                }
+            @Override
+            public Writer append(char c) throws IOException {
+                write(c);
+                return this;
+            }
 
-                private void changeWriterIfNeeded() throws IOException {
-                    if (remainingForChange == 0) {
-                        writer.close();
-                        writer = second.streamTo(destination);
-                        remainingForChange = -1;
-                    }
-                }
-
-                @Override
-                protected void onClose() throws IOException {
+            private void changeWriterIfNeeded() throws IOException {
+                if (remainingForChange == 0) {
                     writer.close();
+                    writer = second.streamTo(destination);
+                    remainingForChange = -1;
                 }
-            };
+            }
+
+            @Override
+            protected void onClose() throws IOException {
+                writer.close();
+            }
         }
 
         @Override
@@ -862,12 +874,10 @@ public abstract class Obfuscator {
      * @return An obfuscator that does not obfuscate anything.
      */
     public static final Obfuscator none() {
-        return NoneObfuscator.INSTANCE;
+        return NONE;
     }
 
     private static final class NoneObfuscator extends Obfuscator {
-
-        private static final NoneObfuscator INSTANCE = new NoneObfuscator();
 
         @Override
         public CharSequence obfuscateText(CharSequence s) {
