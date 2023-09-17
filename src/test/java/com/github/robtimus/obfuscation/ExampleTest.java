@@ -338,4 +338,37 @@ class ExampleTest {
             assertEquals("1234********34", obfuscated.toString());
         }
     }
+
+    @Nested
+    @DisplayName("Splitting text during obfuscation")
+    class Split {
+
+        @Test
+        @DisplayName("keep domain as-is")
+        void testNonObfuscatedDomain() {
+            Obfuscator localPartObfuscator = Obfuscator.portion()
+                    .keepAtStart(1)
+                    .keepAtEnd(1)
+                    .withFixedTotalLength(8)
+                    .build();
+            Obfuscator domainObfuscator = Obfuscator.none();
+            Obfuscator obfuscator = Obfuscator.SplitPoint.atFirst('@').splitTo(localPartObfuscator, domainObfuscator);
+            CharSequence obfuscated = obfuscator.obfuscateText("test@example.org");
+            assertEquals("t******t@example.org", obfuscated.toString());
+        }
+
+        @Test
+        @DisplayName("keep only the TLD of the domain")
+        void testNonObfuscatedTLD() {
+            Obfuscator localPartObfuscator = Obfuscator.portion()
+                    .keepAtStart(1)
+                    .keepAtEnd(1)
+                    .withFixedTotalLength(8)
+                    .build();
+            Obfuscator domainObfuscator = Obfuscator.SplitPoint.atLast('.').splitTo(Obfuscator.all(), Obfuscator.none());
+            Obfuscator obfuscator = Obfuscator.SplitPoint.atFirst('@').splitTo(localPartObfuscator, domainObfuscator);
+            CharSequence obfuscated = obfuscator.obfuscateText("test@example.org");
+            assertEquals("t******t@*******.org", obfuscated.toString());
+        }
+    }
 }

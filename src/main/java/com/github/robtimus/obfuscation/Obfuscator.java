@@ -23,6 +23,8 @@ import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.concat;
 import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.copyAll;
 import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.discardAll;
 import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.getChars;
+import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.indexOf;
+import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.lastIndexOf;
 import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.maskAll;
 import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.readAll;
 import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.readAtMost;
@@ -1757,6 +1759,321 @@ public abstract class Obfuscator {
             }
             return sb.append("maskChar=").append(maskChar).append(']')
                     .toString();
+        }
+    }
+
+    /**
+     * A point in a {@link CharSequence} or {@link Reader} to split obfuscation.
+     * Like {@link #untilLength(int)}, this can be used to combine obfuscators. For instance, to obfuscate email addresses:
+     * <pre><code>
+     * Obfuscator localPartObfuscator = portion()
+     *         .keepAtStart(1)
+     *         .keepAtEnd(1)
+     *         .withFixedTotalLength(8)
+     *         .build();
+     * Obfuscator domainObfuscator = none();
+     * Obfuscator obfuscator = SplitPoint.atFirst('@').splitTo(localPartObfuscator, domainObfuscator);
+     * // Everything before @ will be obfuscated using localPartObfuscator, everything after @ will not be obfuscated
+     * // Example input: test@example.org
+     * // Example output: t******t@example.org
+     * </code></pre>
+     * Unlike {@link #untilLength(int)} it's not possible to chain splitting, but it's of course possible to nest it:
+     * <pre><code>
+     * Obfuscator localPartObfuscator = portion()
+     *         .keepAtStart(1)
+     *         .keepAtEnd(1)
+     *         .withFixedTotalLength(8)
+     *         .build();
+     * Obfuscator domainObfuscator = SplitPoint.atLast('.').splitTo(all(), none());
+     * Obfuscator obfuscator = SplitPoint.atFirst('@').split(localPartObfuscator, domainObfuscator);
+     * // Everything before @ will be obfuscated using localPartObfuscator, everything after @ will be obfuscated until the last dot
+     * // Example input: test@example.org
+     * // Example output: t******t@*******.org
+     * </code></pre>
+     *
+     * @author Rob Spoor
+     * @since 1.5
+     */
+    public abstract static class SplitPoint {
+
+        SplitPoint() {
+        }
+
+        /**
+         * Creates a new split point that splits at the first occurrence of a character.
+         * This split point is exclusive; the character itself will not be obfuscated.
+         *
+         * @param c The character to split at.
+         * @return The created split point.
+         */
+        public static SplitPoint atFirst(char c) {
+            return new FirstChar(c);
+        }
+
+        /**
+         * Creates a new split point that splits at the last occurrence of a character.
+         * This split point is exclusive; the character itself will not be obfuscated.
+         *
+         * @param c The character to split at.
+         * @return The created split point.
+         */
+        public static SplitPoint atLast(char c) {
+            return new LastChar(c);
+        }
+
+        /**
+         * Creates a new split point that splits at a specific occurrence of a character.
+         * This split point is exclusive; the character itself will not be obfuscated.
+         *
+         * @param c The character to split at.
+         * @param occurrence The zero-based occurrence of the character to split at.
+         * @return The created split point.
+         * @throws IllegalArgumentException If the given occurrence is negative.
+         */
+        public static SplitPoint atNth(char c, int occurrence) {
+            if (occurrence < 0) {
+                throw new IllegalArgumentException(occurrence + " < 0"); //$NON-NLS-1$
+            }
+            return new NthChar(c, occurrence);
+        }
+
+        abstract int splitStart(CharSequence s, int start, int end);
+
+        abstract int splitLength();
+
+        /**
+         * Creates an obfuscator that splits obfuscation at this split point. The part of the {@link CharSequence} or {@link Reader} before the split
+         * point will be obfuscated by one obfuscator, the part after the split point by another.
+         *
+         * @param beforeSplitPoint The obfuscator to use before the split point.
+         * @param afterSplitPoint The obfuscator to use after the split point.
+         * @return The created obfuscator.
+         */
+        public Obfuscator splitTo(Obfuscator beforeSplitPoint, Obfuscator afterSplitPoint) {
+            Objects.requireNonNull(beforeSplitPoint);
+            Objects.requireNonNull(afterSplitPoint);
+            return new SplitPointObfuscator(this, beforeSplitPoint, afterSplitPoint);
+        }
+
+        private static final class FirstChar extends SplitPoint {
+
+            private final char splitAt;
+
+            private FirstChar(char splitAt) {
+                this.splitAt = splitAt;
+            }
+
+            @Override
+            int splitStart(CharSequence s, int start, int end) {
+                int index = indexOf(s, splitAt, start, end);
+                return index == -1 ? end : index;
+            }
+
+            @Override
+            int splitLength() {
+                return 1;
+            }
+
+            @Override
+            public boolean equals(Object o) {
+                if (this == o) {
+                    return true;
+                }
+                if (o == null || o.getClass() != getClass()) {
+                    return false;
+                }
+                FirstChar other = (FirstChar) o;
+                return splitAt == other.splitAt;
+            }
+
+            @Override
+            public int hashCode() {
+                return splitAt;
+            }
+
+            @Override
+            @SuppressWarnings("nls")
+            public String toString() {
+                return "first occurrence of " + splitAt;
+            }
+        }
+
+        private static final class LastChar extends SplitPoint {
+
+            private final char splitAt;
+
+            private LastChar(char splitAt) {
+                this.splitAt = splitAt;
+            }
+
+            @Override
+            int splitStart(CharSequence s, int start, int end) {
+                int index = lastIndexOf(s, splitAt, start, end);
+                return index == -1 ? end : index;
+            }
+
+            @Override
+            int splitLength() {
+                return 1;
+            }
+
+            @Override
+            public boolean equals(Object o) {
+                if (this == o) {
+                    return true;
+                }
+                if (o == null || o.getClass() != getClass()) {
+                    return false;
+                }
+                LastChar other = (LastChar) o;
+                return splitAt == other.splitAt;
+            }
+
+            @Override
+            public int hashCode() {
+                return splitAt;
+            }
+
+            @Override
+            @SuppressWarnings("nls")
+            public String toString() {
+                return "last occurrence of " + splitAt;
+            }
+        }
+
+        private static final class NthChar extends SplitPoint {
+
+            private final char splitAt;
+            private final int occurrence;
+
+            private NthChar(char splitAt, int occurrence) {
+                this.splitAt = splitAt;
+                this.occurrence = occurrence;
+            }
+
+            @Override
+            int splitStart(CharSequence s, int start, int end) {
+                int index = indexOf(s, splitAt, start, end);
+                for (int i = 1; i <= occurrence && index != -1; i++) {
+                    index = indexOf(s, splitAt, index + 1, end);
+                }
+                return index == -1 ? end : index;
+            }
+
+            @Override
+            int splitLength() {
+                return 1;
+            }
+
+            @Override
+            public boolean equals(Object o) {
+                if (this == o) {
+                    return true;
+                }
+                if (o == null || o.getClass() != getClass()) {
+                    return false;
+                }
+                NthChar other = (NthChar) o;
+                return splitAt == other.splitAt && occurrence == other.occurrence;
+            }
+
+            @Override
+            public int hashCode() {
+                return splitAt;
+            }
+
+            @Override
+            @SuppressWarnings("nls")
+            public String toString() {
+                return "occurrence " + occurrence + " of " + splitAt;
+            }
+        }
+    }
+
+    private static final class SplitPointObfuscator extends Obfuscator {
+
+        private final SplitPoint splitPoint;
+        private final Obfuscator beforeSplitPoint;
+        private final Obfuscator afterSplitPoint;
+
+        private SplitPointObfuscator(SplitPoint splitPoint, Obfuscator beforeSplitPoint, Obfuscator afterSplitPoint) {
+            this.splitPoint = splitPoint;
+            this.beforeSplitPoint = beforeSplitPoint;
+            this.afterSplitPoint = afterSplitPoint;
+        }
+
+        @Override
+        public CharSequence obfuscateText(CharSequence s, int start, int end) {
+            int splitStart = splitPoint.splitStart(s, start, end);
+            CharSequence resultBeforeSplitPoint = beforeSplitPoint.obfuscateText(s, start, splitStart);
+
+            if (splitStart == end) {
+                return resultBeforeSplitPoint;
+            }
+
+            int splitLength = splitPoint.splitLength();
+            if (splitLength > 0) {
+                CharSequence split = s.subSequence(splitStart, splitStart + splitLength);
+                CharSequence resultAfterSplitPoint = afterSplitPoint.obfuscateText(s, splitStart + splitLength, end);
+                return concat(resultBeforeSplitPoint, concat(split, resultAfterSplitPoint));
+            }
+
+            CharSequence resultAfterSplitPoint = afterSplitPoint.obfuscateText(s, splitStart, end);
+            return concat(resultBeforeSplitPoint, resultAfterSplitPoint);
+        }
+
+        @Override
+        public void obfuscateText(CharSequence s, int start, int end, Appendable destination) throws IOException {
+            int splitStart = splitPoint.splitStart(s, start, end);
+            beforeSplitPoint.obfuscateText(s, start, splitStart, destination);
+
+            if (splitStart < end) {
+                int splitLength = splitPoint.splitLength();
+                destination.append(s, splitStart, splitStart + splitLength);
+                afterSplitPoint.obfuscateText(s, splitStart + splitLength, end, destination);
+            }
+        }
+
+        @Override
+        public CharSequence obfuscateText(Reader input) throws IOException {
+            CharSequence s = readAll(input);
+            return obfuscateText(s);
+        }
+
+        @Override
+        public void obfuscateText(Reader input, Appendable destination) throws IOException {
+            CharSequence s = readAll(input);
+            obfuscateText(s, destination);
+        }
+
+        @Override
+        public Writer streamTo(Appendable destination) {
+            return new CachingObfuscatingWriter(this, destination);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || o.getClass() != getClass()) {
+                return false;
+            }
+            SplitPointObfuscator other = (SplitPointObfuscator) o;
+            return splitPoint.equals(other.splitPoint)
+                    && beforeSplitPoint.equals(other.beforeSplitPoint)
+                    && afterSplitPoint.equals(other.afterSplitPoint);
+        }
+
+        @Override
+        public int hashCode() {
+            return splitPoint.hashCode() ^ beforeSplitPoint.hashCode() ^ afterSplitPoint.hashCode();
+        }
+
+        @Override
+        @SuppressWarnings("nls")
+        public String toString() {
+            return beforeSplitPoint + " until " + splitPoint + ", then " + afterSplitPoint;
         }
     }
 

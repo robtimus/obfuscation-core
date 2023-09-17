@@ -52,6 +52,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import com.github.robtimus.obfuscation.Obfuscator.ObfuscatorFunction;
 import com.github.robtimus.obfuscation.Obfuscator.PortionBuilder;
+import com.github.robtimus.obfuscation.Obfuscator.SplitPoint;
 import com.github.robtimus.obfuscation.support.TestAppendable;
 
 @SuppressWarnings("nls")
@@ -1646,6 +1647,464 @@ class ObfuscatorTest {
             Obfuscator obfuscator = none().untilLength(4).then(all());
             assertEquals(obfuscator.hashCode(), obfuscator.hashCode());
             assertEquals(obfuscator.hashCode(), none().untilLength(4).then(all()).hashCode());
+        }
+    }
+
+    @Nested
+    @DisplayName("SplitPoint")
+    @TestInstance(Lifecycle.PER_CLASS)
+    class SplitPointTest {
+
+        @Nested
+        @DisplayName("atFirst('@')")
+        @TestInstance(Lifecycle.PER_CLASS)
+        class AtFirstTest {
+
+            @Nested
+            @DisplayName("splitTo(all(), fixedLength(5))")
+            @TestInstance(Lifecycle.PER_CLASS)
+            class SplitTo extends NestedObfuscatorTest {
+
+                SplitTo() {
+                    super(maskChar -> SplitPoint.atFirst('@').splitTo(all(), fixedLength(5)), new Arguments[] {
+                            arguments("test", '*', "****"),
+                            arguments("test@", '*', "****@*****"),
+                            arguments("test@example.org", '*', "****@*****"),
+                            arguments("test@example.org@", '*', "****@*****"),
+                            arguments("test@example.org@localhost", '*', "****@*****"),
+                    }, "", "****");
+                }
+
+                @ParameterizedTest(name = "{1}")
+                @MethodSource
+                @DisplayName("equals(Object)")
+                void testEquals(Obfuscator obfuscator, Object object, boolean expected) {
+                    assertEquals(expected, obfuscator.equals(object));
+                }
+
+                Arguments[] testEquals() {
+                    SplitPoint splitPoint = SplitPoint.atFirst('@');
+                    Obfuscator obfuscator = splitPoint.splitTo(all(), fixedLength(5));
+                    return new Arguments[] {
+                            arguments(obfuscator, obfuscator, true),
+                            arguments(obfuscator, null, false),
+                            arguments(obfuscator, splitPoint.splitTo(all(), fixedLength(5)), true),
+                            arguments(obfuscator, SplitPoint.atFirst('@').splitTo(all(), fixedLength(5)), true),
+                            arguments(obfuscator, SplitPoint.atFirst('.').splitTo(all(), fixedLength(5)), false),
+                            arguments(obfuscator, SplitPoint.atFirst('@').splitTo(none(), fixedLength(5)), false),
+                            arguments(obfuscator, SplitPoint.atFirst('@').splitTo(all(), none()), false),
+                            arguments(obfuscator, SplitPoint.atLast('@').splitTo(all(), fixedLength(5)), false),
+                            arguments(obfuscator, "foo", false),
+                    };
+                }
+
+                @Test
+                @DisplayName("hashCode()")
+                void testHashCode() {
+                    Obfuscator obfuscator = SplitPoint.atFirst('@').splitTo(all(), fixedLength(5));
+                    assertEquals(obfuscator.hashCode(), obfuscator.hashCode());
+                    assertEquals(obfuscator.hashCode(), SplitPoint.atFirst('@').splitTo(all(), fixedLength(5)).hashCode());
+                }
+            }
+
+            @ParameterizedTest(name = "{1}")
+            @MethodSource
+            @DisplayName("equals(Object)")
+            void testEquals(SplitPoint splitPoint, Object object, boolean expected) {
+                assertEquals(expected, splitPoint.equals(object));
+            }
+
+            Arguments[] testEquals() {
+                SplitPoint splitPoint = SplitPoint.atFirst('@');
+                return new Arguments[] {
+                        arguments(splitPoint, splitPoint, true),
+                        arguments(splitPoint, null, false),
+                        arguments(splitPoint, SplitPoint.atFirst('@'), true),
+                        arguments(splitPoint, SplitPoint.atFirst('.'), false),
+                        arguments(splitPoint, SplitPoint.atLast('@'), false),
+                        arguments(splitPoint, "foo", false),
+                };
+            }
+
+            @Test
+            @DisplayName("hashCode()")
+            void testHashCode() {
+                SplitPoint splitPoint = SplitPoint.atFirst('@');
+                assertEquals(splitPoint.hashCode(), splitPoint.hashCode());
+                assertEquals(splitPoint.hashCode(), SplitPoint.atFirst('@').hashCode());
+            }
+        }
+
+        @Nested
+        @DisplayName("atLast('@')")
+        @TestInstance(Lifecycle.PER_CLASS)
+        class AtLastTest {
+
+            @Nested
+            @DisplayName("splitTo(all(), fixedLength(5))")
+            @TestInstance(Lifecycle.PER_CLASS)
+            class SplitTo extends NestedObfuscatorTest {
+
+                SplitTo() {
+                    super(maskChar -> SplitPoint.atLast('@').splitTo(all(), fixedLength(5)), new Arguments[] {
+                            arguments("test", '*', "****"),
+                            arguments("test@", '*', "****@*****"),
+                            arguments("test@example.org", '*', "****@*****"),
+                            arguments("test@example.org@", '*', "****************@*****"),
+                            arguments("test@example.org@localhost", '*', "****************@*****"),
+                    }, "", "****");
+                }
+
+                @ParameterizedTest(name = "{1}")
+                @MethodSource
+                @DisplayName("equals(Object)")
+                void testEquals(Obfuscator obfuscator, Object object, boolean expected) {
+                    assertEquals(expected, obfuscator.equals(object));
+                }
+
+                Arguments[] testEquals() {
+                    SplitPoint splitPoint = SplitPoint.atLast('@');
+                    Obfuscator obfuscator = splitPoint.splitTo(all(), fixedLength(5));
+                    return new Arguments[] {
+                            arguments(obfuscator, obfuscator, true),
+                            arguments(obfuscator, null, false),
+                            arguments(obfuscator, splitPoint.splitTo(all(), fixedLength(5)), true),
+                            arguments(obfuscator, SplitPoint.atLast('@').splitTo(all(), fixedLength(5)), true),
+                            arguments(obfuscator, SplitPoint.atLast('.').splitTo(all(), fixedLength(5)), false),
+                            arguments(obfuscator, SplitPoint.atLast('@').splitTo(none(), fixedLength(5)), false),
+                            arguments(obfuscator, SplitPoint.atLast('@').splitTo(all(), none()), false),
+                            arguments(obfuscator, SplitPoint.atFirst('@').splitTo(all(), fixedLength(5)), false),
+                            arguments(obfuscator, "foo", false),
+                    };
+                }
+
+                @Test
+                @DisplayName("hashCode()")
+                void testHashCode() {
+                    Obfuscator obfuscator = SplitPoint.atLast('@').splitTo(all(), fixedLength(5));
+                    assertEquals(obfuscator.hashCode(), obfuscator.hashCode());
+                    assertEquals(obfuscator.hashCode(), SplitPoint.atLast('@').splitTo(all(), fixedLength(5)).hashCode());
+                }
+            }
+
+            @ParameterizedTest(name = "{1}")
+            @MethodSource
+            @DisplayName("equals(Object)")
+            void testEquals(SplitPoint splitPoint, Object object, boolean expected) {
+                assertEquals(expected, splitPoint.equals(object));
+            }
+
+            Arguments[] testEquals() {
+                SplitPoint splitPoint = SplitPoint.atLast('@');
+                return new Arguments[] {
+                        arguments(splitPoint, splitPoint, true),
+                        arguments(splitPoint, null, false),
+                        arguments(splitPoint, SplitPoint.atLast('@'), true),
+                        arguments(splitPoint, SplitPoint.atLast('.'), false),
+                        arguments(splitPoint, SplitPoint.atFirst('@'), false),
+                        arguments(splitPoint, "foo", false),
+                };
+            }
+
+            @Test
+            @DisplayName("hashCode()")
+            void testHashCode() {
+                SplitPoint splitPoint = SplitPoint.atLast('@');
+                assertEquals(splitPoint.hashCode(), splitPoint.hashCode());
+                assertEquals(splitPoint.hashCode(), SplitPoint.atLast('@').hashCode());
+            }
+        }
+
+        @Test
+        @DisplayName("atNth('.', -1)")
+        void testAtNthWithNegativeOccurrence() {
+            assertThrows(IllegalArgumentException.class, () -> SplitPoint.atNth('.', -1));
+        }
+
+        @Nested
+        @DisplayName("atNth('.', 0)")
+        @TestInstance(Lifecycle.PER_CLASS)
+        class AtNth0Test {
+
+            @Nested
+            @DisplayName("splitTo(fixedValue(\"xxx\"), fixedLength(5))")
+            @TestInstance(Lifecycle.PER_CLASS)
+            class SplitTo extends NestedObfuscatorTest {
+
+                SplitTo() {
+                    super(maskChar -> SplitPoint.atNth('.', 0).splitTo(fixedValue("xxx"), fixedLength(5)), new Arguments[] {
+                            arguments("alpha", '*', "xxx"),
+                            arguments("alpha.", '*', "xxx.*****"),
+                            arguments("alpha.bravo", '*', "xxx.*****"),
+                            arguments("alpha.bravo.charlie", '*', "xxx.*****"),
+                            arguments("alpha.bravo.charlie.", '*', "xxx.*****"),
+                            arguments("alpha.bravo.charlie.delta", '*', "xxx.*****"),
+                            arguments("alpha.bravo.charlie.delta.echo", '*', "xxx.*****"),
+                            arguments("........", '*', "xxx.*****"),
+                    }, "xxx", "xxx");
+                }
+
+                @ParameterizedTest(name = "{1}")
+                @MethodSource
+                @DisplayName("equals(Object)")
+                void testEquals(Obfuscator obfuscator, Object object, boolean expected) {
+                    assertEquals(expected, obfuscator.equals(object));
+                }
+
+                Arguments[] testEquals() {
+                    SplitPoint splitPoint = SplitPoint.atNth('.', 0);
+                    Obfuscator obfuscator = splitPoint.splitTo(fixedValue("xxx"), fixedLength(5));
+                    return new Arguments[] {
+                            arguments(obfuscator, obfuscator, true),
+                            arguments(obfuscator, null, false),
+                            arguments(obfuscator, splitPoint.splitTo(fixedValue("xxx"), fixedLength(5)), true),
+                            arguments(obfuscator, SplitPoint.atNth('.', 0).splitTo(fixedValue("xxx"), fixedLength(5)), true),
+                            arguments(obfuscator, SplitPoint.atNth('@', 0).splitTo(fixedValue("xxx"), fixedLength(5)), false),
+                            arguments(obfuscator, SplitPoint.atNth('.', 1).splitTo(fixedValue("xxx"), fixedLength(5)), false),
+                            arguments(obfuscator, SplitPoint.atNth('.', 0).splitTo(none(), fixedLength(5)), false),
+                            arguments(obfuscator, SplitPoint.atNth('.', 0).splitTo(fixedValue("xxx"), none()), false),
+                            arguments(obfuscator, SplitPoint.atFirst('.').splitTo(fixedValue("xxx"), fixedLength(5)), false),
+                            arguments(obfuscator, "foo", false),
+                    };
+                }
+
+                @Test
+                @DisplayName("hashCode()")
+                void testHashCode() {
+                    Obfuscator obfuscator = SplitPoint.atNth('.', 0).splitTo(fixedValue("xxx"), fixedLength(5));
+                    assertEquals(obfuscator.hashCode(), obfuscator.hashCode());
+                    assertEquals(obfuscator.hashCode(), SplitPoint.atNth('.', 0).splitTo(fixedValue("xxx"), fixedLength(5)).hashCode());
+                }
+            }
+
+            @ParameterizedTest(name = "{1}")
+            @MethodSource
+            @DisplayName("equals(Object)")
+            void testEquals(SplitPoint splitPoint, Object object, boolean expected) {
+                assertEquals(expected, splitPoint.equals(object));
+            }
+
+            Arguments[] testEquals() {
+                SplitPoint splitPoint = SplitPoint.atNth('.', 0);
+                return new Arguments[] {
+                        arguments(splitPoint, splitPoint, true),
+                        arguments(splitPoint, null, false),
+                        arguments(splitPoint, SplitPoint.atNth('.', 0), true),
+                        arguments(splitPoint, SplitPoint.atNth('@', 0), false),
+                        arguments(splitPoint, SplitPoint.atNth('.', 1), false),
+                        arguments(splitPoint, SplitPoint.atFirst('.'), false),
+                        arguments(splitPoint, "foo", false),
+                };
+            }
+
+            @Test
+            @DisplayName("hashCode()")
+            void testHashCode() {
+                SplitPoint splitPoint = SplitPoint.atNth('.', 0);
+                assertEquals(splitPoint.hashCode(), splitPoint.hashCode());
+                assertEquals(splitPoint.hashCode(), SplitPoint.atNth('.', 0).hashCode());
+            }
+        }
+
+        @Nested
+        @DisplayName("atNth('.', 1)")
+        @TestInstance(Lifecycle.PER_CLASS)
+        class AtNth1Test {
+
+            @Nested
+            @DisplayName("splitTo(fixedValue(\"xxx\"), fixedLength(5))")
+            @TestInstance(Lifecycle.PER_CLASS)
+            class SplitTo extends NestedObfuscatorTest {
+
+                SplitTo() {
+                    super(maskChar -> SplitPoint.atNth('.', 1).splitTo(fixedValue("xxx"), fixedLength(5)), new Arguments[] {
+                            arguments("alpha", '*', "xxx"),
+                            arguments("alpha.bravo", '*', "xxx"),
+                            arguments("alpha.bravo.", '*', "xxx.*****"),
+                            arguments("alpha.bravo.charlie", '*', "xxx.*****"),
+                            arguments("alpha.bravo.charlie.", '*', "xxx.*****"),
+                            arguments("alpha.bravo.charlie.delta", '*', "xxx.*****"),
+                            arguments("alpha.bravo.charlie.delta.echo", '*', "xxx.*****"),
+                            arguments("........", '*', "xxx.*****"),
+                    }, "xxx", "xxx");
+                }
+
+                @ParameterizedTest(name = "{1}")
+                @MethodSource
+                @DisplayName("equals(Object)")
+                void testEquals(Obfuscator obfuscator, Object object, boolean expected) {
+                    assertEquals(expected, obfuscator.equals(object));
+                }
+
+                Arguments[] testEquals() {
+                    SplitPoint splitPoint = SplitPoint.atNth('.', 1);
+                    Obfuscator obfuscator = splitPoint.splitTo(fixedValue("xxx"), fixedLength(5));
+                    return new Arguments[] {
+                            arguments(obfuscator, obfuscator, true),
+                            arguments(obfuscator, null, false),
+                            arguments(obfuscator, splitPoint.splitTo(fixedValue("xxx"), fixedLength(5)), true),
+                            arguments(obfuscator, SplitPoint.atNth('.', 1).splitTo(fixedValue("xxx"), fixedLength(5)), true),
+                            arguments(obfuscator, SplitPoint.atNth('@', 1).splitTo(fixedValue("xxx"), fixedLength(5)), false),
+                            arguments(obfuscator, SplitPoint.atNth('.', 2).splitTo(fixedValue("xxx"), fixedLength(5)), false),
+                            arguments(obfuscator, SplitPoint.atNth('.', 1).splitTo(none(), fixedLength(5)), false),
+                            arguments(obfuscator, SplitPoint.atNth('.', 1).splitTo(fixedValue("xxx"), none()), false),
+                            arguments(obfuscator, SplitPoint.atFirst('.').splitTo(fixedValue("xxx"), fixedLength(5)), false),
+                            arguments(obfuscator, "foo", false),
+                    };
+                }
+
+                @Test
+                @DisplayName("hashCode()")
+                void testHashCode() {
+                    Obfuscator obfuscator = SplitPoint.atNth('.', 1).splitTo(fixedValue("xxx"), fixedLength(5));
+                    assertEquals(obfuscator.hashCode(), obfuscator.hashCode());
+                    assertEquals(obfuscator.hashCode(), SplitPoint.atNth('.', 1).splitTo(fixedValue("xxx"), fixedLength(5)).hashCode());
+                }
+            }
+
+            @ParameterizedTest(name = "{1}")
+            @MethodSource
+            @DisplayName("equals(Object)")
+            void testEquals(SplitPoint splitPoint, Object object, boolean expected) {
+                assertEquals(expected, splitPoint.equals(object));
+            }
+
+            Arguments[] testEquals() {
+                SplitPoint splitPoint = SplitPoint.atNth('.', 1);
+                return new Arguments[] {
+                        arguments(splitPoint, splitPoint, true),
+                        arguments(splitPoint, null, false),
+                        arguments(splitPoint, SplitPoint.atNth('.', 1), true),
+                        arguments(splitPoint, SplitPoint.atNth('@', 1), false),
+                        arguments(splitPoint, SplitPoint.atNth('.', 2), false),
+                        arguments(splitPoint, SplitPoint.atFirst('.'), false),
+                        arguments(splitPoint, "foo", false),
+                };
+            }
+
+            @Test
+            @DisplayName("hashCode()")
+            void testHashCode() {
+                SplitPoint splitPoint = SplitPoint.atNth('.', 1);
+                assertEquals(splitPoint.hashCode(), splitPoint.hashCode());
+                assertEquals(splitPoint.hashCode(), SplitPoint.atNth('.', 1).hashCode());
+            }
+        }
+
+        @Nested
+        @DisplayName("atNth('.', 2)")
+        @TestInstance(Lifecycle.PER_CLASS)
+        class AtNth2Test {
+
+            @Nested
+            @DisplayName("splitTo(fixedValue(\"xxx\"), fixedLength(5))")
+            @TestInstance(Lifecycle.PER_CLASS)
+            class SplitTo extends NestedObfuscatorTest {
+
+                SplitTo() {
+                    super(maskChar -> SplitPoint.atNth('.', 2).splitTo(fixedValue("xxx"), fixedLength(5)), new Arguments[] {
+                            arguments("alpha", '*', "xxx"),
+                            arguments("alpha.bravo", '*', "xxx"),
+                            arguments("alpha.bravo.charlie", '*', "xxx"),
+                            arguments("alpha.bravo.charlie.", '*', "xxx.*****"),
+                            arguments("alpha.bravo.charlie.delta", '*', "xxx.*****"),
+                            arguments("alpha.bravo.charlie.delta.echo", '*', "xxx.*****"),
+                            arguments("........", '*', "xxx.*****"),
+                    }, "xxx", "xxx");
+                }
+
+                @ParameterizedTest(name = "{1}")
+                @MethodSource
+                @DisplayName("equals(Object)")
+                void testEquals(Obfuscator obfuscator, Object object, boolean expected) {
+                    assertEquals(expected, obfuscator.equals(object));
+                }
+
+                Arguments[] testEquals() {
+                    SplitPoint splitPoint = SplitPoint.atNth('.', 2);
+                    Obfuscator obfuscator = splitPoint.splitTo(fixedValue("xxx"), fixedLength(5));
+                    return new Arguments[] {
+                            arguments(obfuscator, obfuscator, true),
+                            arguments(obfuscator, null, false),
+                            arguments(obfuscator, splitPoint.splitTo(fixedValue("xxx"), fixedLength(5)), true),
+                            arguments(obfuscator, SplitPoint.atNth('.', 2).splitTo(fixedValue("xxx"), fixedLength(5)), true),
+                            arguments(obfuscator, SplitPoint.atNth('@', 2).splitTo(fixedValue("xxx"), fixedLength(5)), false),
+                            arguments(obfuscator, SplitPoint.atNth('.', 3).splitTo(fixedValue("xxx"), fixedLength(5)), false),
+                            arguments(obfuscator, SplitPoint.atNth('.', 2).splitTo(none(), fixedLength(5)), false),
+                            arguments(obfuscator, SplitPoint.atNth('.', 2).splitTo(fixedValue("xxx"), none()), false),
+                            arguments(obfuscator, SplitPoint.atFirst('.').splitTo(fixedValue("xxx"), fixedLength(5)), false),
+                            arguments(obfuscator, "foo", false),
+                    };
+                }
+
+                @Test
+                @DisplayName("hashCode()")
+                void testHashCode() {
+                    Obfuscator obfuscator = SplitPoint.atNth('.', 2).splitTo(fixedValue("xxx"), fixedLength(5));
+                    assertEquals(obfuscator.hashCode(), obfuscator.hashCode());
+                    assertEquals(obfuscator.hashCode(), SplitPoint.atNth('.', 2).splitTo(fixedValue("xxx"), fixedLength(5)).hashCode());
+                }
+            }
+
+            @ParameterizedTest(name = "{1}")
+            @MethodSource
+            @DisplayName("equals(Object)")
+            void testEquals(SplitPoint splitPoint, Object object, boolean expected) {
+                assertEquals(expected, splitPoint.equals(object));
+            }
+
+            Arguments[] testEquals() {
+                SplitPoint splitPoint = SplitPoint.atNth('.', 2);
+                return new Arguments[] {
+                        arguments(splitPoint, splitPoint, true),
+                        arguments(splitPoint, null, false),
+                        arguments(splitPoint, SplitPoint.atNth('.', 2), true),
+                        arguments(splitPoint, SplitPoint.atNth('@', 2), false),
+                        arguments(splitPoint, SplitPoint.atNth('.', 3), false),
+                        arguments(splitPoint, SplitPoint.atFirst('.'), false),
+                        arguments(splitPoint, "foo", false),
+                };
+            }
+
+            @Test
+            @DisplayName("hashCode()")
+            void testHashCode() {
+                SplitPoint splitPoint = SplitPoint.atNth('.', 2);
+                assertEquals(splitPoint.hashCode(), splitPoint.hashCode());
+                assertEquals(splitPoint.hashCode(), SplitPoint.atNth('.', 2).hashCode());
+            }
+        }
+
+        @Nested
+        @DisplayName("zero split length")
+        @TestInstance(Lifecycle.PER_CLASS)
+        class ZeroSplitLength extends NestedObfuscatorTest {
+
+            ZeroSplitLength() {
+                super(maskChar -> zeroLengthSplitPoint().splitTo(fixedLength(3), all('x')), new Arguments[] {
+                        arguments("test", '*', "***"),
+                        arguments("test@", '*', "***x"),
+                        arguments("test@example.org", '*', "***xxxxxxxxxxxx"),
+                        arguments("test@example.org@", '*', "***xxxxxxxxxxxxx"),
+                        arguments("test@example.org@localhost", '*', "***xxxxxxxxxxxxxxxxxxxxxx"),
+                }, "***", "***");
+            }
+        }
+
+        private SplitPoint zeroLengthSplitPoint() {
+            return new SplitPoint() {
+                private final SplitPoint delegate = atFirst('@');
+
+                @Override
+                int splitStart(CharSequence s, int start, int end) {
+                    return delegate.splitStart(s, start, end);
+                }
+
+                @Override
+                int splitLength() {
+                    return 0;
+                }
+            };
         }
     }
 

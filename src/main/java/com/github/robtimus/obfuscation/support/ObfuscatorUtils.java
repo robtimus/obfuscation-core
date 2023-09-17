@@ -39,13 +39,13 @@ public final class ObfuscatorUtils {
     // CharSequence indexes
 
     /**
-     * Returns the index within a {@code CharSequence} of the first occurrence of a specific character.
-     * This method is like {@link String#indexOf(int, int)} but it works on any {@code CharSequence}, and it has an upper bound as well.
+     * Returns the index within a {@code CharSequence} range of the first occurrence of a specific character.
+     * This method is like {@link String#indexOf(int, int)}, but it works on any {@code CharSequence}, and it has an upper bound as well.
      *
      * @param s The {@code CharSequence} to search.
      * @param ch The character to search for.
-     * @param fromIndex The index to start the search from.
-     * @param toIndex The index to end the search at.
+     * @param fromIndex The start of the {@code CharSequence} range, inclusive.
+     * @param toIndex The end of the {@code CharSequence} range, exclusive.
      * @return The index of the given character in the given {@code CharSequence}, or {@code -1} if the character does not occur in the given
      *         {@code CharSequence} in the specified range.
      * @throws NullPointerException If the given {@code CharSequence} is {@code null}.
@@ -57,6 +57,35 @@ public final class ObfuscatorUtils {
         }
 
         for (int i = Math.max(0, fromIndex), max = Math.min(toIndex, s.length()); i < max; i++) {
+            if (s.charAt(i) == ch) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * Returns the index within a {@code CharSequence} of the last occurrence of a specific character.
+     * This method is like {@link String#lastIndexOf(int, int)} using {@code toIndex - 1} as second argument, but it works on any
+     * {@code CharSequence}, and it has a lower bound as well.
+     *
+     * @param s The {@code CharSequence} to search.
+     * @param ch The character to search for.
+     * @param fromIndex The start of the {@code CharSequence} range, inclusive.
+     * @param toIndex The end of the {@code CharSequence} range, exclusive.
+     * @return The index of the given character in the given {@code CharSequence}, or {@code -1} if the character does not occur in the given
+     *         {@code CharSequence} in the specified range.
+     * @throws NullPointerException If the given {@code CharSequence} is {@code null}.
+     * @since 1.5
+     */
+    public static int lastIndexOf(CharSequence s, int ch, int fromIndex, int toIndex) {
+        if (s instanceof String) {
+            // In String.lastIndexOf, the fromIndex is inclusive
+            int index = ((String) s).lastIndexOf(ch, toIndex - 1);
+            return index == -1 || index < fromIndex ? -1 : index;
+        }
+
+        for (int i = Math.min(toIndex, s.length()) - 1, min = Math.max(fromIndex, 0); i >= min; i--) {
             if (s.charAt(i) == ch) {
                 return i;
             }

@@ -219,3 +219,31 @@ With this chaining, it's now possible to keep the first and last 4 characters, b
                     .build());
     CharSequence obfuscated = obfuscator.obfuscateText("12345678901234");
     // obfuscated represents "1234********34"
+
+## Splitting text during obfuscation
+
+To make it easier to create obfuscators for structured text like email addresses, use a <a href="apidocs/com/github/robtimus/obfuscation/Obfuscator.SplitPoint.html">SplitPoint</a>. For instance:
+
+    // Keep the domain as-is
+    Obfuscator localPartObfuscator = Obfuscator.portion()
+            .keepAtStart(1)
+            .keepAtEnd(1)
+            .withFixedTotalLength(8)
+            .build();
+    Obfuscator domainObfuscator = Obfuscator.none();
+    Obfuscator obfuscator = Obfuscator.SplitPoint.atFirst('@').splitTo(localPartObfuscator, domainObfuscator);
+    CharSequence obfuscated = obfuscator.obfuscateText("test@example.org");
+    // obfuscated represents "t******t@example.org"
+
+To obfuscate the domain except for the TLD, use a nested `SplitPoint`:
+
+    // Keep only the TLD of the domain
+    Obfuscator localPartObfuscator = Obfuscator.portion()
+            .keepAtStart(1)
+            .keepAtEnd(1)
+            .withFixedTotalLength(8)
+            .build();
+    Obfuscator domainObfuscator = Obfuscator.SplitPoint.atLast('.').splitTo(Obfuscator.all(), Obfuscator.none());
+    Obfuscator obfuscator = Obfuscator.SplitPoint.atFirst('@').splitTo(localPartObfuscator, domainObfuscator);
+    CharSequence obfuscated = obfuscator.obfuscateText("test@example.org");
+    // obfuscated represents "t******t@*******.org"

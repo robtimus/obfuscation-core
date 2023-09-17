@@ -29,6 +29,7 @@ import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.counting;
 import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.discardAll;
 import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.getChars;
 import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.indexOf;
+import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.lastIndexOf;
 import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.maskAll;
 import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.readAll;
 import static com.github.robtimus.obfuscation.support.ObfuscatorUtils.readAtMost;
@@ -83,6 +84,29 @@ class ObfuscatorUtilsTest {
                 arguments("hello", 'l', -1, 10, 2),
                 arguments("hello", 'l', 10, -1, -1),
                 arguments("hello", 'l', 0, 5, 2),
+                arguments("hello", 'l', 5, 0, -1),
+                arguments("hello", 'l', 3, 5, 3),
+                arguments("hello", 'l', 0, 2, -1),
+                arguments("hello", 'x', -1, 10, -1),
+                arguments("hello", 'x', 0, 5, -1),
+                arguments("hello", 'x', 3, 5, -1),
+                arguments("hello", 'x', 0, 2, -1),
+        };
+    }
+
+    @ParameterizedTest(name = "{1} in {0}[{2}, {3})")
+    @MethodSource
+    @DisplayName("lastIndexOf(CharSequence, int, int, int)")
+    void testLastIndexOf(String s, int ch, int fromIndex, int toIndex, int expected) {
+        assertEquals(expected, lastIndexOf(s, ch, fromIndex, toIndex));
+        assertEquals(expected, lastIndexOf(new StringBuilder(s), ch, fromIndex, toIndex));
+    }
+
+    Arguments[] testLastIndexOf() {
+        return new Arguments[] {
+                arguments("hello", 'l', -1, 10, 3),
+                arguments("hello", 'l', 10, -1, -1),
+                arguments("hello", 'l', 0, 5, 3),
                 arguments("hello", 'l', 5, 0, -1),
                 arguments("hello", 'l', 3, 5, 3),
                 arguments("hello", 'l', 0, 2, -1),
