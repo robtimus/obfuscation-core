@@ -1764,6 +1764,10 @@ public abstract class Obfuscator {
      * Returns an obfuscator that uses a function to obfuscate text. This method allows you to create an obfuscator using a predefined function.
      * The returned obfuscator is immutable if the given function is.
      * <p>
+     * This method differs from {@link #fromFunction(ObfuscatorFunction)} in the way sub sequences are treated. This method uses
+     * {@link CharSequence#subSequence(int, int)}, which may unnecessarily create new sub sequences. {@link #fromFunction(ObfuscatorFunction)} on the
+     * other hand lets the function handle the sub sequencing.
+     * <p>
      * Note: the function should never return {@code null}. The returned obfuscator will throw a {@link NullPointerException} if the function returns
      * {@code null} when obfuscating text.
      *
@@ -1867,6 +1871,127 @@ public abstract class Obfuscator {
                 return false;
             }
             FromFunctionObfuscator other = (FromFunctionObfuscator) o;
+            return function.equals(other.function);
+        }
+
+        @Override
+        public int hashCode() {
+            return function.hashCode();
+        }
+
+        @Override
+        @SuppressWarnings("nls")
+        public String toString() {
+            return Obfuscator.class.getName() + "#fromFunction(" + function + ")";
+        }
+    }
+
+    /**
+     * Returns an obfuscator that uses a function to obfuscate text. This method allows you to create an obfuscator using a predefined function.
+     * The returned obfuscator is immutable if the given function is.
+     * <p>
+     * This method differs from {@link #fromFunction(Function)} in the way sub sequences are treated. {@link #fromFunction(Function)} uses
+     * {@link CharSequence#subSequence(int, int)}, which may unnecessarily create new sub sequences. This method on the other hand lets the function
+     * handle the sub sequencing.
+     * <p>
+     * Note: the function should never return {@code null}. The returned obfuscator will throw a {@link NullPointerException} if the function returns
+     * {@code null} when obfuscating text.
+     *
+     * @param function The function to use.
+     * @return An obfuscator that uses the given function to obfuscate text.
+     * @throws NullPointerException If the given function is {@code null}.
+     * @since 1.5
+     */
+    public static Obfuscator fromFunction(ObfuscatorFunction function) {
+        return new FromObfuscatorFunctionObfuscator(function);
+    }
+
+    /**
+     * A function that can parts of {@link CharSequence}s.
+     *
+     * @author Rob Spoor
+     * @since 1.5
+     */
+    public interface ObfuscatorFunction {
+
+        /**
+         * Obfuscates parts of the contents of a {@code CharSequence}.
+         *
+         * @param s The {@code CharSequence} with the contents to obfuscate.
+         * @param start The index in the {@code CharSequence} to start obfuscating, inclusive.
+         * @param end The index in the {@code CharSequence} to end obfuscating, exclusive.
+         * @return The obfuscated contents.
+         * @throws NullPointerException If the given {@code CharSequence} is {@code null}.
+         * @throws IndexOutOfBoundsException If the given start index is negative or larger than the given end index,
+         *                                       or if the given end index is larger than the given {@code CharSequence}'s length.
+         */
+        CharSequence obfuscateText(CharSequence s, int start, int end);
+    }
+
+    private static final class FromObfuscatorFunctionObfuscator extends Obfuscator {
+
+        private final ObfuscatorFunction function;
+
+        private FromObfuscatorFunctionObfuscator(ObfuscatorFunction function) {
+            this.function = Objects.requireNonNull(function);
+        }
+
+        @Override
+        public CharSequence obfuscateText(CharSequence s, int start, int end) {
+            checkStartAndEnd(s, start, end);
+            return applyFunction(s, start, end);
+        }
+
+        @Override
+        public void obfuscateText(CharSequence s, int start, int end, StringBuilder destination) {
+            checkStartAndEnd(s, start, end);
+            destination.append(applyFunction(s, start, end));
+        }
+
+        @Override
+        public void obfuscateText(CharSequence s, int start, int end, StringBuffer destination) {
+            checkStartAndEnd(s, start, end);
+            destination.append(applyFunction(s, start, end));
+        }
+
+        @Override
+        public void obfuscateText(CharSequence s, int start, int end, Appendable destination) throws IOException {
+            checkStartAndEnd(s, start, end);
+            destination.append(applyFunction(s, start, end));
+        }
+
+        @Override
+        public CharSequence obfuscateText(Reader input) throws IOException {
+            CharSequence s = readAll(input);
+            return applyFunction(s, 0, s.length());
+        }
+
+        @Override
+        public void obfuscateText(Reader input, Appendable destination) throws IOException {
+            CharSequence s = readAll(input);
+            destination.append(applyFunction(s, 0, s.length()));
+        }
+
+        private CharSequence applyFunction(CharSequence s, int start, int end) {
+            checkStartAndEnd(s, start, end);
+            CharSequence result = function.obfuscateText(s, start, end);
+            return Objects.requireNonNull(result, () -> Messages.fromFunction.obfuscatorFunctionReturnedNull(s, start, end));
+        }
+
+        @Override
+        public Writer streamTo(Appendable destination) {
+            return new CachingObfuscatingWriter(this, destination);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || o.getClass() != getClass()) {
+                return false;
+            }
+            FromObfuscatorFunctionObfuscator other = (FromObfuscatorFunctionObfuscator) o;
             return function.equals(other.function);
         }
 

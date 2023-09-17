@@ -50,6 +50,7 @@ import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import com.github.robtimus.obfuscation.Obfuscator.ObfuscatorFunction;
 import com.github.robtimus.obfuscation.Obfuscator.PortionBuilder;
 import com.github.robtimus.obfuscation.support.TestAppendable;
 
@@ -1245,7 +1246,8 @@ class ObfuscatorTest {
         @Test
         @DisplayName("null function")
         void testNullFunction() {
-            assertThrows(NullPointerException.class, () -> fromFunction(null));
+            Function<? super CharSequence, ? extends CharSequence> function = null;
+            assertThrows(NullPointerException.class, () -> fromFunction(function));
         }
 
         @ParameterizedTest(name = "{1}")
@@ -1358,6 +1360,142 @@ class ObfuscatorTest {
             void testObfuscateTextReaderToAppendable() {
                 StringBuilder destination = new StringBuilder();
                 testThrowsNullPointerException("Hello World", () -> obfuscator.obfuscateText(new StringReader("Hello World"), destination));
+                assertEquals("", destination.toString());
+            }
+        }
+    }
+
+    @Nested
+    @DisplayName("fromFunction((s, start, end) -> s.toString().substring(start, end).toUpperCase())")
+    @TestInstance(Lifecycle.PER_CLASS)
+    class FromObfuscatorFunction extends NestedObfuscatorTest {
+
+        FromObfuscatorFunction() {
+            super(maskChar -> fromFunction((s, start, end) -> s.toString().substring(start, end).toUpperCase()), new Arguments[] {
+                    arguments("foo", '*', "FOO"),
+                    arguments("foo", 'x', "FOO"),
+                    arguments("hello", '*', "HELLO"),
+                    arguments("hello", 'x', "HELLO"),
+            }, "", "NULL");
+        }
+
+        @Test
+        @DisplayName("null function")
+        void testNullFunction() {
+            ObfuscatorFunction function = null;
+            assertThrows(NullPointerException.class, () -> fromFunction(function));
+        }
+
+        @ParameterizedTest(name = "{1}")
+        @MethodSource
+        @DisplayName("equals(Object)")
+        void testEquals(Obfuscator obfuscator, Object object, boolean expected) {
+            assertEquals(expected, obfuscator.equals(object));
+        }
+
+        Arguments[] testEquals() {
+            ObfuscatorFunction function = (s, start, end) -> s.toString().substring(start, end).toUpperCase();
+            Obfuscator obfuscator = fromFunction(function);
+            return new Arguments[] {
+                    arguments(obfuscator, obfuscator, true),
+                    arguments(obfuscator, null, false),
+                    arguments(obfuscator, fromFunction(function), true),
+                    arguments(obfuscator, fromFunction((s, start, end) -> s.toString().substring(start, end)), false),
+                    arguments(obfuscator, "foo", false),
+            };
+        }
+
+        @Test
+        @DisplayName("hashCode()")
+        void testHashCode() {
+            ObfuscatorFunction function = (s, start, end) -> s.toString().substring(start, end).toUpperCase();
+            Obfuscator obfuscator = fromFunction(function);
+            assertEquals(obfuscator.hashCode(), obfuscator.hashCode());
+            assertEquals(obfuscator.hashCode(), fromFunction(function).hashCode());
+        }
+
+        @Nested
+        @DisplayName("Function returns null")
+        class FunctionReturnsNull {
+
+            private final Obfuscator obfuscator = fromFunction((s, start, end) -> null);
+
+            private void testThrowsNullPointerException(String input, int start, int end, Executable executable) {
+                NullPointerException exception = assertThrows(NullPointerException.class, executable);
+                assertEquals(Messages.fromFunction.obfuscatorFunctionReturnedNull(input, start, end), exception.getMessage());
+            }
+
+            @Test
+            @DisplayName("obfuscateText(CharSequence)")
+            void testObfuscateTextCharSequence() {
+                testThrowsNullPointerException("Hello World", 0, 11, () -> obfuscator.obfuscateText("Hello World"));
+            }
+
+            @Test
+            @DisplayName("obfuscateText(CharSequence, int, int)")
+            void testObfuscateTextCharSequenceRange() {
+                testThrowsNullPointerException("Hello World", 3, 5, () -> obfuscator.obfuscateText("Hello World", 3, 5));
+            }
+
+            @Test
+            @DisplayName("obfuscateText(CharSequence, StringBuilder)")
+            void testObfuscateTextCharSequenceToStringBuilder() {
+                StringBuilder destination = new StringBuilder();
+                testThrowsNullPointerException("Hello World", 0, 11, () -> obfuscator.obfuscateText("Hello World", destination));
+                assertEquals("", destination.toString());
+            }
+
+            @Test
+            @DisplayName("obfuscateText(CharSequence, int, int, StringBuilder)")
+            void testObfuscateTextCharSequenceRangeToStringBuilder() {
+                StringBuilder destination = new StringBuilder();
+                testThrowsNullPointerException("Hello World", 3, 5, () -> obfuscator.obfuscateText("Hello World", 3, 5, destination));
+                assertEquals("", destination.toString());
+            }
+
+            @Test
+            @DisplayName("obfuscateText(CharSequence, StringBuffer)")
+            void testObfuscateTextCharSequenceToStringBuffer() {
+                StringBuffer destination = new StringBuffer();
+                testThrowsNullPointerException("Hello World", 0, 11, () -> obfuscator.obfuscateText("Hello World", destination));
+                assertEquals("", destination.toString());
+            }
+
+            @Test
+            @DisplayName("obfuscateText(CharSequence, int, int, StringBuffer)")
+            void testObfuscateTextCharSequenceRangeToStringBuffer() {
+                StringBuffer destination = new StringBuffer();
+                testThrowsNullPointerException("Hello World", 3, 5, () -> obfuscator.obfuscateText("Hello World", 3, 5, destination));
+                assertEquals("", destination.toString());
+            }
+
+            @Test
+            @DisplayName("obfuscateText(CharSequence, Appendable)")
+            void testObfuscateTextCharSequenceToAppendable() {
+                Writer destination = new StringWriter();
+                testThrowsNullPointerException("Hello World", 0, 11, () -> obfuscator.obfuscateText("Hello World", destination));
+                assertEquals("", destination.toString());
+            }
+
+            @Test
+            @DisplayName("obfuscateText(CharSequence, int, int, Appendable)")
+            void testObfuscateTextCharSequenceRangeToAppendable() {
+                Writer destination = new StringWriter();
+                testThrowsNullPointerException("Hello World", 3, 5, () -> obfuscator.obfuscateText("Hello World", 3, 5, destination));
+                assertEquals("", destination.toString());
+            }
+
+            @Test
+            @DisplayName("obfuscateText(Reader)")
+            void testObfuscateTextReader() {
+                testThrowsNullPointerException("Hello World", 0, 11, () -> obfuscator.obfuscateText(new StringReader("Hello World")));
+            }
+
+            @Test
+            @DisplayName("obfuscateText(Reader, Appendable)")
+            void testObfuscateTextReaderToAppendable() {
+                StringBuilder destination = new StringBuilder();
+                testThrowsNullPointerException("Hello World", 0, 11, () -> obfuscator.obfuscateText(new StringReader("Hello World"), destination));
                 assertEquals("", destination.toString());
             }
         }
