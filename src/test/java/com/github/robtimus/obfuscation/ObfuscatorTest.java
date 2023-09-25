@@ -2096,12 +2096,74 @@ class ObfuscatorTest {
                 private final SplitPoint delegate = atFirst('@');
 
                 @Override
-                int splitStart(CharSequence s, int start, int end) {
+                protected int splitStart(CharSequence s, int start, int end) {
                     return delegate.splitStart(s, start, end);
                 }
 
                 @Override
-                int splitLength() {
+                protected int splitLength() {
+                    return 0;
+                }
+            };
+        }
+
+        @Nested
+        @DisplayName("split at start")
+        @TestInstance(Lifecycle.PER_CLASS)
+        class SplitAtStart extends NestedObfuscatorTest {
+
+            SplitAtStart() {
+                super(maskChar -> atStartSplitPoint().splitTo(fixedLength(3), all('x')), new Arguments[] {
+                        arguments("test", '*', "***xxxx"),
+                        arguments("test@", '*', "***xxxxx"),
+                        arguments("test@example.org", '*', "***xxxxxxxxxxxxxxxx"),
+                        arguments("test@example.org@", '*', "***xxxxxxxxxxxxxxxxx"),
+                        arguments("test@example.org@localhost", '*', "***xxxxxxxxxxxxxxxxxxxxxxxxxx"),
+                }, "***", "***xxxx");
+            }
+        }
+
+        private SplitPoint atStartSplitPoint() {
+            return new SplitPoint() {
+
+                @Override
+                protected int splitStart(CharSequence s, int start, int end) {
+                    return start;
+                }
+
+                @Override
+                protected int splitLength() {
+                    return 0;
+                }
+            };
+        }
+
+        @Nested
+        @DisplayName("split at end")
+        @TestInstance(Lifecycle.PER_CLASS)
+        class SplitAtEnd extends NestedObfuscatorTest {
+
+            SplitAtEnd() {
+                super(maskChar -> atEndSplitPoint().splitTo(fixedLength(3), fixedValue("xxx")), new Arguments[] {
+                        arguments("test", '*', "***xxx"),
+                        arguments("test@", '*', "***xxx"),
+                        arguments("test@example.org", '*', "***xxx"),
+                        arguments("test@example.org@", '*', "***xxx"),
+                        arguments("test@example.org@localhost", '*', "***xxx"),
+                }, "***xxx", "***xxx");
+            }
+        }
+
+        private SplitPoint atEndSplitPoint() {
+            return new SplitPoint() {
+
+                @Override
+                protected int splitStart(CharSequence s, int start, int end) {
+                    return end;
+                }
+
+                @Override
+                protected int splitLength() {
                     return 0;
                 }
             };

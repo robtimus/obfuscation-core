@@ -1790,13 +1790,29 @@ public abstract class Obfuscator {
      * // Example input: test@example.org
      * // Example output: t******t@*******.org
      * </code></pre>
+     * <h1>Sub classing</h1>
+     * To create a sub class, implement both {@link #splitStart(CharSequence, int, int)} and {@link #splitLength()}.
+     * Obfuscators created by calling {@link #splitTo(Obfuscator, Obfuscator)} use these two methods to determine how to split the text to obfuscate.
+     * If {@link #splitStart(CharSequence, int, int)} returns -1, only the first obfuscator will be used. Otherwise, where {@code splitStart} is the
+     * result of calling {@link #splitStart(CharSequence, int, int)}:
+     * <ul>
+     *   <li>The range from {@code start} to {@code splitStart} will be obfuscated using the first obfuscator.</li>
+     *   <li>The range from {@code splitStart} to {@code splitStart + }{@link #splitLength()} will not be obfuscated.</li>
+     *   <li>The range from {@code splitStart + }{@link #splitLength()} to {@code end} will be obfuscated using the second obfuscator.</li>
+     * </ul>
+     * <h2>Equality</h2>
+     * Equality of split points is used in equality of obfuscators created using {@link #splitTo(Obfuscator, Obfuscator)}. It's therefore advised to
+     * implement {@link Object#equals(Object)} (and {@link Object#hashCode()}) so logically equivalent split points will be considered equal.
      *
      * @author Rob Spoor
      * @since 1.5
      */
     public abstract static class SplitPoint {
 
-        SplitPoint() {
+        /**
+         * Creates a new split point.
+         */
+        protected SplitPoint() {
         }
 
         /**
@@ -1837,9 +1853,25 @@ public abstract class Obfuscator {
             return new NthChar(c, occurrence);
         }
 
-        abstract int splitStart(CharSequence s, int start, int end);
+        /**
+         * For a given {@code CharSequence} range, finds the index where to start to split.
+         *
+         * @param s The {@code CharSequence} to find the split start index for.
+         * @param start The start index in the {@code CharSequence} of the range to find the split start index in, inclusive.
+         * @param end The end index in the {@code CharSequence} of the range to find the split start index in, exclusive.
+         * @return The index in the given {@code CharSequence}, between the given start and end indexes, where to start to split,
+         *         or -1 to not split.
+         */
+        protected abstract int splitStart(CharSequence s, int start, int end);
 
-        abstract int splitLength();
+        /**
+         * Returns the length of {@code CharSequence} ranges to not obfuscate when splitting.
+         * All characters with an index between {@code splitStart} and {@code splitStart + splitLength()}, where {@code splitStart} is the result of
+         * calling {@link #splitStart(CharSequence, int, int)}, will not be obfuscated.
+         *
+         * @return The length of {@code CharSequence} ranges to not obfuscate when splitting.
+         */
+        protected abstract int splitLength();
 
         /**
          * Creates an obfuscator that splits obfuscation at this split point. The part of the {@link CharSequence} or {@link Reader} before the split
@@ -1849,7 +1881,7 @@ public abstract class Obfuscator {
          * @param afterSplitPoint The obfuscator to use after the split point.
          * @return The created obfuscator.
          */
-        public Obfuscator splitTo(Obfuscator beforeSplitPoint, Obfuscator afterSplitPoint) {
+        public final Obfuscator splitTo(Obfuscator beforeSplitPoint, Obfuscator afterSplitPoint) {
             Objects.requireNonNull(beforeSplitPoint);
             Objects.requireNonNull(afterSplitPoint);
             return new SplitPointObfuscator(this, beforeSplitPoint, afterSplitPoint);
@@ -1864,13 +1896,12 @@ public abstract class Obfuscator {
             }
 
             @Override
-            int splitStart(CharSequence s, int start, int end) {
-                int index = indexOf(s, splitAt, start, end);
-                return index == -1 ? end : index;
+            protected int splitStart(CharSequence s, int start, int end) {
+                return indexOf(s, splitAt, start, end);
             }
 
             @Override
-            int splitLength() {
+            protected int splitLength() {
                 return 1;
             }
 
@@ -1907,13 +1938,12 @@ public abstract class Obfuscator {
             }
 
             @Override
-            int splitStart(CharSequence s, int start, int end) {
-                int index = lastIndexOf(s, splitAt, start, end);
-                return index == -1 ? end : index;
+            protected int splitStart(CharSequence s, int start, int end) {
+                return lastIndexOf(s, splitAt, start, end);
             }
 
             @Override
-            int splitLength() {
+            protected int splitLength() {
                 return 1;
             }
 
@@ -1952,16 +1982,16 @@ public abstract class Obfuscator {
             }
 
             @Override
-            int splitStart(CharSequence s, int start, int end) {
+            protected int splitStart(CharSequence s, int start, int end) {
                 int index = indexOf(s, splitAt, start, end);
                 for (int i = 1; i <= occurrence && index != -1; i++) {
                     index = indexOf(s, splitAt, index + 1, end);
                 }
-                return index == -1 ? end : index;
+                return index;
             }
 
             @Override
-            int splitLength() {
+            protected int splitLength() {
                 return 1;
             }
 
@@ -2005,11 +2035,11 @@ public abstract class Obfuscator {
         @Override
         public CharSequence obfuscateText(CharSequence s, int start, int end) {
             int splitStart = splitPoint.splitStart(s, start, end);
-            CharSequence resultBeforeSplitPoint = beforeSplitPoint.obfuscateText(s, start, splitStart);
-
-            if (splitStart == end) {
-                return resultBeforeSplitPoint;
+            if (splitStart == -1) {
+                return beforeSplitPoint.obfuscateText(s, start, end);
             }
+
+            CharSequence resultBeforeSplitPoint = beforeSplitPoint.obfuscateText(s, start, splitStart);
 
             int splitLength = splitPoint.splitLength();
             if (splitLength > 0) {
@@ -2025,13 +2055,16 @@ public abstract class Obfuscator {
         @Override
         public void obfuscateText(CharSequence s, int start, int end, Appendable destination) throws IOException {
             int splitStart = splitPoint.splitStart(s, start, end);
+            if (splitStart == -1) {
+                beforeSplitPoint.obfuscateText(s, start, end, destination);
+                return;
+            }
+
             beforeSplitPoint.obfuscateText(s, start, splitStart, destination);
 
-            if (splitStart < end) {
-                int splitLength = splitPoint.splitLength();
-                destination.append(s, splitStart, splitStart + splitLength);
-                afterSplitPoint.obfuscateText(s, splitStart + splitLength, end, destination);
-            }
+            int splitLength = splitPoint.splitLength();
+            destination.append(s, splitStart, splitStart + splitLength);
+            afterSplitPoint.obfuscateText(s, splitStart + splitLength, end, destination);
         }
 
         @Override
