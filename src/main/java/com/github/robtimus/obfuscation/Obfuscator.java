@@ -1803,6 +1803,9 @@ public abstract class Obfuscator {
      * <h2>Equality</h2>
      * Equality of split points is used in equality of obfuscators created using {@link #splitTo(Obfuscator, Obfuscator)}. It's therefore advised to
      * implement {@link Object#equals(Object)} (and {@link Object#hashCode()}) so logically equivalent split points will be considered equal.
+     * <h2>String representation</h2>
+     * The string representation of split points is used in the string representation of obfuscators created using
+     * {@link #splitTo(Obfuscator, Obfuscator)}. It's therefore advised to override {@link Object#toString()} to something meaningful.
      *
      * @author Rob Spoor
      * @since 1.5
@@ -1823,7 +1826,7 @@ public abstract class Obfuscator {
          * @return The created split point.
          */
         public static SplitPoint atFirst(char c) {
-            return new FirstChar(c);
+            return new AtFirstChar(c);
         }
 
         /**
@@ -1834,7 +1837,7 @@ public abstract class Obfuscator {
          * @return The created split point.
          */
         public static SplitPoint atLast(char c) {
-            return new LastChar(c);
+            return new AtLastChar(c);
         }
 
         /**
@@ -1850,7 +1853,7 @@ public abstract class Obfuscator {
             if (occurrence < 0) {
                 throw new IllegalArgumentException(occurrence + " < 0"); //$NON-NLS-1$
             }
-            return new NthChar(c, occurrence);
+            return new AtNthChar(c, occurrence);
         }
 
         /**
@@ -1887,11 +1890,11 @@ public abstract class Obfuscator {
             return new SplitPointObfuscator(this, beforeSplitPoint, afterSplitPoint);
         }
 
-        private static final class FirstChar extends SplitPoint {
+        private static final class AtFirstChar extends SplitPoint {
 
             private final char splitAt;
 
-            private FirstChar(char splitAt) {
+            private AtFirstChar(char splitAt) {
                 this.splitAt = splitAt;
             }
 
@@ -1913,7 +1916,7 @@ public abstract class Obfuscator {
                 if (o == null || o.getClass() != getClass()) {
                     return false;
                 }
-                FirstChar other = (FirstChar) o;
+                AtFirstChar other = (AtFirstChar) o;
                 return splitAt == other.splitAt;
             }
 
@@ -1925,15 +1928,15 @@ public abstract class Obfuscator {
             @Override
             @SuppressWarnings("nls")
             public String toString() {
-                return "first occurrence of " + splitAt;
+                return "at first occurrence of '" + splitAt + "'";
             }
         }
 
-        private static final class LastChar extends SplitPoint {
+        private static final class AtLastChar extends SplitPoint {
 
             private final char splitAt;
 
-            private LastChar(char splitAt) {
+            private AtLastChar(char splitAt) {
                 this.splitAt = splitAt;
             }
 
@@ -1955,7 +1958,7 @@ public abstract class Obfuscator {
                 if (o == null || o.getClass() != getClass()) {
                     return false;
                 }
-                LastChar other = (LastChar) o;
+                AtLastChar other = (AtLastChar) o;
                 return splitAt == other.splitAt;
             }
 
@@ -1967,16 +1970,16 @@ public abstract class Obfuscator {
             @Override
             @SuppressWarnings("nls")
             public String toString() {
-                return "last occurrence of " + splitAt;
+                return "at last occurrence of '" + splitAt + "'";
             }
         }
 
-        private static final class NthChar extends SplitPoint {
+        private static final class AtNthChar extends SplitPoint {
 
             private final char splitAt;
             private final int occurrence;
 
-            private NthChar(char splitAt, int occurrence) {
+            private AtNthChar(char splitAt, int occurrence) {
                 this.splitAt = splitAt;
                 this.occurrence = occurrence;
             }
@@ -2003,7 +2006,7 @@ public abstract class Obfuscator {
                 if (o == null || o.getClass() != getClass()) {
                     return false;
                 }
-                NthChar other = (NthChar) o;
+                AtNthChar other = (AtNthChar) o;
                 return splitAt == other.splitAt && occurrence == other.occurrence;
             }
 
@@ -2015,7 +2018,7 @@ public abstract class Obfuscator {
             @Override
             @SuppressWarnings("nls")
             public String toString() {
-                return "occurrence " + occurrence + " of " + splitAt;
+                return "at occurrence " + occurrence + " of '" + splitAt + "'";
             }
         }
     }
@@ -2106,7 +2109,7 @@ public abstract class Obfuscator {
         @Override
         @SuppressWarnings("nls")
         public String toString() {
-            return beforeSplitPoint + " until " + splitPoint + ", then " + afterSplitPoint;
+            return splitPoint + " split to " + beforeSplitPoint + " and " + afterSplitPoint;
         }
     }
 
