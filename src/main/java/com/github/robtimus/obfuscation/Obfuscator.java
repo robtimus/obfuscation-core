@@ -57,8 +57,6 @@ public abstract class Obfuscator {
 
     private static final char DEFAULT_MASK_CHAR = '*';
 
-    private static final NoneObfuscator NONE = new NoneObfuscator();
-
     /**
      * Obfuscates the contents of a {@code CharSequence}.
      *
@@ -876,10 +874,12 @@ public abstract class Obfuscator {
      * @return An obfuscator that does not obfuscate anything.
      */
     public static final Obfuscator none() {
-        return NONE;
+        return NoneObfuscator.INSTANCE;
     }
 
     private static final class NoneObfuscator extends Obfuscator {
+
+        private static final NoneObfuscator INSTANCE = new NoneObfuscator();
 
         @Override
         public CharSequence obfuscateText(CharSequence s) {
