@@ -273,7 +273,7 @@ public final class MapBuilder<V> {
             return entrySet;
         }
 
-        private class EntrySet extends AbstractSet<Entry<String, V>> {
+        private final class EntrySet extends AbstractSet<Entry<String, V>> {
 
             @Override
             public int size() {
