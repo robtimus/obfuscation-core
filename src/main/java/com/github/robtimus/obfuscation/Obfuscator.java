@@ -1785,7 +1785,7 @@ public abstract class Obfuscator {
      *         .withFixedTotalLength(8)
      *         .build();
      * Obfuscator domainObfuscator = SplitPoint.atLast('.').splitTo(all(), none());
-     * Obfuscator obfuscator = SplitPoint.atFirst('@').split(localPartObfuscator, domainObfuscator);
+     * Obfuscator obfuscator = SplitPoint.atFirst('@').splitTo(localPartObfuscator, domainObfuscator);
      * // Everything before @ will be obfuscated using localPartObfuscator, everything after @ will be obfuscated until the last dot
      * // Example input: test@example.org
      * // Example output: t******t@*******.org
