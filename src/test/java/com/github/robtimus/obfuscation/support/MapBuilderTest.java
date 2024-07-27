@@ -738,7 +738,7 @@ class MapBuilderTest {
                                 .withEntry("c", 3, CASE_INSENSITIVE)
                                 .withEntry("d", 4, CASE_SENSITIVE)
                                 .build(), false),
-                        // different mappings, since case sensitive keys match case sensitively;
+                        // different mappings, since case sensitive keys match case sensitively
                         arguments(new MapBuilder<Integer>()
                                 .withEntry("A", 1, CASE_SENSITIVE)
                                 .withEntry("b", 2, CASE_INSENSITIVE)
