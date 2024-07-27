@@ -229,7 +229,7 @@ class AppendableWriterTest extends StreamTestBase {
 
     @TestFactory
     @DisplayName("close()")
-    DynamicTest[] testClose() throws Exception {
+    DynamicTest[] testClose() {
         return new DynamicTest[] {
                 dynamicTest("not Closeable", () -> {
                     Appendable appendable = mock(Appendable.class);
