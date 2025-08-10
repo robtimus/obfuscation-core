@@ -248,7 +248,7 @@ class ObfuscatingPropertiesTest {
             // That's fine though, as objectProperties suffers the same issue.
 
             // In Java 9, Properties was refactored. As a result, it throws a StackOverflowError if the Properties object contains (parts of) itself
-            if (JRE.currentVersion().compareTo(JRE.JAVA_8) <= 0) {
+            if (JRE.currentJre().compareTo(JRE.JAVA_8) <= 0) {
                 assertHasToString(objectObfuscating.values(), "[", "]", "[***]", "(***)", "[***]", "(***)");
             } else {
                 assertThrows(StackOverflowError.class, objectProperties.values()::toString);
@@ -294,7 +294,7 @@ class ObfuscatingPropertiesTest {
             // As a result, the entrySet's toString() is inherited from Object, and the obfuscated value is not (***) but j***X, where X is the last
             // character of the hexadecimal hashCode
             // In Java 16 this was fixed, but as a result, it throws a StackOverflowError if the Properties object contains (parts of) itself
-            JRE currentJRE = JRE.currentVersion();
+            JRE currentJRE = JRE.currentJre();
             if (currentJRE.compareTo(JRE.JAVA_8) <= 0) {
                 assertHasToString(objectObfuscating.entrySet(), "[", "]", "keySet=[***]", expectedEntrySetValue, "obfuscatingKeySet=[***]",
                         "obfuscatingEntrySet=(***)");
