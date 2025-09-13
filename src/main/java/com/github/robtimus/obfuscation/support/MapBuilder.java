@@ -301,7 +301,7 @@ public final class MapBuilder<V> {
 
             @Override
             public Iterator<Entry<String, V>> iterator() {
-                return new Iterator<Entry<String, V>>() {
+                return new Iterator<>() {
                     private final Iterator<Entry<String, V>> caseSensitiveIterator = caseSensitiveMap.entrySet().iterator();
                     private final Iterator<Entry<String, V>> caseInsensitiveIterator = caseInsensitiveMap.entrySet().iterator();
 

@@ -1408,8 +1408,7 @@ public abstract class Obfuscator {
      * A builder for obfuscators that obfuscate a specific portion of their input.
      * An obfuscator created with {@link #keepAtStart(int) keepAtStart(x)} and {@link #keepAtEnd(int) keepAtEnd(y)} will, for input {@code s},
      * obfuscate all characters in the range {@code x} (inclusive) to {@link CharSequence#length() s.length()}{@code - y} (exclusive).
-     * If this range is empty, such an obfuscator will not obfuscate anything, unless if {@link #withFixedTotalLength(int)} or
-     * {@link #withFixedLength(int)} is specified.
+     * If this range is empty, such an obfuscator will not obfuscate anything, unless if {@link #withFixedTotalLength(int)} is specified.
      *
      * @author Rob Spoor
      */
@@ -1420,7 +1419,6 @@ public abstract class Obfuscator {
         private int atLeastFromStart;
         private int atLeastFromEnd;
         private int fixedTotalLength;
-        private int fixedObfuscatedLength;
         private char maskChar;
 
         private PortionBuilder() {
@@ -1508,23 +1506,6 @@ public abstract class Obfuscator {
         }
 
         /**
-         * Sets or removes the fixed number of {@link #withMaskChar(char) mask characters} to use for obfuscating.
-         * <p>
-         * This setting will be ignored if the {@link #withFixedTotalLength(int) fixed total length} is set.
-         *
-         * @param fixedObfuscatedLength The fixed number of mask characters, or a negative value to use the actual length of the input.
-         *                        The default is {@code -1}.
-         * @return This builder.
-         * @deprecated The total length of obfuscated contents can vary when using this setting, making it possible in certain cases to find the
-         *             original value that was obfuscated. Use {@link #withFixedTotalLength(int)} instead.
-         */
-        @Deprecated
-        public PortionBuilder withFixedLength(int fixedObfuscatedLength) {
-            this.fixedObfuscatedLength = Math.max(-1, fixedObfuscatedLength);
-            return this;
-        }
-
-        /**
          * Sets the char that created obfuscators use for obfuscating.
          *
          * @param maskChar The mask character. The default is {@code *}.
@@ -1544,7 +1525,6 @@ public abstract class Obfuscator {
          * <li>{@link #atLeastFromStart(int) atLeastFromStart(0)}</li>
          * <li>{@link #atLeastFromEnd(int) atLeastFromEnd(0)}</li>
          * <li>{@link #withFixedTotalLength(int) withFixedTotalLength(-1)}</li>
-         * <li>{@link #withFixedLength(int) withFixedLength(-1)}</li>
          * <li>{@link #withMaskChar(char) withMaskChar('*')}</li>
          * </ul>
          *
@@ -1556,7 +1536,6 @@ public abstract class Obfuscator {
             atLeastFromStart(0);
             atLeastFromEnd(0);
             withFixedTotalLength(-1);
-            withFixedLength(-1);
             withMaskChar(DEFAULT_MASK_CHAR);
             return this;
         }
@@ -1593,7 +1572,6 @@ public abstract class Obfuscator {
         private final int atLeastFromStart;
         private final int atLeastFromEnd;
         private final int fixedTotalLength;
-        private final int fixedObfuscatedLength;
         private final char maskChar;
 
         private PortionObfuscator(PortionBuilder builder) {
@@ -1602,7 +1580,6 @@ public abstract class Obfuscator {
             this.atLeastFromStart = builder.atLeastFromStart;
             this.atLeastFromEnd = builder.atLeastFromEnd;
             this.fixedTotalLength = builder.fixedTotalLength;
-            this.fixedObfuscatedLength = builder.fixedObfuscatedLength;
             this.maskChar = builder.maskChar;
 
             if (fixedTotalLength >= 0 && fixedTotalLength < keepAtStart + keepAtEnd) {
@@ -1650,9 +1627,6 @@ public abstract class Obfuscator {
 
             if (fixedTotalLength >= 0) {
                 length = fixedTotalLength;
-            } else if (fixedObfuscatedLength >= 0) {
-                // length - fromStart - fromEnd needs to be fixedObfuscatedLength, so length needs to be fixedObfuscatedLength + fromStart + fromEnd
-                length = fixedObfuscatedLength + fromStart + fromEnd;
             }
 
             char[] array = new char[length];
@@ -1680,9 +1654,6 @@ public abstract class Obfuscator {
 
             if (fixedTotalLength >= 0) {
                 length = fixedTotalLength;
-            } else if (fixedObfuscatedLength >= 0) {
-                // length - fromStart - fromEnd needs to be fixedObfuscatedLength, so length needs to be fixedObfuscatedLength + fromStart + fromEnd
-                length = fixedObfuscatedLength + fromStart + fromEnd;
             }
 
             // first build the content as expected: 0 to fromStart non-obfuscated, then obfuscated, then end - fromEnd non-obfuscated
@@ -1723,14 +1694,13 @@ public abstract class Obfuscator {
             PortionObfuscator other = (PortionObfuscator) o;
             return keepAtStart == other.keepAtStart && keepAtEnd == other.keepAtEnd
                     && atLeastFromStart == other.atLeastFromStart && atLeastFromEnd == other.atLeastFromEnd
-                    && fixedObfuscatedLength == other.fixedObfuscatedLength
                     && fixedTotalLength == other.fixedTotalLength
                     && maskChar == other.maskChar;
         }
 
         @Override
         public int hashCode() {
-            return keepAtStart ^ keepAtEnd ^ atLeastFromStart ^ atLeastFromEnd ^ fixedObfuscatedLength ^ fixedTotalLength ^ maskChar;
+            return keepAtStart ^ keepAtEnd ^ atLeastFromStart ^ atLeastFromEnd ^ fixedTotalLength ^ maskChar;
         }
 
         @Override
@@ -1750,9 +1720,6 @@ public abstract class Obfuscator {
             }
             if (atLeastFromEnd > 0) {
                 sb.append("atLeastFromEnd=").append(atLeastFromEnd).append(',');
-            }
-            if (fixedObfuscatedLength >= 0) {
-                sb.append("fixedLength=").append(fixedObfuscatedLength).append(',');
             }
             if (fixedTotalLength >= 0) {
                 sb.append("fixedTotalLength=").append(fixedTotalLength).append(',');

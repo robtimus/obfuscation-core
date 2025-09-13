@@ -15,6 +15,9 @@
  * limitations under the License.
  */
 
+/**
+ * Provides functionality for obfuscating text.
+ */
 module com.github.robtimus.obfuscation {
     exports com.github.robtimus.obfuscation;
     exports com.github.robtimus.obfuscation.support;

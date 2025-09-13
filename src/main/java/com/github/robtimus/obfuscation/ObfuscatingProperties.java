@@ -288,7 +288,7 @@ final class ObfuscatingProperties extends Properties {
     }
 
     @Override
-    @Deprecated
+    @Deprecated(since = "1.0", forRemoval = false)
     public synchronized void save(OutputStream out, String comments) {
         properties.save(out, comments);
     }
