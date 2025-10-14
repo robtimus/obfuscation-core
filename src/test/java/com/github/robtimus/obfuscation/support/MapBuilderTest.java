@@ -382,7 +382,7 @@ class MapBuilderTest {
             @Test
             @DisplayName("clear()")
             void testClear() {
-                assertThrows(UnsupportedOperationException.class, () -> map.clear());
+                assertThrows(UnsupportedOperationException.class, map::clear);
                 assertEquals(4, map.size());
             }
 
@@ -525,7 +525,7 @@ class MapBuilderTest {
                 @Test
                 @DisplayName("clear()")
                 void testClear() {
-                    assertThrows(UnsupportedOperationException.class, () -> entrySet.clear());
+                    assertThrows(UnsupportedOperationException.class, entrySet::clear);
                     assertEquals(4, entrySet.size());
                 }
 

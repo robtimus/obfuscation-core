@@ -114,7 +114,7 @@ class CopyingReaderTest extends StreamTestBase {
                         assertFalse(reader.markSupported());
                         assertThrows(IOException.class, () -> reader.mark(5));
                         copy(reader, writer);
-                        assertThrows(IOException.class, () -> reader.reset());
+                        assertThrows(IOException.class, reader::reset);
                     }
                     assertEquals(SOURCE, writer.toString());
                     assertEquals(SOURCE, appendable.toString());
@@ -140,7 +140,7 @@ class CopyingReaderTest extends StreamTestBase {
                         assertFalse(reader.markSupported());
                         assertThrows(IOException.class, () -> reader.mark(5));
                         copy(reader, writer);
-                        assertThrows(IOException.class, () -> reader.reset());
+                        assertThrows(IOException.class, reader::reset);
                     }
                     assertEquals(SOURCE, writer.toString());
                     assertEquals(SOURCE, appendable.toString());
@@ -166,7 +166,7 @@ class CopyingReaderTest extends StreamTestBase {
                         assertFalse(reader.markSupported());
                         assertThrows(IOException.class, () -> reader.mark(5));
                         copy(reader, writer);
-                        assertThrows(IOException.class, () -> reader.reset());
+                        assertThrows(IOException.class, reader::reset);
                     }
                     assertEquals(SOURCE, writer.toString());
                     assertEquals(SOURCE, appendable.toString());

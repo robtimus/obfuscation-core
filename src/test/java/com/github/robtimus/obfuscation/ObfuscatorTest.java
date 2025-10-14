@@ -64,7 +64,7 @@ class ObfuscatorTest {
     class All extends NestedObfuscatorTest {
 
         All() {
-            super(maskChar -> all(maskChar), new Arguments[] {
+            super(Obfuscator::all, new Arguments[] {
                     arguments("foo", '*', "***"),
                     arguments("foo", 'x', "xxx"),
                     arguments("hello", '*', "*****"),
@@ -882,7 +882,7 @@ class ObfuscatorTest {
         void testFixedTotalLengthSmallerThanKeepAtStartPlusKeepAtEnd() {
             assertDoesNotThrow(() -> portion().keepAtStart(1).keepAtEnd(1).withFixedTotalLength(2).build());
             PortionBuilder builder = portion().keepAtStart(1).keepAtEnd(1).withFixedTotalLength(1);
-            assertThrows(IllegalStateException.class, () -> builder.build());
+            assertThrows(IllegalStateException.class, builder::build);
         }
 
         @Test
@@ -934,7 +934,7 @@ class ObfuscatorTest {
                     arguments(obfuscator, obfuscator, true),
                     arguments(obfuscator, null, false),
                     arguments(obfuscator, fromFunction(function), true),
-                    arguments(obfuscator, fromFunction(s -> s.toString()), false),
+                    arguments(obfuscator, fromFunction(Object::toString), false),
                     arguments(obfuscator, "foo", false),
             };
         }

@@ -124,12 +124,12 @@ class CharSequenceReaderTest extends StreamTestBase {
         @SuppressWarnings("resource")
         Reader reader = new CharSequenceReader(SOURCE);
         reader.close();
-        assertClosed(() -> reader.read());
+        assertClosed(reader::read);
         assertClosed(() -> reader.read(new char[0], 0, 0));
         assertClosed(() -> reader.skip(0));
-        assertClosed(() -> reader.ready());
+        assertClosed(reader::ready);
         assertClosed(() -> reader.mark(1));
-        assertClosed(() -> reader.reset());
+        assertClosed(reader::reset);
         reader.close();
     }
 }
