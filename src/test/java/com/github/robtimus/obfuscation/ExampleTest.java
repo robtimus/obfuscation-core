@@ -43,7 +43,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Verifies that the examples are correct.
  */
-@SuppressWarnings("nls")
+@SuppressWarnings({ "nls", "squid:S8694" })
 class ExampleTest {
 
     @Test
