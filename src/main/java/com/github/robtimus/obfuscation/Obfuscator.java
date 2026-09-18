@@ -1757,7 +1757,7 @@ public abstract class Obfuscator {
      * // Example input: test@example.org
      * // Example output: t******t@*******.org
      * </code></pre>
-     * <h1>Sub classing</h1>
+     * <h2>Sub classing</h2>
      * To create a sub class, implement both {@link #splitStart(CharSequence, int, int)} and {@link #splitLength()}.
      * Obfuscators created by calling {@link #splitTo(Obfuscator, Obfuscator)} use these two methods to determine how to split the text to obfuscate.
      * If {@link #splitStart(CharSequence, int, int)} returns -1, only the first obfuscator will be used. Otherwise, where {@code splitStart} is the
@@ -1767,10 +1767,10 @@ public abstract class Obfuscator {
      *   <li>The range from {@code splitStart} to {@code splitStart + }{@link #splitLength()} will not be obfuscated.</li>
      *   <li>The range from {@code splitStart + }{@link #splitLength()} to {@code end} will be obfuscated using the second obfuscator.</li>
      * </ul>
-     * <h2>Equality</h2>
+     * <h3>Equality</h3>
      * Equality of split points is used in equality of obfuscators created using {@link #splitTo(Obfuscator, Obfuscator)}. It's therefore advised to
      * implement {@link Object#equals(Object)} (and {@link Object#hashCode()}) so logically equivalent split points will be considered equal.
-     * <h2>String representation</h2>
+     * <h3>String representation</h3>
      * The string representation of split points is used in the string representation of obfuscators created using
      * {@link #splitTo(Obfuscator, Obfuscator)}. It's therefore advised to override {@link Object#toString()} to something meaningful.
      *
