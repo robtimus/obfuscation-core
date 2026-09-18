@@ -690,7 +690,7 @@ class ObfuscatingPropertiesTest {
         List<String> currentParts = new ArrayList<>();
         List<String> remainingParts = new ArrayList<>(Arrays.asList(expectedParts));
         List<Matcher<? super String>> matchers = toStringMatchers(expectedPrefix, expectedPostfix, currentParts, remainingParts)
-                .collect(toList());
+                .collect(toList()); // NOSONAR, .toList() causes type inference to use List<Matcher<String>> which doesn't work with anyOf
 
         return anyOf(matchers);
     }

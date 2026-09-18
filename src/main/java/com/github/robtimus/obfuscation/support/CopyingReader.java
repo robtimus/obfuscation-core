@@ -69,12 +69,12 @@ final class CopyingReader extends Reader {
 
     @Override
     public void mark(int readAheadLimit) throws IOException {
-        if (appendable instanceof StringBuilder) {
+        if (appendable instanceof StringBuilder sb) {
             input.mark(readAheadLimit);
-            mark = ((StringBuilder) appendable).length();
-        } else if (appendable instanceof StringBuffer) {
+            mark = sb.length();
+        } else if (appendable instanceof StringBuffer sb) {
             input.mark(readAheadLimit);
-            mark = ((StringBuffer) appendable).length();
+            mark = sb.length();
         } else {
             super.mark(readAheadLimit);
         }
@@ -82,13 +82,11 @@ final class CopyingReader extends Reader {
 
     @Override
     public void reset() throws IOException {
-        if (appendable instanceof StringBuilder) {
+        if (appendable instanceof StringBuilder sb) {
             input.reset();
-            StringBuilder sb = (StringBuilder) appendable;
             sb.delete(mark, sb.length());
-        } else if (appendable instanceof StringBuffer) {
+        } else if (appendable instanceof StringBuffer sb) {
             input.reset();
-            StringBuffer sb = (StringBuffer) appendable;
             sb.delete(mark, sb.length());
         } else {
             super.reset();

@@ -51,8 +51,8 @@ public final class ObfuscatorUtils {
      * @throws NullPointerException If the given {@code CharSequence} is {@code null}.
      */
     public static int indexOf(CharSequence s, int ch, int fromIndex, int toIndex) {
-        if (s instanceof String) {
-            int index = ((String) s).indexOf(ch, fromIndex);
+        if (s instanceof String string) {
+            int index = string.indexOf(ch, fromIndex);
             return index == -1 || index >= toIndex ? -1 : index;
         }
 
@@ -79,9 +79,9 @@ public final class ObfuscatorUtils {
      * @since 1.5
      */
     public static int lastIndexOf(CharSequence s, int ch, int fromIndex, int toIndex) {
-        if (s instanceof String) {
+        if (s instanceof String string) {
             // In String.lastIndexOf, the fromIndex is inclusive
-            int index = ((String) s).lastIndexOf(ch, toIndex - 1);
+            int index = string.lastIndexOf(ch, toIndex - 1);
             return index == -1 || index < fromIndex ? -1 : index;
         }
 
@@ -146,12 +146,12 @@ public final class ObfuscatorUtils {
      * @throws IndexOutOfBoundsException If any of the indexes is invalid.
      */
     public static void getChars(CharSequence src, int srcBegin, int srcEnd, char[] dst, int dstBegin) {
-        if (src instanceof String) {
-            ((String) src).getChars(srcBegin, srcEnd, dst, dstBegin);
-        } else if (src instanceof StringBuilder) {
-            ((StringBuilder) src).getChars(srcBegin, srcEnd, dst, dstBegin);
-        } else if (src instanceof StringBuffer) {
-            ((StringBuffer) src).getChars(srcBegin, srcEnd, dst, dstBegin);
+        if (src instanceof String s) {
+            s.getChars(srcBegin, srcEnd, dst, dstBegin);
+        } else if (src instanceof StringBuilder sb) {
+            sb.getChars(srcBegin, srcEnd, dst, dstBegin);
+        } else if (src instanceof StringBuffer sb) {
+            sb.getChars(srcBegin, srcEnd, dst, dstBegin);
         } else {
             checkStartAndEnd(src, srcBegin, srcEnd);
             checkStartAndEnd(dst, dstBegin, dstBegin + srcEnd - srcBegin);
@@ -345,7 +345,7 @@ public final class ObfuscatorUtils {
      */
     public static Writer writer(Appendable appendable) {
         Objects.requireNonNull(appendable);
-        return appendable instanceof Writer ? (Writer) appendable : new AppendableWriter(appendable);
+        return appendable instanceof Writer writer ? writer : new AppendableWriter(appendable);
     }
 
     /**
@@ -474,12 +474,12 @@ public final class ObfuscatorUtils {
         Objects.requireNonNull(destination);
 
         char[] buffer = new char[1024];
-        if (destination instanceof StringBuilder) {
-            copyAll(input, (StringBuilder) destination, buffer);
-        } else if (destination instanceof StringBuffer) {
-            copyAll(input, (StringBuffer) destination, buffer);
-        } else if (destination instanceof Writer) {
-            copyAll(input, (Writer) destination, buffer);
+        if (destination instanceof StringBuilder sb) {
+            copyAll(input, sb, buffer);
+        } else if (destination instanceof StringBuffer sb) {
+            copyAll(input, sb, buffer);
+        } else if (destination instanceof Writer writer) {
+            copyAll(input, writer, buffer);
         } else {
             CharArraySequence csq = new CharArraySequence(buffer);
             int len;
@@ -530,12 +530,12 @@ public final class ObfuscatorUtils {
         char[] buffer = new char[1024];
         char[] mask = new char[1024];
         Arrays.fill(mask, maskChar);
-        if (destination instanceof StringBuilder) {
-            maskAll(input, (StringBuilder) destination, buffer, mask);
-        } else if (destination instanceof StringBuffer) {
-            maskAll(input, (StringBuffer) destination, buffer, mask);
-        } else if (destination instanceof Writer) {
-            maskAll(input, (Writer) destination, buffer, mask);
+        if (destination instanceof StringBuilder sb) {
+            maskAll(input, sb, buffer, mask);
+        } else if (destination instanceof StringBuffer sb) {
+            maskAll(input, sb, buffer, mask);
+        } else if (destination instanceof Writer writer) {
+            maskAll(input, writer, buffer, mask);
         } else {
             CharArraySequence csq = new CharArraySequence(mask);
             int len;
@@ -598,8 +598,7 @@ public final class ObfuscatorUtils {
         }
         Objects.requireNonNull(destination);
         if (count > 0) {
-            if (destination instanceof Writer) {
-                Writer writer = (Writer) destination;
+            if (destination instanceof Writer writer) {
                 char[] array = new char[Math.min(count, 1024)];
                 Arrays.fill(array, c);
                 int remaining = count;
@@ -623,12 +622,12 @@ public final class ObfuscatorUtils {
      * @throws IOException If an I/O error occurs.
      */
     public static void append(char[] array, Appendable destination) throws IOException {
-        if (destination instanceof Writer) {
-            ((Writer) destination).write(array);
-        } else if (destination instanceof StringBuilder) {
-            ((StringBuilder) destination).append(array);
-        } else if (destination instanceof StringBuffer) {
-            ((StringBuffer) destination).append(array);
+        if (destination instanceof Writer writer) {
+            writer.write(array);
+        } else if (destination instanceof StringBuilder sb) {
+            sb.append(array);
+        } else if (destination instanceof StringBuffer sb) {
+            sb.append(array);
         } else {
             destination.append(wrapArray(array));
         }
@@ -650,12 +649,12 @@ public final class ObfuscatorUtils {
     public static void append(char[] array, int start, int end, Appendable destination) throws IOException {
         checkStartAndEnd(array, start, end);
         if (start < end) {
-            if (destination instanceof Writer) {
-                ((Writer) destination).write(array, start, end - start);
-            } else if (destination instanceof StringBuilder) {
-                ((StringBuilder) destination).append(array, start, end - start);
-            } else if (destination instanceof StringBuffer) {
-                ((StringBuffer) destination).append(array, start, end - start);
+            if (destination instanceof Writer writer) {
+                writer.write(array, start, end - start);
+            } else if (destination instanceof StringBuilder sb) {
+                sb.append(array, start, end - start);
+            } else if (destination instanceof StringBuffer sb) {
+                sb.append(array, start, end - start);
             } else {
                 destination.append(wrapArray(array), start, end);
             }
@@ -691,8 +690,8 @@ public final class ObfuscatorUtils {
     public static void append(String str, int start, int end, Appendable destination) throws IOException {
         checkStartAndEnd(str, start, end);
         if (start < end) {
-            if (destination instanceof Writer) {
-                ((Writer) destination).write(str, start, end - start);
+            if (destination instanceof Writer writer) {
+                writer.write(str, start, end - start);
             } else {
                 destination.append(str, start, end);
             }

@@ -181,8 +181,8 @@ final class ObfuscatingProperties extends Properties {
 
     private Object unwrap(Object obj) {
         Object result = obj;
-        while (result instanceof ObfuscatingProperties) {
-            result = ((ObfuscatingProperties) result).properties;
+        while (result instanceof ObfuscatingProperties obfuscatingProperties) {
+            result = obfuscatingProperties.properties;
         }
         return result;
     }

@@ -42,10 +42,10 @@ final class AppendableWriter extends Writer {
     public void write(char[] cbuf, int off, int len) throws IOException {
         checkOffsetAndLength(cbuf, off, len);
         if (len > 0) {
-            if (appendable instanceof StringBuilder) {
-                ((StringBuilder) appendable).append(cbuf, off, len);
-            } else if (appendable instanceof StringBuffer) {
-                ((StringBuffer) appendable).append(cbuf, off, len);
+            if (appendable instanceof StringBuilder sb) {
+                sb.append(cbuf, off, len);
+            } else if (appendable instanceof StringBuffer sb) {
+                sb.append(cbuf, off, len);
             } else {
                 if (array == null) {
                     array = new CharArraySequence();
@@ -92,18 +92,18 @@ final class AppendableWriter extends Writer {
 
     @Override
     public void flush() throws IOException {
-        if (appendable instanceof Flushable) {
-            ((Flushable) appendable).flush();
+        if (appendable instanceof Flushable flushable) {
+            flushable.flush();
         }
     }
 
     @Override
     public void close() throws IOException {
-        if (appendable instanceof Closeable) {
-            ((Closeable) appendable).close();
-        } else if (appendable instanceof AutoCloseable) {
-            try {
-                ((AutoCloseable) appendable).close();
+        if (appendable instanceof Closeable closeable) {
+            closeable.close();
+        } else if (appendable instanceof AutoCloseable autoCloseable) {
+            try (autoCloseable) {
+                // no body needed
             } catch (IOException e) {
                 throw e;
             } catch (Exception e) {

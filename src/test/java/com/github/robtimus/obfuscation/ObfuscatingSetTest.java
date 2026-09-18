@@ -19,7 +19,6 @@ package com.github.robtimus.obfuscation;
 
 import static com.github.robtimus.obfuscation.Obfuscator.all;
 import static com.github.robtimus.obfuscation.Obfuscator.portion;
-import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -246,7 +245,7 @@ class ObfuscatingSetTest {
         List<String> list = obfuscating.stream()
                 .filter(Objects::nonNull)
                 .filter(e -> e.startsWith("f"))
-                .collect(toList());
+                .toList();
         assertEquals(Arrays.asList("foo"), list);
 
         verify(set).stream();
@@ -259,7 +258,7 @@ class ObfuscatingSetTest {
         List<String> list = obfuscating.parallelStream()
                 .filter(Objects::nonNull)
                 .filter(e -> e.startsWith("f"))
-                .collect(toList());
+                .toList();
         assertEquals(Arrays.asList("foo"), list);
 
         verify(set).parallelStream();

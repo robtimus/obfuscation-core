@@ -766,8 +766,8 @@ public abstract class Obfuscator {
 
         @Override
         public void obfuscateText(Reader input, Appendable destination) throws IOException {
-            if (destination instanceof Writer) {
-                obfuscateText(input, (Writer) destination);
+            if (destination instanceof Writer writer) {
+                obfuscateText(input, writer);
                 return;
             }
 
@@ -836,8 +836,8 @@ public abstract class Obfuscator {
                 @Override
                 public void flush() throws IOException {
                     super.flush();
-                    if (destination instanceof Flushable) {
-                        ((Flushable) destination).flush();
+                    if (destination instanceof Flushable flushable) {
+                        flushable.flush();
                     }
                 }
             };
@@ -919,8 +919,8 @@ public abstract class Obfuscator {
         @Override
         public void obfuscateText(CharSequence s, Appendable destination) throws IOException {
             Objects.requireNonNull(s);
-            if (s instanceof String && destination instanceof Writer) {
-                ((Writer) destination).write((String) s);
+            if (s instanceof String string && destination instanceof Writer writer) {
+                writer.write(string);
             } else {
                 destination.append(s);
             }
@@ -929,8 +929,8 @@ public abstract class Obfuscator {
         @Override
         public void obfuscateText(CharSequence s, int start, int end, Appendable destination) throws IOException {
             checkStartAndEnd(s, start, end);
-            if (s instanceof String && destination instanceof Writer) {
-                ((Writer) destination).write((String) s, start, end - start);
+            if (s instanceof String string && destination instanceof Writer writer) {
+                writer.write(string, start, end - start);
             } else {
                 destination.append(s, start, end);
             }
@@ -938,8 +938,8 @@ public abstract class Obfuscator {
 
         @Override
         public void obfuscateText(Reader input, Appendable destination) throws IOException {
-            if (destination instanceof Writer) {
-                obfuscateText(input, (Writer) destination);
+            if (destination instanceof Writer writer) {
+                obfuscateText(input, writer);
                 return;
             }
 
@@ -1013,8 +1013,8 @@ public abstract class Obfuscator {
                 @Override
                 public void flush() throws IOException {
                     super.flush();
-                    if (destination instanceof Flushable) {
-                        ((Flushable) destination).flush();
+                    if (destination instanceof Flushable flushable) {
+                        flushable.flush();
                     }
                 }
             };

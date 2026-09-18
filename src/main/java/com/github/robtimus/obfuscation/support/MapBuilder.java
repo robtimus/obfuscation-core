@@ -421,8 +421,7 @@ public final class MapBuilder<V> {
             if (this == obj) {
                 return true;
             }
-            if (obj instanceof StringMap<?>) {
-                StringMap<?> other = (StringMap<?>) obj;
+            if (obj instanceof StringMap<?> other) {
                 // If both maps are equal then the objects are equal.
                 // This matches mostly what Map.equals defines, apart from the case insensitive checks.
                 // However, that is the same issue that TreeMap has when using a Comparator that is not consistent with equals.

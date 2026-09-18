@@ -64,14 +64,14 @@ final class CharSequenceReader extends Reader {
             return -1;
         }
         int read = Math.min(len, end - index);
-        if (s instanceof String) {
-            ((String) s).getChars(index, index + read, cbuf, off);
+        if (s instanceof String string) {
+            string.getChars(index, index + read, cbuf, off);
             index += read;
-        } else if (s instanceof StringBuilder) {
-            ((StringBuilder) s).getChars(index, index + read, cbuf, off);
+        } else if (s instanceof StringBuilder sb) {
+            sb.getChars(index, index + read, cbuf, off);
             index += read;
-        } else if (s instanceof StringBuffer) {
-            ((StringBuffer) s).getChars(index, index + read, cbuf, off);
+        } else if (s instanceof StringBuffer sb) {
+            sb.getChars(index, index + read, cbuf, off);
             index += read;
         } else {
             for (int i = 0, j = off; i < len && index < end; i++, j++, index++) {
